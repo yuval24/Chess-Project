@@ -36,14 +36,9 @@ namespace Chess_FirstStep
         private int selectedCol = -1; // Initialize with an invalid value
         private int targetCol = -1;
         private int targetRow = -1;
-        private int countFor50Moves = 0;
-        private int piecesOnTheBoard = 32;
         private List<ChessPiece> whiteCapturedPieces = new List<ChessPiece>();
         private List<ChessPiece> blackCapturedPieces = new List<ChessPiece>();
-        private List<string> positionHistory = new List<string>();
-        private Dictionary<string, int> positionCount = new Dictionary<string, int>();
         private Android.Graphics.Color[,] originalSquareColors = new Android.Graphics.Color[8, 8];
-        private const int SomeThreshold = 1000;
         private bool whiteWon = false;
         private bool blackWon = false;
         Dialog d;
@@ -158,7 +153,7 @@ namespace Chess_FirstStep
 
                             // Store the last piece played
                             lastPiecePlayed = selectedPiece;
-                            countFor50Moves++;
+                            chessboard.countFor50Moves++;
                             
 
                             // Update the UI
@@ -181,7 +176,10 @@ namespace Chess_FirstStep
                             // Capture the opponent's piece and move to the target square
                             selectedImageView.SetImageDrawable(null);
                             chessboard.SwitchPlayerTurn();
-                            drawByRepitition();
+                            if (chessboard.drawByRepitition())
+                            {
+                                Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                            }
 
                            
                         }
@@ -234,8 +232,8 @@ namespace Chess_FirstStep
                                 
                                 // Store the last piece played
                                 lastPiecePlayed = selectedPiece;
-                                piecesOnTheBoard--;
-                                countFor50Moves = 0;
+                                chessboard.piecesOnTheBoard--;
+                                chessboard.countFor50Moves = 0;
 
                                 // Update the UI
                                 ImageView targetImageView = chessPieceViews[targetRow, targetCol];
@@ -253,16 +251,19 @@ namespace Chess_FirstStep
                                         targetImageView.SetImageResource(queenResource);
                                     }
                                 }
-                                if (piecesOnTheBoard < 5)
+                                if (chessboard.piecesOnTheBoard < 5)
                                 {
-                                    if(insufficientMatrielDraw()){
+                                    if(chessboard.insufficientMatrielDraw()){
                                         Toast.MakeText(this, "Draw", ToastLength.Short).Show();
                                     }
                                 }
 
                                 selectedImageView.SetImageDrawable(null);
                                 chessboard.SwitchPlayerTurn();
-                                drawByRepitition();
+                                if (chessboard.drawByRepitition())
+                                {
+                                    Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                                }
                             }
                         }
                     }
@@ -290,7 +291,7 @@ namespace Chess_FirstStep
                 }
             }
 
-            if (countFor50Moves == 50)
+            if (chessboard.achieved50Moves())
             {
                 Toast.MakeText(this, "Draw", ToastLength.Short).Show();
             }
@@ -425,10 +426,13 @@ namespace Chess_FirstStep
             }
             else
             {
-                drawByRepitition();
-                if (piecesOnTheBoard < 5)
+                if (chessboard.drawByRepitition())
                 {
-                    if (insufficientMatrielDraw())
+                    Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                }
+                if (chessboard.piecesOnTheBoard < 5)
+                {
+                    if (chessboard.insufficientMatrielDraw())
                     {
                         Toast.MakeText(this, "Draw", ToastLength.Short).Show();
                     }
@@ -436,7 +440,6 @@ namespace Chess_FirstStep
                 ImageView targetImageView = chessPieceViews[targetRow, targetCol];
                 targetImageView.SetImageDrawable(selectedImageView.Drawable);
                 selectedImageView.SetImageDrawable(null);
-                chessboard.SwitchPlayerTurn();
 
                 chessboard.SetChessPiece(chessboard.GetChessPieceAt(rookPosition.Item1, rookPosition.Item2), selectedRow, selectedCol + direction);
                 chessboard.SetChessPiece(null, rookPosition.Item1, rookPosition.Item2);
@@ -444,6 +447,9 @@ namespace Chess_FirstStep
                 ImageView rookImageView = chessPieceViews[rookPosition.Item1, rookPosition.Item2];
                 targetImageView.SetImageDrawable(rookImageView.Drawable);
                 rookImageView.SetImageDrawable(null);
+
+                chessboard.SwitchPlayerTurn();
+                
             }
         }
 
@@ -464,10 +470,13 @@ namespace Chess_FirstStep
             }
             else
             {
-                drawByRepitition();
-                if (piecesOnTheBoard < 5)
+                if (chessboard.drawByRepitition())
                 {
-                    if (insufficientMatrielDraw())
+                    Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                }
+                if (chessboard.piecesOnTheBoard < 5)
+                {
+                    if (chessboard.insufficientMatrielDraw())
                     {
                         Toast.MakeText(this, "Draw", ToastLength.Short).Show();
                     }
@@ -480,6 +489,7 @@ namespace Chess_FirstStep
                 targetImageView.SetImageDrawable(null);
 
                 chessboard.SwitchPlayerTurn();
+                chessboard.piecesOnTheBoard--;
             }
         }
 
@@ -499,151 +509,9 @@ namespace Chess_FirstStep
             return newChessBoard;
         }
 
-        public void drawByRepitition()
-        {
-            string currentPosition = EncodeBoardPosition(); // Implement this method
-
-            // Add the current position to the position history
-            positionHistory.Add(currentPosition);
-
-            // Check if the current position has occurred before
-            if (positionCount.ContainsKey(currentPosition))
-            {
-                positionCount[currentPosition]++;
-            }
-            else
-            {
-                positionCount[currentPosition] = 1;
-            }
-
-            // Check if the same position has occurred three times (draw by repetition)
-            if (positionCount[currentPosition] >= 3)
-            {
-                // Declare a draw due to repetition
-                Toast.MakeText(this, "Draw by repetition", ToastLength.Short).Show();
-            }
-
-            // Clear old positions from history if needed to prevent excessive memory usage
-            if (positionHistory.Count > SomeThreshold)
-            {
-                string removedPosition = positionHistory[0];
-                positionHistory.RemoveAt(0);
-
-                // Update the count of the removed position
-                if (positionCount.ContainsKey(removedPosition))
-                {
-                    int count = positionCount[removedPosition];
-                    if (count == 1)
-                    {
-                        positionCount.Remove(removedPosition);
-                    }
-                    else
-                    {
-                        positionCount[removedPosition] = count - 1;
-                    }
-                }
-            }
-        }
-        private char GetPieceChar(ChessPiece piece, bool isWhite)
-        {
-            char pieceChar = '?'; // Default if no mapping is defined
-
-            if (piece is Pawn)
-            {
-                pieceChar = isWhite ? 'P' : 'p';
-            }
-            else if (piece is Rook)
-            {
-                pieceChar = isWhite ? 'R' : 'r';
-            }
-            else if (piece is Knight)
-            {
-                pieceChar = isWhite ? 'N' : 'n';
-            }
-            else if (piece is Bishop)
-            {
-                pieceChar = isWhite ? 'B' : 'b';
-            }
-            else if (piece is Queen)
-            {
-                pieceChar = isWhite ? 'Q' : 'q';
-            }
-            else if (piece is King)
-            {
-                pieceChar = isWhite ? 'K' : 'k';
-            }
-
-            return pieceChar;
-        }
+        
        
-        // ... (your existing code)
 
-
-        private string EncodeBoardPosition()
-        {
-            StringBuilder encodedPosition = new StringBuilder();
-
-            // Loop through the entire board and encode each piece
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    ChessPiece piece = chessboard.GetChessPieceAt(row, col);
-
-                    if (piece != null)
-                    {
-                        // Append a unique representation of each piece
-                        char pieceChar = GetPieceChar(piece, piece.IsWhite);
-                        encodedPosition.Append(pieceChar);
-                    }
-                    else
-                    {
-                        // Use a character to represent an empty square
-                        encodedPosition.Append('-');
-                    }
-                }
-            }
-
-            // Append additional information if needed (e.g., player turn, castling rights, etc.)
-
-            return encodedPosition.ToString();
-        }
-
-        public bool insufficientMatrielDraw()
-        {
-            int usefullBlackPieces = 0;
-            int usefullWhitePieces = 0;
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    ChessPiece piece = chessboard.GetChessPieceAt(row, col);
-
-                    if (piece != null && !(piece is King))
-                    {
-                        if(piece is Bishop || piece is Knight)
-                        {
-                            if (piece.IsWhite)
-                            {
-                                usefullWhitePieces++;
-                            }
-                            else
-                            {
-                                usefullBlackPieces++;
-                            }
-                        } else
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-            if(usefullBlackPieces > 1 || usefullWhitePieces > 1)
-            {
-                return false;
-            }
-            return true;
-        }
         public void createEndGameDialog()
         {
             d = new Dialog(this);

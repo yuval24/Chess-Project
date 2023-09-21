@@ -20,14 +20,23 @@ namespace Chess_FirstStep
     {
         public bool isWhiteTurn { get; set; }
         private ChessPiece[,] chessPieces;
-        private ImageView[,] chessPieceViews;
+        public int piecesOnTheBoard { get; set; }
+        public int countFor50Moves { get; set; }
+        private List<string> positionHistory;
+        private Dictionary<string, int> positionCount;
+        private const int SomeThreshold = 1000;
 
         public Chessboard()
         {
             // Initialize the arrays
             isWhiteTurn = true;
             chessPieces = new ChessPiece[8, 8];
-            
+            piecesOnTheBoard = 32;
+            countFor50Moves = 0;
+            positionHistory = new List<string>();
+            positionCount = new Dictionary<string, int>();
+
+
         }
 
         public Chessboard(Chessboard other)
@@ -35,6 +44,8 @@ namespace Chess_FirstStep
             // Initialize the arrays
             isWhiteTurn = other.isWhiteTurn;
             chessPieces = new ChessPiece[8, 8];
+            piecesOnTheBoard = other.piecesOnTheBoard;
+            countFor50Moves = other.countFor50Moves;
             for (int row = 0; row < 8; row++)
             {
                 for (int col = 0; col < 8; col++)
@@ -120,71 +131,29 @@ namespace Chess_FirstStep
 
                 if (piece.Name == "Pawn")
                 {
-                    if (piece.IsWhite)
-                    {
-
-                        chessPieces[row, col] = new Pawn((Pawn)piece, col, row);
-                    }
-                    else
-                    {
-                        chessPieces[row, col] = new Pawn((Pawn)piece, col, row);
-                    }
+                    chessPieces[row, col] = new Pawn((Pawn)piece, col, row);
 
                 }
                 else if (piece.Name == "King")
                 {
-                    if (piece.IsWhite)
-                    {
-                        chessPieces[row, col] = new King((King)piece, col, row);
-                    }
-                    else
-                    {
-                        chessPieces[row, col] = new King((King)piece, col, row);
-                    }
+                    chessPieces[row, col] = new King((King)piece, col, row);
                 }
                 else if (piece.Name == "Queen")
                 {
-                    if (piece.IsWhite)
-                    {
-                        chessPieces[row, col] = new Queen((Queen)piece, col, row);
-                    }
-                    else
-                    {
-                        chessPieces[row, col] = new Queen((Queen)piece, col, row);
-                    }
+                    chessPieces[row, col] = new Queen((Queen)piece, col, row);
                 }
                 else if (piece.Name == "Rook")
                 {
-                    if (piece.IsWhite)
-                    {
-                        chessPieces[row, col] = new Rook((Rook)piece, col, row);
-                    }
-                    else
-                    {
-                        chessPieces[row, col] = new Rook((Rook)piece, col, row);
-                    }
+                    chessPieces[row, col] = new Rook((Rook)piece, col, row);
                 }
                 else if (piece.Name == "Knight")
                 {
-                    if (piece.IsWhite)
-                    {
-                        chessPieces[row, col] = new Knight((Knight)piece, col, row);
-                    }
-                    else
-                    {
-                        chessPieces[row, col] = new Knight((Knight)piece, col, row);
-                    }
+                    chessPieces[row, col] = new Knight((Knight)piece, col, row);
                 }
                 else if (piece.Name == "Bishop")
                 {
-                    if (piece.IsWhite)
-                    {
-                        chessPieces[row, col] = new Bishop((Bishop)piece, col, row);
-                    }
-                    else
-                    {
-                        chessPieces[row, col] = new Bishop((Bishop)piece, col, row);
-                    }
+                    chessPieces[row, col] = new Bishop((Bishop)piece, col, row);
+                    
                 }
             } else
             {
@@ -241,46 +210,160 @@ namespace Chess_FirstStep
             return false;
         }
 
-        public bool IsInCheckCertianLocation(int targtedRow, int targtedCol)
+        public bool insufficientMatrielDraw()
         {
-            // Find the position of the player's king
-            Tuple<int, int> kingPosition = Tuple.Create(targtedRow, targtedCol); 
-            
-
-
-
-            // Opponent's color (the color that can put the king in check)
-            bool opponentColor = !isWhiteTurn;
-
-            // Iterate through the opponent's pieces
+            int usefullBlackPieces = 0;
+            int usefullWhitePieces = 0;
             for (int row = 0; row < 8; row++)
             {
                 for (int col = 0; col < 8; col++)
                 {
-                    ChessPiece piece = chessPieces[row, col];
+                    ChessPiece piece = chessPieces[row,col];
 
-                    // Check if the piece belongs to the opponent
-                    if (piece != null && piece.IsWhite == opponentColor)
+                    if (piece != null && !(piece is King))
                     {
-                        // Check if the opponent's piece can legally move to capture the king
-                        if (piece.Move(kingPosition.Item2, kingPosition.Item1, true, this))
+                        if (piece is Bishop || piece is Knight)
                         {
-                            // The player's king is in check
-                            return true;
+                            if (piece.IsWhite)
+                            {
+                                usefullWhitePieces++;
+                            }
+                            else
+                            {
+                                usefullBlackPieces++;
+                            }
+                        }
+                        else
+                        {
+                            return false;
                         }
                     }
                 }
             }
+            if (usefullBlackPieces > 1 || usefullWhitePieces > 1)
+            {
+                return false;
+            }
+            return true;
+        }
 
-            // The player's king is not in check
+        public bool achieved50Moves()
+        {
+            if(countFor50Moves == 50)
+            {
+                return true;
+            }
             return false;
         }
 
-        
+        public bool drawByRepitition()
+        {
+            string currentPosition = EncodeBoardPosition(); // Implement this method
 
-       
+            // Add the current position to the position history
+            positionHistory.Add(currentPosition);
 
+            // Check if the current position has occurred before
+            if (positionCount.ContainsKey(currentPosition))
+            {
+                positionCount[currentPosition]++;
+            }
+            else
+            {
+                positionCount[currentPosition] = 1;
+            }
 
+            // Check if the same position has occurred three times (draw by repetition)
+            if (positionCount[currentPosition] >= 3)
+            {
+                // Declare a draw due to repetition
+                return true;
+            }
+
+            // Clear old positions from history if needed to prevent excessive memory usage
+            if (positionHistory.Count > SomeThreshold)
+            {
+                string removedPosition = positionHistory[0];
+                positionHistory.RemoveAt(0);
+
+                // Update the count of the removed position
+                if (positionCount.ContainsKey(removedPosition))
+                {
+                    int count = positionCount[removedPosition];
+                    if (count == 1)
+                    {
+                        positionCount.Remove(removedPosition);
+                    }
+                    else
+                    {
+                        positionCount[removedPosition] = count - 1;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private string EncodeBoardPosition()
+        {
+            StringBuilder encodedPosition = new StringBuilder();
+
+            // Loop through the entire board and encode each piece
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    ChessPiece piece = chessPieces[row,col];
+
+                    if (piece != null)
+                    {
+                        // Append a unique representation of each piece
+                        char pieceChar = GetPieceChar(piece, piece.IsWhite);
+                        encodedPosition.Append(pieceChar);
+                    }
+                    else
+                    {
+                        // Use a character to represent an empty square
+                        encodedPosition.Append('-');
+                    }
+                }
+            }
+
+            // Append additional information if needed (e.g., player turn, castling rights, etc.)
+
+            return encodedPosition.ToString();
+        }
+
+        private char GetPieceChar(ChessPiece piece, bool isWhite)
+        {
+            char pieceChar = '?'; // Default if no mapping is defined
+
+            if (piece is Pawn)
+            {
+                pieceChar = isWhite ? 'P' : 'p';
+            }
+            else if (piece is Rook)
+            {
+                pieceChar = isWhite ? 'R' : 'r';
+            }
+            else if (piece is Knight)
+            {
+                pieceChar = isWhite ? 'N' : 'n';
+            }
+            else if (piece is Bishop)
+            {
+                pieceChar = isWhite ? 'B' : 'b';
+            }
+            else if (piece is Queen)
+            {
+                pieceChar = isWhite ? 'Q' : 'q';
+            }
+            else if (piece is King)
+            {
+                pieceChar = isWhite ? 'K' : 'k';
+            }
+
+            return pieceChar;
+        }
     }
 
    
