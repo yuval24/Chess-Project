@@ -1,25 +1,11 @@
-﻿using System.ComponentModel;
-using Android.App;
-using Android.Graphics;
+﻿using Android.App;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
-using Android.Content;
-using Android.Graphics;
-using static Android.InputMethodServices.Keyboard;
 using System;
-using Android.Util;
-using Java.Security.Cert;
-using System.Runtime.Remoting.Contexts;
 using Android.Graphics.Drawables;
-using Android.Hardware;
-using Java.Nio.Channels;
 using System.Collections.Generic;
-using AndroidX.RecyclerView.Widget;
-using System.Text;
-using Android.Media;
+
 
 namespace Chess_FirstStep
 {
@@ -178,7 +164,7 @@ namespace Chess_FirstStep
                             chessboard.SwitchPlayerTurn();
                             if (chessboard.drawByRepitition())
                             {
-                                Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                                createEndGameDialog();
                             }
 
                            
@@ -254,7 +240,7 @@ namespace Chess_FirstStep
                                 if (chessboard.piecesOnTheBoard < 5)
                                 {
                                     if(chessboard.insufficientMatrielDraw()){
-                                        Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                                        createEndGameDialog();
                                     }
                                 }
 
@@ -262,7 +248,7 @@ namespace Chess_FirstStep
                                 chessboard.SwitchPlayerTurn();
                                 if (chessboard.drawByRepitition())
                                 {
-                                    Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                                    createEndGameDialog();
                                 }
                             }
                         }
@@ -278,22 +264,19 @@ namespace Chess_FirstStep
                     Toast.MakeText(this, "Game Over", ToastLength.Short).Show();
                     if (chessboard.isWhiteTurn)
                     {
-                        whiteWon = true;
+                        blackWon = true;
                     } else
                     {
-                        blackWon= true;
+                        whiteWon= true;
                     }
-                    createEndGameDialog();
+                    
                 }
-                else
-                {
-                    Toast.MakeText(this, "Draw", ToastLength.Short).Show();
-                }
+                createEndGameDialog();
             }
 
             if (chessboard.achieved50Moves())
             {
-                Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                createEndGameDialog();
             }
            
             ResetSelection();
@@ -366,13 +349,13 @@ namespace Chess_FirstStep
             {
                 if (chessboard.drawByRepitition())
                 {
-                    Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                    createEndGameDialog();
                 }
                 if (chessboard.piecesOnTheBoard < 5)
                 {
                     if (chessboard.insufficientMatrielDraw())
                     {
-                        Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                        createEndGameDialog();
                     }
                 }
                 ImageView targetImageView = chessPieceViews[targetRow, targetCol];
@@ -410,13 +393,13 @@ namespace Chess_FirstStep
             {
                 if (chessboard.drawByRepitition())
                 {
-                    Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                    createEndGameDialog();
                 }
                 if (chessboard.piecesOnTheBoard < 5)
                 {
                     if (chessboard.insufficientMatrielDraw())
                     {
-                        Toast.MakeText(this, "Draw", ToastLength.Short).Show();
+                        createEndGameDialog();
                     }
                 }
                 ImageView targetImageView = chessPieceViews[targetRow, targetCol];
@@ -431,24 +414,6 @@ namespace Chess_FirstStep
             }
         }
 
-        // Clone the chessboard for checking possible moves
-        public Chessboard CloneChessBoard(Chessboard other)
-        {
-            Chessboard newChessBoard = new Chessboard();
-            newChessBoard.isWhiteTurn = other.isWhiteTurn;
-
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    newChessBoard.SetChessPiece(other.GetChessPieceAt(row, col), row, col);
-                }
-            }
-            return newChessBoard;
-        }
-
-        
-       
 
         public void createEndGameDialog()
         {
