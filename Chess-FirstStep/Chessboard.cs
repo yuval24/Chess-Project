@@ -39,22 +39,7 @@ namespace Chess_FirstStep
 
         }
 
-        public Chessboard(Chessboard other)
-        {
-            // Initialize the arrays
-            isWhiteTurn = other.isWhiteTurn;
-            chessPieces = new ChessPiece[8, 8];
-            piecesOnTheBoard = other.piecesOnTheBoard;
-            countFor50Moves = other.countFor50Moves;
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    
-                    chessPieces[row,col] = other.GetChessPieceAt(row,col);
-                }
-            }
-        }
+      
         public void InitializeChessboard(Context context)
         {
             // Populate the chessboard with pieces and ImageViews
@@ -363,6 +348,80 @@ namespace Chess_FirstStep
             }
 
             return pieceChar;
+        }
+
+        // Check if the current player is in checkmate
+        public bool IsCheckmate()
+        {
+            // Iterate through all the player's pieces
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    ChessPiece piece = chessPieces[row, col];
+
+                    // Check if the piece belongs to the player
+                    if (piece != null && piece.IsWhite == isWhiteTurn)
+                    {
+                        // Try all possible moves for the piece
+                        for (int newRow = 0; newRow < 8; newRow++)
+                        {
+                            for (int newCol = 0; newCol < 8; newCol++)
+                            {
+                                if (chessPieces[newRow, newCol] == null)
+                                {
+                                    ChessPiece currPiece = chessPieces[row, col];
+
+                                    if (currPiece.Move(newCol, newRow, false, this))
+                                    {
+                                        SetChessPiece(currPiece, newRow, newCol);
+                                        SetChessPiece(null, row, col);
+
+                                        // Check if the king is still in check after the move
+                                        if (!IsInCheck())
+                                        {
+                                            // The player can make a move that gets them out of check
+                                            SetChessPiece(currPiece, row, col);
+                                            SetChessPiece(null, newRow, newCol);
+                                            return false;
+                                        }
+                                        SetChessPiece(currPiece, row, col);
+                                        SetChessPiece(null, newRow, newCol);
+                                    }
+                                }
+                                else
+                                {
+                                    if (piece.IsWhite != chessPieces[newRow, newCol].IsWhite)
+                                    {
+                                        ChessPiece currPiece = chessPieces[row, col];
+                                        ChessPiece otherPiece = chessPieces[newRow, newCol];
+
+                                        if (currPiece.Move(newCol, newRow, true, this))
+                                        {
+                                            SetChessPiece(currPiece, newRow, newCol);
+                                            SetChessPiece(null, row, col);
+
+                                            // Check if the king is still in check after the move
+                                            if (!IsInCheck())
+                                            {
+                                                // The player can make a move that gets them out of check
+                                                SetChessPiece(currPiece, row, col);
+                                                SetChessPiece(otherPiece, newRow, newCol);
+                                                return false;
+                                            }
+                                            SetChessPiece(currPiece, row, col);
+                                            SetChessPiece(otherPiece, newRow, newCol);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If no legal moves can get the player out of check, it's checkmate
+            return true;
         }
     }
 

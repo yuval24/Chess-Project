@@ -271,7 +271,7 @@ namespace Chess_FirstStep
             }
 
             // Check for game over conditions
-            if (IsCheckmate())
+            if (chessboard.IsCheckmate())
             {
                 if (chessboard.IsInCheck())
                 {
@@ -313,72 +313,8 @@ namespace Chess_FirstStep
             targetRow = -1;
             targetCol = -1;
         }
-        // Check if the current player is in checkmate
-        public bool IsCheckmate()
-        {
-            // Iterate through all the player's pieces
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    ChessPiece piece = chessboard.GetChessPieceAt(row, col);
-
-                    // Check if the piece belongs to the player
-                    if (piece != null && piece.IsWhite == chessboard.isWhiteTurn)
-                    {
-                        // Try all possible moves for the piece
-                        for (int newRow = 0; newRow < 8; newRow++)
-                        {
-                            for (int newCol = 0; newCol < 8; newCol++)
-                            {
-                                if (chessboard.GetChessPieceAt(newRow, newCol) == null)
-                                {
-                                    Chessboard newChessBoard = CloneChessBoard(chessboard);
-                                    ChessPiece currPiece = newChessBoard.GetChessPieceAt(row, col);
-
-                                    if (currPiece.Move(newCol, newRow, false, newChessBoard))
-                                    {
-                                        newChessBoard.SetChessPiece(currPiece, newRow, newCol);
-                                        newChessBoard.SetChessPiece(null, row, col);
-
-                                        // Check if the king is still in check after the move
-                                        if (!newChessBoard.IsInCheck())
-                                        {
-                                            // The player can make a move that gets them out of check
-                                            return false;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (piece.IsWhite != chessboard.GetChessPieceAt(newRow, newCol).IsWhite)
-                                    {
-                                        Chessboard newChessBoard = CloneChessBoard(chessboard);
-                                        ChessPiece currPiece = newChessBoard.GetChessPieceAt(row, col);
-
-                                        if (currPiece.Move(newCol, newRow, true, chessboard))
-                                        {
-                                            newChessBoard.SetChessPiece(currPiece, newRow, newCol);
-                                            newChessBoard.SetChessPiece(null, row, col);
-
-                                            // Check if the king is still in check after the move
-                                            if (!newChessBoard.IsInCheck())
-                                            {
-                                                // The player can make a move that gets them out of check
-                                                return false;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // If no legal moves can get the player out of check, it's checkmate
-            return true;
-        }
+        
+      
 
         // Move the king and rook for castling
         private void MoveKingAndRookForCastle()
@@ -411,15 +347,17 @@ namespace Chess_FirstStep
             int direction = rookPosition.Item2 < selectedCol ? -1 : 1;
 
             // Move the rook to the square the king crossed
-            Chessboard newChessboard = new Chessboard(chessboard);
-            newChessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol + direction);
-            newChessboard.SetChessPiece(null, selectedRow, selectedCol);
+            
+            chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol + direction);
+            chessboard.SetChessPiece(null, selectedRow, selectedCol);
 
             chessboard.SetChessPiece(selectedPiece, targetRow, targetCol);
             chessboard.SetChessPiece(null, selectedRow, selectedCol);
 
-            if (chessboard.IsInCheck() || newChessboard.IsInCheck())
+            if (chessboard.IsInCheck())
             {
+                chessboard.SetChessPiece(null, selectedRow, selectedCol + direction);
+                chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol);
                 chessboard.SetChessPiece(null, targetRow, targetCol);
                 chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol);
                 Toast.MakeText(this, "Illegal Move", ToastLength.Short).Show();
