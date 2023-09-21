@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@android:color/holo_blue_light">
+    
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/whiteCapturedPiecesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="vertical"
+        android:visibility="gone" />
+    
+        
+<TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*"
+        android:id="@+id/chessboardLayout">
+
+        <!-- Rows -->
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <!-- Columns -->
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF" 
+                android:src="@drawable/chess_rdt60"
+                android:id="@+id/a8"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/b8"
+                android:src="@drawable/chess_ndt60"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:src="@drawable/chess_bdt60"
+                android:id="@+id/c8"/>
+             <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:src="@drawable/chess_qdt60"
+                android:id="@+id/d8"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF" 
+                android:src="@drawable/chess_kdt60"
+                android:id="@+id/e8"/>
+             <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9" 
+                android:src="@drawable/chess_bdt60"
+                android:id="@+id/f8"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF" 
+                android:src="@drawable/chess_ndt60"
+                android:id="@+id/g8"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9" 
+                android:src="@drawable/chess_rdt60"
+                android:id="@+id/h8"/>
+
+
+            <!-- Repeat this pattern for 8 columns -->
+            
+        </TableRow>
+       
+        <TableRow
+            android:layout_width="match_parent"
+    
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <!-- Columns with reordered colors -->
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:src="@drawable/chess_pdt60"
+                android:id="@+id/a7"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:src="@drawable/chess_pdt60"
+                android:id="@+id/b7"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:src="@drawable/chess_pdt60"
+                android:id="@+id/c7"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:src="@drawable/chess_pdt60"
+                android:id="@+id/d7"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9" 
+                android:src="@drawable/chess_pdt60"
+                android:id="@+id/e7"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:src="@drawable/chess_pdt60"
+                android:id="@+id/f7"/> <!-- White background -->
+
+    
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#A9A9A9"
+            android:src="@drawable/chess_pdt60"
+                android:id="@+id/g7"/>
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF" 
+                android:src="@drawable/chess_pdt60"
+                android:id="@+id/h7"/> <!-- White background -->
+
+    <!-- Repeat this pattern for 8 columns with the desired order -->
+</TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <!-- Columns -->
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/a6"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/b6"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/c6"/>
+             <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/d6"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/e6"/>
+             <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/f6"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/g6"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/h6"/>
+
+
+            <!-- Repeat this pattern for 8 columns -->
+            
+        </TableRow>
+            <TableRow
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <!-- Columns with reordered colors -->
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:id="@+id/a5"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/b5"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:id="@+id/c5"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/d5"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:id="@+id/e5"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/f5"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:id="@+id/g5"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/h5"/> <!-- White background -->
+
+    <!-- Repeat this pattern for 8 columns with the desired order -->
+</TableRow>
+         <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <!-- Columns -->
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/a4"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/b4"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/c4"/>
+             <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/d4"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/e4"/>
+             <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/f4"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/g4"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/h4"/>
+
+
+            <!-- Repeat this pattern for 8 columns -->
+            
+        </TableRow>
+
+              <TableRow
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <!-- Columns with reordered colors -->
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:id="@+id/a3"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/b3"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:id="@+id/c3"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/d3"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:id="@+id/e3"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/f3"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9" 
+                android:id="@+id/g3"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF" 
+                android:id="@+id/h3"/> <!-- White background -->
+
+    <!-- Repeat this pattern for 8 columns with the desired order -->
+</TableRow>
+
+        <!-- Repeat the row pattern for 8 rows -->
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <!-- Columns -->
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/a2"
+                android:src="@drawable/chess_plt60"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9" 
+                android:id="@+id/b2"
+                android:src="@drawable/chess_plt60"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF" 
+                android:id="@+id/c2"
+                android:src="@drawable/chess_plt60"/>
+             <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9"
+                android:id="@+id/d2"
+                android:src="@drawable/chess_plt60"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF" 
+                android:id="@+id/e2"
+                android:src="@drawable/chess_plt60"/>
+             <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9" 
+                android:id="@+id/f2"
+                android:src="@drawable/chess_plt60"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:id="@+id/g2"
+                android:src="@drawable/chess_plt60"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="#A9A9A9" 
+                android:id="@+id/h2"
+                android:src="@drawable/chess_plt60"/>
+
+
+            <!-- Repeat this pattern for 8 columns -->
+            
+        </TableRow>
+         <TableRow
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <!-- Columns with reordered colors -->
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9" 
+                android:id="@+id/a1"
+                android:src="@drawable/chess_rlt60"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/b1"
+                android:src="@drawable/chess_nlt60"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9" 
+                android:id="@+id/c1"
+                android:src="@drawable/chess_blt60"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/d1"
+                android:src="@drawable/chess_qlt60"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9" 
+                android:id="@+id/e1"
+                android:src="@drawable/chess_klt60"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+        android:id="@+id/f1"
+                android:src="@drawable/chess_blt60"/> <!-- White background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#A9A9A9"
+                android:id="@+id/g1"
+                android:src="@drawable/chess_nlt60"/> <!-- Black background -->
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+                android:id="@+id/h1"
+                android:src="@drawable/chess_rlt60"/> <!-- White background -->
+
+    <!-- Repeat this pattern for 8 columns with the desired order -->
+</TableRow>
+    </TableLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/blackCapturedPiecesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="vertical"
+        android:visibility="gone" />
+</LinearLayout>
+
+    
+    
+
+
+
+

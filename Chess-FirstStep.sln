@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess-FirstStep", "Chess-FirstStep\Chess-FirstStep.csproj", "{440FF27C-7379-46B1-B77F-121D7BB3E146}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{440FF27C-7379-46B1-B77F-121D7BB3E146}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{440FF27C-7379-46B1-B77F-121D7BB3E146}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{440FF27C-7379-46B1-B77F-121D7BB3E146}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{440FF27C-7379-46B1-B77F-121D7BB3E146}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{440FF27C-7379-46B1-B77F-121D7BB3E146}.Release|Any CPU.Build.0 = Release|Any CPU
+		{440FF27C-7379-46B1-B77F-121D7BB3E146}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EE93C0A2-FD14-4200-AB08-C3D7F5705E6B}
+	EndGlobalSection
+EndGlobal
