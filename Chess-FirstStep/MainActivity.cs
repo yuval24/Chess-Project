@@ -14,14 +14,24 @@ namespace Chess_FirstStep
     {
 
         Button btnTwoPlayerGame;
+        Button btnAiGame;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
             btnTwoPlayerGame = FindViewById<Button>(Resource.Id.btnTwoPlayerGame);
+            btnAiGame = FindViewById<Button>(Resource.Id.btnAiGame);
 
             btnTwoPlayerGame.Click += BtnTwoPlayerGame_Click;
+            btnAiGame.Click += BtnAiGame_Click;
+        }
+
+        private void BtnAiGame_Click(object sender, EventArgs e)
+        {
+            Intent intent = new Intent(this, typeof(AIGameActivity));
+
+            StartActivity(intent);
         }
 
         private void BtnTwoPlayerGame_Click(object sender, EventArgs e)
