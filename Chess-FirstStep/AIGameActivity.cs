@@ -29,6 +29,8 @@ namespace Chess_FirstStep
         private bool blackWon = false;
         Dialog d;
         TextView tvWinner;
+        private bool humanMadeAMove = false;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -251,6 +253,8 @@ namespace Chess_FirstStep
                     }
 
                     chessboard.SwitchPlayerTurn();
+
+                    humanMadeAMove = true;
                 }
                 else if (chessMove.IsIllegalMove)
                 {
@@ -274,6 +278,74 @@ namespace Chess_FirstStep
 
                     }
                     createEndGameDialog();
+                }
+                else if (humanMadeAMove) 
+                {
+                    ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 2);
+                    ChessMove AImove = chessAI.GetBestMove(chessboard, 3);
+                    if (AImove != null)
+                    {
+                        ResetSelection();
+                        selectedImageView = chessPieceViews[AImove.StartRow, AImove.StartCol];
+                        ImageView targetImageView = chessPieceViews[AImove.EndRow, AImove.EndCol];
+                        selectedRow = AImove.StartRow;
+                        selectedCol = AImove.StartCol;
+                        targetRow = AImove.EndRow;
+                        targetCol = AImove.EndCol;
+                        chessboard.ApplyMove(AImove);
+                        if (AImove.IsEnPassantCapture)
+                        {
+                            
+
+                            targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                            selectedImageView.SetImageDrawable(null);
+
+                            targetImageView = chessPieceViews[selectedRow, targetCol];
+                            targetImageView.SetImageDrawable(null);
+                        }
+                        else if (AImove.IsKingsideCastle || AImove.IsQueensideCastle)
+                        {
+                            MoveKingAndRookForCastle();
+                        }
+                        else if (chessMove.IsCapture)
+                        {
+                            // Update the UI
+
+                            targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                            selectedImageView.SetImageDrawable(null);
+
+                            if (chessboard.piecesOnTheBoard < 5)
+                            {
+                                if (chessboard.insufficientMatrielDraw())
+                                {
+                                    createEndGameDialog();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Update the UI
+                            targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                            selectedImageView.SetImageDrawable(null);
+
+
+                            if (chessboard.achieved50Moves())
+                            {
+                                createEndGameDialog();
+                            }
+                        }
+
+
+                        if (chessboard.drawByRepitition())
+                        {
+                            createEndGameDialog();
+                        }
+
+                        chessboard.SwitchPlayerTurn();
+
+                        humanMadeAMove = false;
+                    }
+                    
                 }
 
             }
