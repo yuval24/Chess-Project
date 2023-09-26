@@ -202,6 +202,7 @@ namespace Chess_FirstStep
                 ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
                 if (chessboard.IsMoveValid(chessMove))
                 {
+                    chessboard.ApplyMove(chessMove);
                     if (chessMove.IsEnPassantCapture)
                     {
                         ImageView targetImageView = chessPieceViews[targetRow, targetCol];
@@ -243,24 +244,6 @@ namespace Chess_FirstStep
                             createEndGameDialog();
                         }
                     }
-                    // Check for game over conditions
-                    if (chessboard.IsCheckmate())
-                    {
-                        if (chessboard.IsInCheck())
-                        {
-                            Toast.MakeText(this, "Game Over", ToastLength.Short).Show();
-                            if (chessboard.isWhiteTurn)
-                            {
-                                blackWon = true;
-                            }
-                            else
-                            {
-                                whiteWon = true;
-                            }
-
-                        }
-                        createEndGameDialog();
-                    }
 
                     if (chessboard.drawByRepitition())
                     {
@@ -268,11 +251,33 @@ namespace Chess_FirstStep
                     }
 
 
+
                     chessboard.SwitchPlayerTurn();
                 } else if (chessMove.IsIllegalMove)
                 {
                     Toast.MakeText(this, "You will lose your king moron", ToastLength.Short).Show();
                 }
+
+                // Check for game over conditions
+                if (chessboard.IsCheckmate())
+                {
+                    if (chessboard.IsInCheck())
+                    {
+                        Toast.MakeText(this, "Game Over", ToastLength.Short).Show();
+                        if (chessboard.isWhiteTurn)
+                        {
+                            blackWon = true;
+                        }
+                        else
+                        {
+                            whiteWon = true;
+                        }
+
+                    }
+                    createEndGameDialog();
+                }
+
+               
             }
             
             

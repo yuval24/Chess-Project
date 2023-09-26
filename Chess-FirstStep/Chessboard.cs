@@ -40,11 +40,34 @@ namespace Chess_FirstStep
 
         }
 
-      
+        public Chessboard(Chessboard other)
+        {
+            // Copy the values of all the fields from the other Chessboard object
+            this.isWhiteTurn = other.isWhiteTurn;
+            this.chessPieces = new ChessPiece[8, 8];
+
+            // Copy the contents of the chessPieces array
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    this.chessPieces[row, col] = other.chessPieces[row, col];
+                }
+            }
+
+            this.piecesOnTheBoard = other.piecesOnTheBoard;
+            this.countFor50Moves = other.countFor50Moves;
+            this.positionHistory = new List<string>(other.positionHistory);
+
+            // Make a deep copy of the positionCount dictionary
+            this.positionCount = new Dictionary<string, int>(other.positionCount);
+        }
+
+
         public void InitializeChessboard(Context context)
         {
             // Populate the chessboard with pieces and ImageViews
-            
+
 
             for (int row = 0; row < 8; row++)
             {
@@ -53,7 +76,7 @@ namespace Chess_FirstStep
                     // Create and set ChessPiece objects
                     // Populate the chessboard with specific chess pieces
                     // White pieces
-                    
+
                     // White pieces
                     chessPieces[0, 0] = new Rook(0, 0, true);
                     chessPieces[0, 1] = new Knight(0, 1, true);
@@ -92,7 +115,7 @@ namespace Chess_FirstStep
                     }
 
                     // Create and set ImageView elements
-                    
+
                 }
             }
         }
@@ -111,7 +134,7 @@ namespace Chess_FirstStep
         public void SetChessPiece(ChessPiece piece, int row, int col)
         {
 
-            
+
             if (piece != null)
             {
 
@@ -139,7 +162,7 @@ namespace Chess_FirstStep
                 else if (piece.Name == "Bishop")
                 {
                     chessPieces[row, col] = new Bishop((Bishop)piece, col, row);
-                    
+
                 }
             } else
             {
@@ -150,7 +173,7 @@ namespace Chess_FirstStep
 
         public ChessPiece SetNewChessPiece(ChessPiece piece, int row, int col)
         {
-            
+
 
             if (piece != null)
             {
@@ -178,7 +201,7 @@ namespace Chess_FirstStep
                 }
                 else if (piece.Name == "Bishop")
                 {
-                    return  new Bishop((Bishop)piece, col, row);
+                    return new Bishop((Bishop)piece, col, row);
 
                 }
             }
@@ -242,7 +265,7 @@ namespace Chess_FirstStep
             {
                 for (int col = 0; col < 8; col++)
                 {
-                    ChessPiece piece = chessPieces[row,col];
+                    ChessPiece piece = chessPieces[row, col];
 
                     if (piece != null && !(piece is King))
                     {
@@ -273,7 +296,7 @@ namespace Chess_FirstStep
 
         public bool achieved50Moves()
         {
-            if(countFor50Moves == 50)
+            if (countFor50Moves == 50)
             {
                 return true;
             }
@@ -336,7 +359,7 @@ namespace Chess_FirstStep
             {
                 for (int col = 0; col < 8; col++)
                 {
-                    ChessPiece piece = chessPieces[row,col];
+                    ChessPiece piece = chessPieces[row, col];
 
                     if (piece != null)
                     {
@@ -469,12 +492,12 @@ namespace Chess_FirstStep
             int selectedCol = move.StartCol;
             int targetRow = move.EndRow;
             int targetCol = move.EndCol;
-            ChessPiece selectedPieceForMoveValidation = SetNewChessPiece(chessPieces[selectedRow, selectedCol],selectedRow,selectedCol);
+            ChessPiece selectedPieceForMoveValidation = SetNewChessPiece(chessPieces[selectedRow, selectedCol], selectedRow, selectedCol);
             ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
             ChessPiece targetedPlace = chessPieces[targetRow, targetCol];
             if (targetedPlace == null)
             {
-                
+
                 if (selectedPieceForMoveValidation.Move(targetCol, targetRow, false, this))
                 {
                     // Update the chessboard model
@@ -488,32 +511,30 @@ namespace Chess_FirstStep
                         SetChessPiece(null, targetRow, targetCol);
                         SetChessPiece(selectedPiece, selectedRow, selectedCol);
                         move.IsIllegalMove = true;
-                        
+
 
                         return false;
                     }
                     else
                     {
 
+                        SetChessPiece(null, targetRow, targetCol);
+                        SetChessPiece(selectedPiece, selectedRow, selectedCol);
+                      
 
-                        // Store the last piece played
-                        lastPiecePlayed = selectedPiece;
-                        
-                        
+
                         // Check for pawn promotion
                         if (selectedPiece is Pawn)
                         {
                             Pawn pawn = new Pawn((Pawn)selectedPiece, selectedRow, selectedCol);
                             if (pawn.validPromtion(targetRow))
                             {
-                                targetedPlace = new Queen(targetCol, targetRow, selectedPiece.IsWhite);
+                               
                                 move.IsPromotion = true;
-                                
+
                             }
-                        } else
-                        {
-                            countFor50Moves++;
-                        }
+                        } 
+
                         return true;
                     }
                 }
@@ -522,7 +543,8 @@ namespace Chess_FirstStep
                     King castlePiece = new King((King)selectedPiece, selectedCol, selectedRow);
                     if (castlePiece.castle(targetCol, targetRow, this))
                     {
-                        if (MoveKingAndRookForCastle(move)){
+                        if (castleIsValid(move)) {
+
                             if (Math.Abs(targetCol - selectedCol) == 2)
                             {
                                 move.IsQueensideCastle = true;
@@ -533,7 +555,7 @@ namespace Chess_FirstStep
                             }
                             return true;
                         }
-                        
+
                     }
                 }
                 else if (selectedPiece is Pawn)
@@ -545,8 +567,9 @@ namespace Chess_FirstStep
                         {
                             if (lastPiecePlayed.X == targetCol)
                             {
-                                if (setEnPassant(move))
+                                if (EnPassantisValid(move))
                                 {
+                                    move.IsEnPassantCapture = true;
                                     return true;
                                 }
 
@@ -577,11 +600,10 @@ namespace Chess_FirstStep
                         }
                         else
                         {
+                            // Revert the move and show an error message
+                            SetChessPiece(chesspiece, targetRow, targetCol);
+                            SetChessPiece(selectedPiece, selectedRow, selectedCol);
 
-                            // Store the last piece played
-                            lastPiecePlayed = selectedPiece;
-                            piecesOnTheBoard--;
-                            countFor50Moves = 0;
 
                             // Check for pawn promotion
                             if (selectedPiece is Pawn)
@@ -591,8 +613,8 @@ namespace Chess_FirstStep
                                 {
                                     targetedPlace = new Queen(targetCol, targetRow, selectedPiece.IsWhite);
                                     move.IsPromotion = true;
-                                    
-                                   
+
+
                                 }
                             }
                             return true;
@@ -603,8 +625,7 @@ namespace Chess_FirstStep
             return false;
         }
 
-        // Move the king and rook for castling
-        private bool MoveKingAndRookForCastle(ChessMove move)
+        public void ApplyMove(ChessMove move)
         {
             int selectedRow = move.StartRow;
             int selectedCol = move.StartCol;
@@ -612,6 +633,47 @@ namespace Chess_FirstStep
             int targetCol = move.EndCol;
             ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
             ChessPiece targetedPlace = chessPieces[targetRow, targetCol];
+            if (move.IsEnPassantCapture)
+            {
+                setEnPassant(move);
+            }
+            else if (move.IsKingsideCastle || move.IsQueensideCastle)
+            {
+                MoveKingAndRookForCastle(move);
+            }
+            else if (move.IsPromotion)
+            {
+                targetedPlace = new Queen(targetCol, targetRow, selectedPiece.IsWhite);
+            }
+            else if (move.IsCapture)
+            {
+                SetChessPiece(selectedPiece, targetRow, targetCol);
+                SetChessPiece(null, selectedRow, selectedCol);
+
+                // Store the last piece played
+                piecesOnTheBoard--;
+                countFor50Moves = 0;
+            }
+            else
+            {
+                SetChessPiece(selectedPiece, targetRow, targetCol);
+                SetChessPiece(null, selectedRow, selectedCol);
+
+                if (!(selectedPiece is Pawn))
+                {
+                    countFor50Moves++;
+                }
+            }
+            lastPiecePlayed = selectedPiece;
+        }
+        // Move the king and rook for castling
+        private bool castleIsValid(ChessMove move)
+        {
+            int selectedRow = move.StartRow;
+            int selectedCol = move.StartCol;
+            int targetRow = move.EndRow;
+            int targetCol = move.EndCol;
+            ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
             // Determine the direction of castling (left or right)
             Tuple<int, int> rookPosition;
             if (selectedPiece.IsWhite)
@@ -658,25 +720,72 @@ namespace Chess_FirstStep
                 move.IsIllegalMove = true;
                 return false;
             }
-            SetChessPiece(chessPieces[rookPosition.Item1, rookPosition.Item2], selectedRow, selectedCol + direction);
-            SetChessPiece(null, rookPosition.Item1, rookPosition.Item2);
 
-            countFor50Moves++;
-            lastPiecePlayed = selectedPiece;
+            SetChessPiece(null, selectedRow, selectedCol + direction);
+            SetChessPiece(selectedPiece, selectedRow, selectedCol);
+            SetChessPiece(null, targetRow, targetCol);
+            SetChessPiece(selectedPiece, selectedRow, selectedCol);
+           
 
 
             return true;
         }
 
-        // Handle en passant
-        private bool setEnPassant(ChessMove move)
+        private bool MoveKingAndRookForCastle(ChessMove move)
         {
             int selectedRow = move.StartRow;
             int selectedCol = move.StartCol;
             int targetRow = move.EndRow;
             int targetCol = move.EndCol;
             ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
-            ChessPiece targetedPlace = chessPieces[targetRow, targetCol];
+            // Determine the direction of castling (left or right)
+            Tuple<int, int> rookPosition;
+            if (selectedPiece.IsWhite)
+            {
+                if (selectedCol > targetCol)
+                {
+                    rookPosition = Tuple.Create(0, 0);
+                }
+                else
+                {
+                    rookPosition = Tuple.Create(0, 7);
+                }
+            }
+            else
+            {
+                if (selectedCol > targetCol)
+                {
+                    rookPosition = Tuple.Create(7, 0);
+                }
+                else
+                {
+                    rookPosition = Tuple.Create(7, 7);
+                }
+            }
+
+            int direction = rookPosition.Item2 < selectedCol ? -1 : 1;
+
+            // Move the rook to the square the king crossed
+
+
+            SetChessPiece(selectedPiece, targetRow, targetCol);
+            SetChessPiece(null, selectedRow, selectedCol);
+            SetChessPiece(chessPieces[rookPosition.Item1, rookPosition.Item2], selectedRow, selectedCol + direction);
+            SetChessPiece(null, rookPosition.Item1, rookPosition.Item2);
+
+            countFor50Moves++;
+
+            return true;
+        }
+
+        // Handle en passant
+        private bool EnPassantisValid(ChessMove move)
+        {
+            int selectedRow = move.StartRow;
+            int selectedCol = move.StartCol;
+            int targetRow = move.EndRow;
+            int targetCol = move.EndCol;
+            ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
 
             SetChessPiece(selectedPiece, targetRow, targetCol);
             SetChessPiece(null, selectedRow, selectedCol);
@@ -694,13 +803,30 @@ namespace Chess_FirstStep
              
             }
 
-            piecesOnTheBoard--;
-            countFor50Moves = 0;
-            lastPiecePlayed = selectedPiece;
+            SetChessPiece(null, targetRow, targetCol);
+            SetChessPiece(selectedPiece, selectedRow, selectedCol);
+            SetChessPiece(chesspieceEaten, selectedRow, targetCol);
+
+          
+            return true;
+        }
+
+        private void setEnPassant(ChessMove move)
+        {
+            int selectedRow = move.StartRow;
+            int selectedCol = move.StartCol;
+            int targetRow = move.EndRow;
+            int targetCol = move.EndCol;
+            ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
+            SetChessPiece(selectedPiece, targetRow, targetCol);
+            SetChessPiece(null, selectedRow, selectedCol);
+            SetChessPiece(null, selectedRow, targetCol);
 
             
-            move.IsEnPassantCapture = true;
-            return true;
+
+            piecesOnTheBoard--;
+            countFor50Moves = 0;
+
         }
     }
 
