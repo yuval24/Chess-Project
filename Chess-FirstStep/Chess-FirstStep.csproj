@@ -64,7 +64,9 @@
   <ItemGroup>
     <Compile Include="AIGameActivity.cs" />
     <Compile Include="Bishop.cs" />
+    <Compile Include="ChessAI.cs" />
     <Compile Include="Chessboard.cs" />
+    <Compile Include="ChessMove.cs" />
     <Compile Include="ChessPiece.cs" />
     <Compile Include="King.cs" />
     <Compile Include="Knight.cs" />

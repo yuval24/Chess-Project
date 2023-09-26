@@ -25,6 +25,7 @@ namespace Chess_FirstStep
         private List<string> positionHistory;
         private Dictionary<string, int> positionCount;
         private const int SomeThreshold = 1000;
+        private ChessPiece lastPiecePlayed;
 
         public Chessboard()
         {
@@ -144,6 +145,44 @@ namespace Chess_FirstStep
             {
                 chessPieces[row, col] = null;
             }
+
+        }
+
+        public ChessPiece SetNewChessPiece(ChessPiece piece, int row, int col)
+        {
+            
+
+            if (piece != null)
+            {
+
+                if (piece.Name == "Pawn")
+                {
+                    return new Pawn((Pawn)piece, col, row);
+
+                }
+                else if (piece.Name == "King")
+                {
+                    return new King((King)piece, col, row);
+                }
+                else if (piece.Name == "Queen")
+                {
+                    return new Queen((Queen)piece, col, row);
+                }
+                else if (piece.Name == "Rook")
+                {
+                    return new Rook((Rook)piece, col, row);
+                }
+                else if (piece.Name == "Knight")
+                {
+                    return new Knight((Knight)piece, col, row);
+                }
+                else if (piece.Name == "Bishop")
+                {
+                    return  new Bishop((Bishop)piece, col, row);
+
+                }
+            }
+            return null;
 
         }
 
@@ -423,7 +462,251 @@ namespace Chess_FirstStep
             // If no legal moves can get the player out of check, it's checkmate
             return true;
         }
+
+        public bool IsMoveValid(ChessMove move)
+        {
+            int selectedRow = move.StartRow;
+            int selectedCol = move.StartCol;
+            int targetRow = move.EndRow;
+            int targetCol = move.EndCol;
+            ChessPiece selectedPieceForMoveValidation = SetNewChessPiece(chessPieces[selectedRow, selectedCol],selectedRow,selectedCol);
+            ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
+            ChessPiece targetedPlace = chessPieces[targetRow, targetCol];
+            if (targetedPlace == null)
+            {
+                
+                if (selectedPieceForMoveValidation.Move(targetCol, targetRow, false, this))
+                {
+                    // Update the chessboard model
+                    SetChessPiece(selectedPiece, targetRow, targetCol);
+                    SetChessPiece(null, selectedRow, selectedCol);
+
+                    // Check if the move puts the player's king in check
+                    if (IsInCheck())
+                    {
+                        // Revert the move and show an error message
+                        SetChessPiece(null, targetRow, targetCol);
+                        SetChessPiece(selectedPiece, selectedRow, selectedCol);
+                        move.IsIllegalMove = true;
+                        
+
+                        return false;
+                    }
+                    else
+                    {
+
+
+                        // Store the last piece played
+                        lastPiecePlayed = selectedPiece;
+                        
+                        
+                        // Check for pawn promotion
+                        if (selectedPiece is Pawn)
+                        {
+                            Pawn pawn = new Pawn((Pawn)selectedPiece, selectedRow, selectedCol);
+                            if (pawn.validPromtion(targetRow))
+                            {
+                                targetedPlace = new Queen(targetCol, targetRow, selectedPiece.IsWhite);
+                                move.IsPromotion = true;
+                                
+                            }
+                        } else
+                        {
+                            countFor50Moves++;
+                        }
+                        return true;
+                    }
+                }
+                else if (selectedPiece is King && !IsInCheck())
+                {
+                    King castlePiece = new King((King)selectedPiece, selectedCol, selectedRow);
+                    if (castlePiece.castle(targetCol, targetRow, this))
+                    {
+                        if (MoveKingAndRookForCastle(move)){
+                            if (Math.Abs(targetCol - selectedCol) == 2)
+                            {
+                                move.IsQueensideCastle = true;
+                            }
+                            else
+                            {
+                                move.IsKingsideCastle = true;
+                            }
+                            return true;
+                        }
+                        
+                    }
+                }
+                else if (selectedPiece is Pawn)
+                {
+                    Pawn pawn = new Pawn((Pawn)selectedPiece, selectedCol, selectedRow);
+                    if (pawn.enPassant(targetCol, targetRow, this))
+                    {
+                        if (lastPiecePlayed is Pawn)
+                        {
+                            if (lastPiecePlayed.X == targetCol)
+                            {
+                                if (setEnPassant(move))
+                                {
+                                    return true;
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (selectedPiece.IsWhite != targetedPlace.IsWhite)
+                {
+                    if (selectedPieceForMoveValidation.Move(targetCol, targetRow, true, this))
+                    {
+                        // Update the chessboard model
+                        ChessPiece chesspiece = chessPieces[targetRow, targetCol];
+                        SetChessPiece(selectedPiece, targetRow, targetCol);
+                        SetChessPiece(null, selectedRow, selectedCol);
+
+                        // Check if the move puts the player's king in check
+                        if (IsInCheck())
+                        {
+                            // Revert the move and show an error message
+                            SetChessPiece(chesspiece, targetRow, targetCol);
+                            SetChessPiece(selectedPiece, selectedRow, selectedCol);
+                            move.IsIllegalMove = true;
+                            return false;
+                        }
+                        else
+                        {
+
+                            // Store the last piece played
+                            lastPiecePlayed = selectedPiece;
+                            piecesOnTheBoard--;
+                            countFor50Moves = 0;
+
+                            // Check for pawn promotion
+                            if (selectedPiece is Pawn)
+                            {
+                                Pawn pawn = new Pawn((Pawn)selectedPiece, selectedCol, selectedRow);
+                                if (pawn.validPromtion(targetRow))
+                                {
+                                    targetedPlace = new Queen(targetCol, targetRow, selectedPiece.IsWhite);
+                                    move.IsPromotion = true;
+                                    
+                                   
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Move the king and rook for castling
+        private bool MoveKingAndRookForCastle(ChessMove move)
+        {
+            int selectedRow = move.StartRow;
+            int selectedCol = move.StartCol;
+            int targetRow = move.EndRow;
+            int targetCol = move.EndCol;
+            ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
+            ChessPiece targetedPlace = chessPieces[targetRow, targetCol];
+            // Determine the direction of castling (left or right)
+            Tuple<int, int> rookPosition;
+            if (selectedPiece.IsWhite)
+            {
+                if (selectedCol > targetCol)
+                {
+                    rookPosition = Tuple.Create(0, 0);
+                }
+                else
+                {
+                    rookPosition = Tuple.Create(0, 7);
+                }
+            }
+            else
+            {
+                if (selectedCol > targetCol)
+                {
+                    rookPosition = Tuple.Create(7, 0);
+                }
+                else
+                {
+                    rookPosition = Tuple.Create(7, 7);
+                }
+            }
+
+            int direction = rookPosition.Item2 < selectedCol ? -1 : 1;
+
+            // Move the rook to the square the king crossed
+
+
+            SetChessPiece(selectedPiece, selectedRow, selectedCol + direction);
+            SetChessPiece(null, selectedRow, selectedCol);
+
+            SetChessPiece(selectedPiece, targetRow, targetCol);
+            SetChessPiece(null, selectedRow, selectedCol);
+
+            if (IsInCheck())
+            {
+                SetChessPiece(null, selectedRow, selectedCol + direction);
+                SetChessPiece(selectedPiece, selectedRow, selectedCol);
+                SetChessPiece(null, targetRow, targetCol);
+                SetChessPiece(selectedPiece, selectedRow, selectedCol);
+
+                move.IsIllegalMove = true;
+                return false;
+            }
+            SetChessPiece(chessPieces[rookPosition.Item1, rookPosition.Item2], selectedRow, selectedCol + direction);
+            SetChessPiece(null, rookPosition.Item1, rookPosition.Item2);
+
+            countFor50Moves++;
+            lastPiecePlayed = selectedPiece;
+
+
+            return true;
+        }
+
+        // Handle en passant
+        private bool setEnPassant(ChessMove move)
+        {
+            int selectedRow = move.StartRow;
+            int selectedCol = move.StartCol;
+            int targetRow = move.EndRow;
+            int targetCol = move.EndCol;
+            ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
+            ChessPiece targetedPlace = chessPieces[targetRow, targetCol];
+
+            SetChessPiece(selectedPiece, targetRow, targetCol);
+            SetChessPiece(null, selectedRow, selectedCol);
+            ChessPiece chesspieceEaten = chessPieces[selectedRow, targetCol];
+            SetChessPiece(null, selectedRow, targetCol);
+
+            if (IsInCheck())
+            {
+                SetChessPiece(null, targetRow, targetCol);
+                SetChessPiece(selectedPiece, selectedRow, selectedCol);
+                SetChessPiece(chesspieceEaten, selectedRow, targetCol);
+
+                move.IsIllegalMove = true; 
+                return false;
+             
+            }
+
+            piecesOnTheBoard--;
+            countFor50Moves = 0;
+            lastPiecePlayed = selectedPiece;
+
+            
+            move.IsEnPassantCapture = true;
+            return true;
+        }
     }
+
+
 
    
 }
+
+//move here the checking if a move is valid or not 

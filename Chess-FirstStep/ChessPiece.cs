@@ -18,7 +18,7 @@ namespace Chess_FirstStep
         public int X { get; set; }
         public int Y { get; set; }
         public bool IsWhite { get; protected set; }
-        public bool HasMoved { get; protected set; }
+        public bool HasMoved { get; set; }
 
         public ChessPiece(string name, int y, int x, bool isWhite, bool hasMoved)
         {

@@ -193,181 +193,93 @@ namespace Chess_FirstStep
             }
         }
 
+
        
-        // Handle target square click event
         private void HandleTargetSquareClick(ImageView imageView)
         {
-            if (selectedPiece != null && selectedImageView != null)
+            if (selectedPiece != null)
             {
-                // Check if the target square is empty
-                if (chessboard.GetChessPieceAt(targetRow, targetCol) == null)
+                ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
+                if (chessboard.IsMoveValid(chessMove))
                 {
-                    if (selectedPiece.Move(targetCol, targetRow, false, chessboard))
+                    if (chessMove.IsEnPassantCapture)
                     {
-                        // Update the chessboard model
-                        chessboard.SetChessPiece(selectedPiece, targetRow, targetCol);
-                        chessboard.SetChessPiece(null, selectedRow, selectedCol);
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                        selectedImageView.SetImageDrawable(null);
 
-                        // Check if the move puts the player's king in check
-                        if (chessboard.IsInCheck())
+                        targetImageView = chessPieceViews[selectedRow, targetCol];
+                        targetImageView.SetImageDrawable(null);
+                    }
+                    else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
+                    {
+                        MoveKingAndRookForCastle();
+                    }
+                    else if (chessMove.IsCapture)
+                    {
+                        // Update the UI
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                        selectedImageView.SetImageDrawable(null);
+
+                        if (chessboard.piecesOnTheBoard < 5)
                         {
-                            // Revert the move and show an error message
-                            chessboard.SetChessPiece(null, targetRow, targetCol);
-                            chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol);
-                            Toast.MakeText(this, "Illegal Move", ToastLength.Short).Show();
-                        }
-                        else
-                        {
-
-
-                            // Store the last piece played
-                            lastPiecePlayed = selectedPiece;
-                            chessboard.countFor50Moves++;
-
-
-                            // Update the UI
-                            ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                            targetImageView.SetImageDrawable(selectedImageView.Drawable);
-
-                            // Check for pawn promotion
-                            if (selectedPiece is Pawn)
-                            {
-                                Pawn pawn = new Pawn((Pawn)selectedPiece, selectedCol, selectedRow);
-                                if (pawn.validPromtion(targetRow))
-                                {
-                                    Queen queen = new Queen(selectedCol, selectedRow, selectedPiece.IsWhite);
-                                    chessboard.SetChessPiece(queen, targetRow, targetCol);
-                                    int queenResource = selectedPiece.IsWhite ? Resource.Drawable.Chess_qlt60 : Resource.Drawable.Chess_qdt60;
-                                    targetImageView.SetImageResource(queenResource);
-                                }
-                            }
-
-                            // Capture the opponent's piece and move to the target square
-                            selectedImageView.SetImageDrawable(null);
-                            chessboard.SwitchPlayerTurn();
-                            if (chessboard.drawByRepitition())
+                            if (chessboard.insufficientMatrielDraw())
                             {
                                 createEndGameDialog();
                             }
-
-
                         }
-                    }
-                    else if (selectedPiece is King && !chessboard.IsInCheck())
-                    {
-                        King castlePiece = new King((King)selectedPiece, selectedCol, selectedRow);
-                        if (castlePiece.castle(targetCol, targetRow, chessboard))
-                        {
-                            MoveKingAndRookForCastle();
-                        }
-                    }
-                    else if (selectedPiece is Pawn)
-                    {
-                        Pawn pawn = new Pawn((Pawn)selectedPiece, selectedCol, selectedRow);
-                        if (pawn.enPassant(targetCol, targetRow, chessboard))
-                        {
-                            if (lastPiecePlayed is Pawn)
-                            {
-                                if (lastPiecePlayed.X == selectedCol - 1 || lastPiecePlayed.X == selectedCol + 1)
-                                {
-                                    setEnPassant();
-                                    Toast.MakeText(this, "en passant", ToastLength.Short).Show();
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (selectedPiece.IsWhite != chessboard.GetChessPieceAt(targetRow, targetCol).IsWhite)
-                    {
-                        if (selectedPiece.Move(targetCol, targetRow, true, chessboard))
-                        {
-                            // Update the chessboard model
-                            ChessPiece chesspiece = chessboard.GetChessPieceAt(targetRow, targetCol);
-                            chessboard.SetChessPiece(selectedPiece, targetRow, targetCol);
-                            chessboard.SetChessPiece(null, selectedRow, selectedCol);
-
-                            // Check if the move puts the player's king in check
-                            if (chessboard.IsInCheck())
-                            {
-                                // Revert the move and show an error message
-                                chessboard.SetChessPiece(chesspiece, targetRow, targetCol);
-                                chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol);
-                                Toast.MakeText(this, "Illegal Move", ToastLength.Short).Show();
-                            }
-                            else
-                            {
-
-                                // Store the last piece played
-                                lastPiecePlayed = selectedPiece;
-                                chessboard.piecesOnTheBoard--;
-                                chessboard.countFor50Moves = 0;
-
-                                // Update the UI
-                                ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                                targetImageView.SetImageDrawable(selectedImageView.Drawable);
-
-                                // Check for pawn promotion
-                                if (selectedPiece is Pawn)
-                                {
-                                    Pawn pawn = new Pawn((Pawn)selectedPiece, selectedCol, selectedRow);
-                                    if (pawn.validPromtion(targetRow))
-                                    {
-                                        Queen queen = new Queen(selectedCol, selectedRow, selectedPiece.IsWhite);
-                                        chessboard.SetChessPiece(queen, targetRow, targetCol);
-                                        int queenResource = selectedPiece.IsWhite ? Resource.Drawable.Chess_qlt60 : Resource.Drawable.Chess_qdt60;
-                                        targetImageView.SetImageResource(queenResource);
-                                    }
-                                }
-                                if (chessboard.piecesOnTheBoard < 5)
-                                {
-                                    if (chessboard.insufficientMatrielDraw())
-                                    {
-                                        createEndGameDialog();
-                                    }
-                                }
-
-                                selectedImageView.SetImageDrawable(null);
-                                chessboard.SwitchPlayerTurn();
-                                if (chessboard.drawByRepitition())
-                                {
-                                    createEndGameDialog();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Check for game over conditions
-            if (chessboard.IsCheckmate())
-            {
-                if (chessboard.IsInCheck())
-                {
-                    Toast.MakeText(this, "Game Over", ToastLength.Short).Show();
-                    if (chessboard.isWhiteTurn)
-                    {
-                        blackWon = true;
                     }
                     else
                     {
-                        whiteWon = true;
+                        // Update the UI
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                        selectedImageView.SetImageDrawable(null);
+
+
+                        if (chessboard.achieved50Moves())
+                        {
+                            createEndGameDialog();
+                        }
+                    }
+                    // Check for game over conditions
+                    if (chessboard.IsCheckmate())
+                    {
+                        if (chessboard.IsInCheck())
+                        {
+                            Toast.MakeText(this, "Game Over", ToastLength.Short).Show();
+                            if (chessboard.isWhiteTurn)
+                            {
+                                blackWon = true;
+                            }
+                            else
+                            {
+                                whiteWon = true;
+                            }
+
+                        }
+                        createEndGameDialog();
                     }
 
-                }
-                createEndGameDialog();
-            }
+                    if (chessboard.drawByRepitition())
+                    {
+                        createEndGameDialog();
+                    }
 
-            if (chessboard.achieved50Moves())
-            {
-                createEndGameDialog();
+
+                    chessboard.SwitchPlayerTurn();
+                } else if (chessMove.IsIllegalMove)
+                {
+                    Toast.MakeText(this, "You will lose your king moron", ToastLength.Short).Show();
+                }
             }
+            
+            
 
             ResetSelection();
         }
-
-        // Reset the selected piece and related variables
+                // Reset the selected piece and related variables
         private void ResetSelection()
         {
             if (selectedRow != -1 && selectedCol != -1)
@@ -416,87 +328,15 @@ namespace Chess_FirstStep
 
             // Move the rook to the square the king crossed
 
-            chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol + direction);
-            chessboard.SetChessPiece(null, selectedRow, selectedCol);
+            ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+            targetImageView.SetImageDrawable(selectedImageView.Drawable);
+            selectedImageView.SetImageDrawable(null);
 
-            chessboard.SetChessPiece(selectedPiece, targetRow, targetCol);
-            chessboard.SetChessPiece(null, selectedRow, selectedCol);
 
-            if (chessboard.IsInCheck())
-            {
-                chessboard.SetChessPiece(null, selectedRow, selectedCol + direction);
-                chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol);
-                chessboard.SetChessPiece(null, targetRow, targetCol);
-                chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol);
-                Toast.MakeText(this, "Illegal Move", ToastLength.Short).Show();
-            }
-            else
-            {
-                if (chessboard.drawByRepitition())
-                {
-                    createEndGameDialog();
-                }
-                if (chessboard.piecesOnTheBoard < 5)
-                {
-                    if (chessboard.insufficientMatrielDraw())
-                    {
-                        createEndGameDialog();
-                    }
-                }
-                ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                targetImageView.SetImageDrawable(selectedImageView.Drawable);
-                selectedImageView.SetImageDrawable(null);
-
-                chessboard.SetChessPiece(chessboard.GetChessPieceAt(rookPosition.Item1, rookPosition.Item2), selectedRow, selectedCol + direction);
-                chessboard.SetChessPiece(null, rookPosition.Item1, rookPosition.Item2);
-                targetImageView = chessPieceViews[selectedRow, selectedCol + direction];
-                ImageView rookImageView = chessPieceViews[rookPosition.Item1, rookPosition.Item2];
-                targetImageView.SetImageDrawable(rookImageView.Drawable);
-                rookImageView.SetImageDrawable(null);
-
-                chessboard.SwitchPlayerTurn();
-
-            }
-        }
-
-        // Handle en passant
-        private void setEnPassant()
-        {
-            chessboard.SetChessPiece(selectedPiece, targetRow, targetCol);
-            chessboard.SetChessPiece(null, selectedRow, selectedCol);
-            ChessPiece chesspieceEaten = chessboard.GetChessPieceAt(selectedRow, targetCol);
-            chessboard.SetChessPiece(null, selectedRow, targetCol);
-
-            if (chessboard.IsInCheck())
-            {
-                chessboard.SetChessPiece(null, targetRow, targetCol);
-                chessboard.SetChessPiece(selectedPiece, selectedRow, selectedCol);
-                chessboard.SetChessPiece(chesspieceEaten, selectedRow, targetCol);
-                Toast.MakeText(this, "Illegal Move", ToastLength.Short).Show();
-            }
-            else
-            {
-                if (chessboard.drawByRepitition())
-                {
-                    createEndGameDialog();
-                }
-                if (chessboard.piecesOnTheBoard < 5)
-                {
-                    if (chessboard.insufficientMatrielDraw())
-                    {
-                        createEndGameDialog();
-                    }
-                }
-                ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                targetImageView.SetImageDrawable(selectedImageView.Drawable);
-                selectedImageView.SetImageDrawable(null);
-
-                targetImageView = chessPieceViews[selectedRow, targetCol];
-                targetImageView.SetImageDrawable(null);
-
-                chessboard.SwitchPlayerTurn();
-                chessboard.piecesOnTheBoard--;
-            }
+            targetImageView = chessPieceViews[selectedRow, selectedCol + direction];
+            ImageView rookImageView = chessPieceViews[rookPosition.Item1, rookPosition.Item2];
+            targetImageView.SetImageDrawable(rookImageView.Drawable);
+            rookImageView.SetImageDrawable(null);
         }
 
 
@@ -529,3 +369,4 @@ namespace Chess_FirstStep
         }
     }
 }
+        
