@@ -293,8 +293,8 @@ namespace Chess_FirstStep
                 }
                 else if (humanMadeAMove) 
                 {
-                    ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 1);
-                    ChessMove AImove = chessAI.GetBestMove(chessboard, 4);
+                    ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 3);
+                    ChessMove AImove = chessAI.GetBestMove(chessboard);
                     if (AImove != null)
                     {
                         ResetSelection();

@@ -11,6 +11,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Java.Nio.Channels;
+using Org.Apache.Http.Conn.Routing;
 
 namespace Chess_FirstStep
 {
@@ -25,87 +26,68 @@ namespace Chess_FirstStep
             this.searchDepth = searchDepth;
         }
 
-        public ChessMove GetBestMove(Chessboard board, int depth)
+        public ChessMove GetBestMove(Chessboard board)
         {
-            Stack<ChessMove> legalMoves = GenerateLegalMoves(board);
+            List<ChessMove> moves = GenerateLegalMoves(board);
             ChessMove bestMove = null;
-            int bestScore = int.MinValue;
+            int maxScore = int.MinValue;
 
-            foreach (ChessMove move in legalMoves)
+            foreach(ChessMove move in moves)
             {
-                Chessboard cloneBoard = new Chessboard(board); // Create a copy of the board to simulate moves
-                
+                Chessboard cloneBoard = new Chessboard(board);   
                 cloneBoard.ApplyMove(move);
-                
 
+                int eval = -MiniMax(cloneBoard, searchDepth -1);
 
-                int score = -Minimax(cloneBoard, depth - 1, int.MinValue, int.MaxValue);
-
-                
-                
-
-                if (score > bestScore)
+                if( eval > maxScore)
                 {
-                    bestScore = score;
+                    maxScore = Math.Max(maxScore, eval);
                     bestMove = move;
                 }
-            }
+                
 
+            }
             return bestMove;
         }
 
-        private int Minimax(Chessboard board, int depth, int alpha, int beta)
+        private int MiniMax(Chessboard board, int searchDepth)
         {
-            if (depth == 0)
+            if(searchDepth == 0)
             {
                 return EvaluateBoard(board);
             }
 
-
             board.SwitchPlayerTurn();
-            AIisWhite = !AIisWhite;
-            Stack<ChessMove> legalMoves = GenerateLegalMoves(board);
-            
+            List<ChessMove> moves = GenerateLegalMoves(board);
+            int maxScore = int.MinValue;
 
-            if(legalMoves.Count == 0)
+            if(moves.Count == 0)
             {
-                if (board.IsInCheck())
+                if (board.IsCheckmate())
                 {
                     return int.MinValue;
                 }
                 return 0;
             }
-            int bestScore = int.MinValue;
-            foreach (ChessMove move in legalMoves)
+
+            foreach(ChessMove move in moves)
             {
-                Chessboard cloneBoard = new Chessboard(board);
-                cloneBoard.ApplyMove(move);
-                
-                
+                Chessboard cloneboard = new Chessboard(board);
+                cloneboard.ApplyMove(move);
 
-                int score = -Minimax(cloneBoard, depth - 1, -beta, -alpha);
+                int eval = -MiniMax(cloneboard, searchDepth -1);
 
-
-                if(score >= beta) 
-                {
-                    return score; 
-                }
-
-                alpha = Math.Max(alpha, score);
-
-                
+                maxScore = Math.Max(maxScore, eval);
             }
-
-            return alpha;
-        
+            return maxScore;
         }
 
-        private Stack<ChessMove> GenerateLegalMoves(Chessboard board)
+        private List<ChessMove> GenerateLegalMoves(Chessboard board)
         {
             // Implement logic to generate a list of legal moves based on the current board state.
             // This involves considering the positions and possible moves of all pieces.
             // Return a list of ChessMove objects representing legal moves.
-            Stack<ChessMove> legalMoves = new Stack<ChessMove>();
+            List<ChessMove> legalMoves = new List<ChessMove>();
 
             // Iterate through all the player's pieces
             for (int row = 0; row < 8; row++)
@@ -115,7 +97,7 @@ namespace Chess_FirstStep
                     ChessPiece piece = board.GetChessPieceAt(row, col);
 
                     // Check if the piece belongs to the player
-                    if (piece != null && piece.IsWhite == AIisWhite)
+                    if (piece != null && piece.IsWhite == board.isWhiteTurn)
                     {
                         // Try all possible moves for the piece
                         for (int newRow = 0; newRow < 8; newRow++)
@@ -126,7 +108,7 @@ namespace Chess_FirstStep
 
                                 if (board.IsMoveValid(move))
                                 {
-                                    legalMoves.Push(move);
+                                    legalMoves.Add(move);
                                 }
                             }
                         }
@@ -167,10 +149,10 @@ namespace Chess_FirstStep
                    
                 }
             }
-            int evaluation = whiteScore -blackScore;
+            int evaluation = whiteScore - blackScore;
 
-            int perspective = (board.isWhiteTurn) ? 1 : -1;
-            return evaluation * perspective;
+            //int perspective = (board.isWhiteTurn) ? 1 : -1;
+            return evaluation;
         }
 
         private int GetPieceValue(ChessPiece piece)
