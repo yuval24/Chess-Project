@@ -34,9 +34,15 @@ namespace Chess_FirstStep
             foreach (ChessMove move in legalMoves)
             {
                 Chessboard cloneBoard = new Chessboard(board); // Create a copy of the board to simulate moves
+                
                 cloneBoard.ApplyMove(move);
+                
 
-                int score = -Minimax(cloneBoard, depth - 1, int.MinValue, int.MaxValue, true);
+
+                int score = -Minimax(cloneBoard, depth - 1, int.MinValue, int.MaxValue);
+
+                
+                
 
                 if (score > bestScore)
                 {
@@ -48,53 +54,50 @@ namespace Chess_FirstStep
             return bestMove;
         }
 
-        private int Minimax(Chessboard board, int depth, int alpha, int beta, bool isMaximizing)
+        private int Minimax(Chessboard board, int depth, int alpha, int beta)
         {
-            if (depth == 0 || IsGameOver(board))
+            if (depth == 0)
             {
                 return EvaluateBoard(board);
             }
 
+
+            board.SwitchPlayerTurn();
+            AIisWhite = !AIisWhite;
             Stack<ChessMove> legalMoves = GenerateLegalMoves(board);
+            
 
-            if (isMaximizing)
+            if(legalMoves.Count == 0)
             {
-                int maxScore = int.MinValue;
-                foreach (ChessMove move in legalMoves)
+                if (board.IsInCheck())
                 {
-                    Chessboard cloneBoard = new Chessboard(board);
-                    cloneBoard.ApplyMove(move);
-
-                    int score = Minimax(cloneBoard, depth - 1, alpha, beta, false);
-                    maxScore = Math.Max(maxScore, score);
-                    alpha = Math.Max(alpha, score);
-
-                    if (beta <= alpha)
-                    {
-                        break;
-                    }
+                    return int.MinValue;
                 }
-                return maxScore;
+                return 0;
             }
-            else
+            int bestScore = int.MinValue;
+            foreach (ChessMove move in legalMoves)
             {
-                int minScore = int.MaxValue;
-                foreach (ChessMove move in legalMoves)
+                Chessboard cloneBoard = new Chessboard(board);
+                cloneBoard.ApplyMove(move);
+                
+                
+
+                int score = -Minimax(cloneBoard, depth - 1, -beta, -alpha);
+
+
+                if(score >= beta) 
                 {
-                    Chessboard cloneBoard = new Chessboard(board);
-                    cloneBoard.ApplyMove(move);
-
-                    int score = Minimax(cloneBoard, depth - 1, alpha, beta, true);
-                    minScore = Math.Min(minScore, score);
-                    beta = Math.Min(beta, score);
-
-                    if (beta <= alpha)
-                    {
-                        break;
-                    }
+                    return score; 
                 }
-                return minScore;
+
+                alpha = Math.Max(alpha, score);
+
+                
             }
+
+            return alpha;
+        
         }
 
         private Stack<ChessMove> GenerateLegalMoves(Chessboard board)
@@ -136,15 +139,11 @@ namespace Chess_FirstStep
 
         }
 
-        private bool IsGameOver(Chessboard board)
-        {
-            // Implement logic to check if the game is over (e.g., checkmate or stalemate).
-            return false;
-        }
-
+      
         public int EvaluateBoard(Chessboard board)
         {
-            int score = 0;
+            int whiteScore = 0;
+            int blackScore = 0;
 
             // Evaluate pieces on the board
             for (int row = 0; row < 8; row++)
@@ -154,51 +153,52 @@ namespace Chess_FirstStep
                     ChessPiece piece = board.GetChessPieceAt(row, col);
                     if(piece != null)
                     {
-                        if (piece.IsWhite == AIisWhite)
+                        if (piece.IsWhite)
                         {
-                            score += GetPieceValue(piece);
-                            score += GetPieceSquareValue(piece);
+                            whiteScore += GetPieceValue(piece);
+                            whiteScore += GetPieceSquareValue(piece);
                         }
                         else
                         {
-                            score -= GetPieceValue(piece);
-                            score -= GetPieceSquareValue(piece);
+                            blackScore += GetPieceValue(piece);
+                            blackScore += GetPieceSquareValue(piece);
                         }
                     }
                    
                 }
             }
-           
+            int evaluation = whiteScore -blackScore;
 
-            return score;
+            int perspective = (board.isWhiteTurn) ? 1 : -1;
+            return evaluation * perspective;
         }
 
         private int GetPieceValue(ChessPiece piece)
         {
             if (piece is Pawn)
             {
-                return 1;
+                return 100;
             }
             else if (piece is Bishop)
             {
-                return 3;
+                return 310;
             }
             else if (piece is Knight)
             {
-                return 3;
+                return 300;
             }
             else if (piece is Rook)
             {
-                return 5;
+                return 500;
             }
             else if (piece is Queen)
             {
-                return 9;
+                return 900;
             }
-            else if (piece is King)
+            /*else if (piece is King)
             {
-                return 1000;
-            }
+                return 20000;
+            }*/
             return 0;
             
         }
@@ -226,7 +226,7 @@ namespace Chess_FirstStep
                 if (piece.IsWhite)
                     return pawnSquareTable[row, col];
                 else
-                    return pawnSquareTable[7 - row, col];
+                    return pawnSquareTable[7-row, col];
             }
 
             // Add more tables for other piece types if needed

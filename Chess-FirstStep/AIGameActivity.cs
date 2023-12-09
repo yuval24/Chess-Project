@@ -205,7 +205,6 @@ namespace Chess_FirstStep
                     chessboard.ApplyMove(chessMove);
                     if (chessMove.IsEnPassantCapture)
                     {
-
                         ImageView targetImageView = chessPieceViews[targetRow, targetCol];
                         targetImageView.SetImageDrawable(selectedImageView.Drawable);
                         selectedImageView.SetImageDrawable(null);
@@ -216,6 +215,19 @@ namespace Chess_FirstStep
                     else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
                     {
                         MoveKingAndRookForCastle();
+                    }
+                    else if (chessMove.IsPromotion)
+                    {
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        if (chessboard.isWhiteTurn)
+                        {
+                            targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
+                        } else
+                        {
+                            targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
+                        }
+                        
+                        selectedImageView.SetImageDrawable(null);
                     }
                     else if (chessMove.IsCapture)
                     {
@@ -252,8 +264,8 @@ namespace Chess_FirstStep
                         createEndGameDialog();
                     }
 
-                    chessboard.SwitchPlayerTurn();
 
+                    chessboard.SwitchPlayerTurn();
                     humanMadeAMove = true;
                 }
                 else if (chessMove.IsIllegalMove)
@@ -281,8 +293,8 @@ namespace Chess_FirstStep
                 }
                 else if (humanMadeAMove) 
                 {
-                    ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 2);
-                    ChessMove AImove = chessAI.GetBestMove(chessboard, 3);
+                    ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 1);
+                    ChessMove AImove = chessAI.GetBestMove(chessboard, 4);
                     if (AImove != null)
                     {
                         ResetSelection();
@@ -341,8 +353,10 @@ namespace Chess_FirstStep
                             createEndGameDialog();
                         }
 
-                        chessboard.SwitchPlayerTurn();
 
+
+
+                        chessboard.SwitchPlayerTurn();
                         humanMadeAMove = false;
                     }
                     

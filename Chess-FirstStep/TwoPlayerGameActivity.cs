@@ -216,6 +216,20 @@ namespace Chess_FirstStep
                     {
                         MoveKingAndRookForCastle();
                     }
+                    else if (chessMove.IsPromotion)
+                    {
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        if (chessboard.isWhiteTurn)
+                        {
+                            targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
+                        }
+                        else
+                        {
+                            targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
+                        }
+
+                        selectedImageView.SetImageDrawable(null);
+                    }
                     else if (chessMove.IsCapture)
                     {
                         // Update the UI
@@ -251,8 +265,8 @@ namespace Chess_FirstStep
                     }
 
 
-
                     chessboard.SwitchPlayerTurn();
+                    
                 } else if (chessMove.IsIllegalMove)
                 {
                     Toast.MakeText(this, "You will lose your king moron", ToastLength.Short).Show();

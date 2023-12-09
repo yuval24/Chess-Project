@@ -39,19 +39,19 @@ namespace Chess_FirstStep
                 if (!HasMoved && deltaY == 2 && deltaX == 0 && chessboard.GetChessPieceAt(Y + 1, X) == null && !isCaptured)
                 {
                     // Pawn can move two squares forward on its first move
-                    this.HasMoved = true;
+                    
                     return true;
                 }
                 else if (deltaY == 1 && deltaX == 0 && !isCaptured)
                 {
                     // Pawn can move one square forward
-                    HasMoved = true;
+                    
                     return true;
                 }
                 else if (deltaY == 1 && Math.Abs(deltaX) == 1 && isCaptured)
                 {
                     // Pawn can capture diagonally
-                    HasMoved = true;
+                    
                     return true;
                 }
             }
@@ -60,19 +60,19 @@ namespace Chess_FirstStep
                 if (!HasMoved && deltaY == -2 && deltaX == 0 && chessboard.GetChessPieceAt(Y - 1, X) == null && !isCaptured)
                 {
                     // Pawn can move two squares forward on its first move
-                    HasMoved = true;
+                    
                     return true;
                 }
                 else if (deltaY == -1 && deltaX == 0 && !isCaptured)
                 {
                     // Pawn can move one square forward
-                    HasMoved = true;
+                    
                     return true;
                 }
                 else if (deltaY == -1 && Math.Abs(deltaX) == 1 && isCaptured)
                 {
                     // Pawn can capture diagonally
-                    HasMoved = true;
+                    
                     return true;
                 }
             }

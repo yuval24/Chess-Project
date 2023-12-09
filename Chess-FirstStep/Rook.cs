@@ -91,7 +91,7 @@ namespace Chess_FirstStep
                         startX--;
                     }
                 }
-                HasMoved = true;
+                
                 return true;
             }
 

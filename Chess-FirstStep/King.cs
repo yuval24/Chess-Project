@@ -31,7 +31,7 @@ namespace Chess_FirstStep
             // King can move one square in any direction
             if (deltaX <= 1 && deltaY <= 1 )
             {
-                HasMoved= true;
+               
                 return true;
             }
             
