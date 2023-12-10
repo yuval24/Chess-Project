@@ -7,6 +7,8 @@ using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using Java.Security.Cert;
+using static Android.InputMethodServices.Keyboard;
 
 namespace Chess_FirstStep
 {
@@ -302,6 +304,7 @@ namespace Chess_FirstStep
                         ImageView targetImageView = chessPieceViews[AImove.EndRow, AImove.EndCol];
                         selectedRow = AImove.StartRow;
                         selectedCol = AImove.StartCol;
+                        selectedPiece = chessboard.GetChessPieceAt(selectedRow, selectedCol);
                         targetRow = AImove.EndRow;
                         targetCol = AImove.EndCol;
                         chessboard.ApplyMove(AImove);
@@ -318,6 +321,20 @@ namespace Chess_FirstStep
                         else if (AImove.IsKingsideCastle || AImove.IsQueensideCastle)
                         {
                             MoveKingAndRookForCastle();
+                        }
+                        else if (chessMove.IsPromotion)
+                        {
+                            //ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                            if (chessboard.isWhiteTurn)
+                            {
+                                targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
+                            }
+                            else
+                            {
+                                targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
+                            }
+
+                            selectedImageView.SetImageDrawable(null);
                         }
                         else if (chessMove.IsCapture)
                         {
@@ -357,6 +374,7 @@ namespace Chess_FirstStep
 
 
                         chessboard.SwitchPlayerTurn();
+                        ResetSelection();
                         humanMadeAMove = false;
                     }
                     

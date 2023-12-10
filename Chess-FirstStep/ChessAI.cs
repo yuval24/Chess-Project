@@ -18,8 +18,72 @@ namespace Chess_FirstStep
     public class ChessAI
     {
         private bool AIisWhite; // Specify the color of the AI
-        private readonly int searchDepth;
+        private int searchDepth;
+        private static readonly int[,] PawnSquareTable =
+        {
+        { 0,  0,  0,  0,  0,  0,  0,  0 },
+        { 50, 50, 50, 50, 50, 50, 50, 50 },
+        { 10, 10, 20, 30, 30, 20, 10, 10 },
+        { 5,  5, 10, 25, 25, 10,  5,  5 },
+        { 0,  0,  0, 20, 20,  0,  0,  0 },
+        { 5, -5, -10, 0, 0, -10, -5, 5 },
+        { 5, 10, 10, -20, -20, 10, 10, 5 },
+        { 0,  0,  0,  0,  0,  0,  0,  0 }};
 
+        private static readonly int[,] KnightSquareTable =
+        {
+        { -50, -40, -30, -30, -30, -30, -40, -50 },
+        { -40, -20,  0,  0,  0,  0, -20, -40 },
+        { -30,  0, 10, 15, 15, 10,  0, -30 },
+        { -30,  5, 15, 20, 20, 15,  5, -30 },
+        { -30,  0, 15, 20, 20, 15,  0, -30 },
+        { -30,  5, 10, 15, 15, 10,  5, -30 },
+        { -40, -20,  0,  5,  5,  0, -20, -40 },
+        { -50, -40, -30, -30, -30, -30, -40, -50 }};
+
+        private static readonly int[,] BishopSquareTable =
+        {
+        { -20, -10, -10, -10, -10, -10, -10, -20 },
+        { -10,  0,  0,  0,  0,  0,  0, -10 },
+        { -10,  0,  5, 10, 10,  5,  0, -10 },
+        { -10,  5,  5, 10, 10,  5,  5, -10 },
+        { -10,  0, 10, 10, 10, 10,  0, -10 },
+        { -10, 10, 10, 10, 10, 10, 10, -10 },
+        { -10,  5,  0,  0,  0,  0,  5, -10 },
+        { -20, -10, -10, -10, -10, -10, -10, -20 }};
+
+        private static readonly int[,] RookSquareTable =
+        {
+        { 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 5, 10, 10, 10, 10, 10, 10, 5 },
+        { -5, 0, 0, 0, 0, 0, 0, -5 },
+        { -5, 0, 0, 0, 0, 0, 0, -5 },
+        { -5, 0, 0, 0, 0, 0, 0, -5 },
+        { -5, 0, 0, 0, 0, 0, 0, -5 },
+        { -5, 0, 0, 0, 0, 0, 0, -5 },
+        { 0, 0, 0, 5, 5, 0, 0, 0 }};
+
+        private static readonly int[,] QueenSquareTable =
+        {
+        { -20, -10, -10, -5, -5, -10, -10, -20 },
+        { -10,  0,  0,  0,  0,  0,  0, -10 },
+        { -10,  0,  5,  5,  5,  5,  0, -10 },
+        { -5,  0,  5,  5,  5,  5,  0, -5 },
+        { 0,  0,  5,  5,  5,  5,  0, -5 },
+        { -10,  5,  5,  5,  5,  5,  0, -10 },
+        { -10,  0,  5,  0,  0,  0,  0, -10 },
+        { -20, -10, -10, -5, -5, -10, -10, -20 }};
+
+        private static readonly int[,] KingSquareTable =
+        {
+        { -30, -40, -40, -50, -50, -40, -40, -30 },
+        { -30, -40, -40, -50, -50, -40, -40, -30 },
+        { -30, -40, -40, -50, -50, -40, -40, -30 },
+        { -30, -40, -40, -50, -50, -40, -40, -30 },
+        { -20, -30, -30, -40, -40, -30, -30, -20 },
+        { -10, -20, -20, -20, -20, -20, -20, -10 },
+        { 20, 20, 0, 0, 0, 0, 20, 20 },
+        { 20, 30, 10, 0, 0, 10, 30, 20 }};
         public ChessAI(bool AIisWhite, int searchDepth)
         {
             this.AIisWhite = AIisWhite;
@@ -29,6 +93,8 @@ namespace Chess_FirstStep
         public ChessMove GetBestMove(Chessboard board)
         {
             List<ChessMove> moves = GenerateLegalMoves(board);
+            moves.Sort((move1, move2) => MoveValue(move1, board).CompareTo(MoveValue(move2, board)));
+
             ChessMove bestMove = null;
             int maxScore = int.MinValue;
 
@@ -37,9 +103,9 @@ namespace Chess_FirstStep
                 Chessboard cloneBoard = new Chessboard(board);   
                 cloneBoard.ApplyMove(move);
 
-                int eval = -MiniMax(cloneBoard, searchDepth -1);
+                int eval = MiniMax(cloneBoard, searchDepth, int.MinValue, int.MaxValue, false);
 
-                if( eval > maxScore)
+                if( eval >= maxScore)
                 {
                     maxScore = Math.Max(maxScore, eval);
                     bestMove = move;
@@ -50,7 +116,7 @@ namespace Chess_FirstStep
             return bestMove;
         }
 
-        private int MiniMax(Chessboard board, int searchDepth)
+        private int MiniMax(Chessboard board, int searchDepth, int alpha, int beta, bool maximizingPlayer)
         {
             if(searchDepth == 0)
             {
@@ -59,9 +125,10 @@ namespace Chess_FirstStep
 
             board.SwitchPlayerTurn();
             List<ChessMove> moves = GenerateLegalMoves(board);
-            int maxScore = int.MinValue;
+            moves.Sort((move1, move2) => MoveValue(move1, board).CompareTo(MoveValue(move2, board)));
 
-            if(moves.Count == 0)
+
+            if (moves.Count == 0)
             {
                 if (board.IsCheckmate())
                 {
@@ -69,17 +136,66 @@ namespace Chess_FirstStep
                 }
                 return 0;
             }
-
-            foreach(ChessMove move in moves)
+            if(maximizingPlayer)
             {
-                Chessboard cloneboard = new Chessboard(board);
-                cloneboard.ApplyMove(move);
+                int maxEval = int.MinValue;
+                foreach (ChessMove move in moves)
+                {
+                    Chessboard cloneboard = new Chessboard(board);
+                    cloneboard.ApplyMove(move);
 
-                int eval = -MiniMax(cloneboard, searchDepth -1);
+                    
+                    int eval = MiniMax(cloneboard, searchDepth - 1, alpha, beta, false);
+                    
+                    maxEval = Math.Max(maxEval, eval);
+                    alpha = Math.Max(alpha, eval);
+                    if(beta <= alpha)
+                    {
+                        break;
+                    }
+                }
+                return maxEval;
+            } else
+            {
+                int minEval = int.MaxValue;
+                foreach (ChessMove move in moves)
+                {
+                    Chessboard cloneboard = new Chessboard(board);
+                    cloneboard.ApplyMove(move);
 
-                maxScore = Math.Max(maxScore, eval);
+                    int eval = MiniMax(cloneboard, searchDepth - 1, alpha, beta, true);
+
+                    minEval = Math.Min(minEval, eval);
+                    beta = Math.Min(beta, eval);
+
+                    if (beta <= alpha)
+                    {
+                        break;
+                    }
+                }
+
+                return minEval;
             }
-            return maxScore;
+           
+        }
+
+        private int MoveValue(ChessMove move, Chessboard board)
+        {
+            int moveScore = 0;
+            ChessPiece currPiece = board.GetChessPieceAt(move.StartRow, move.StartCol);
+            ChessPiece capturedPiece = board.GetChessPieceAt(move.EndRow, move.EndCol);
+
+            if (move.IsCapture)
+            {
+                moveScore = 10 * GetPieceValue(capturedPiece) - GetPieceValue(currPiece); // Fix here
+            }
+
+            if (move.IsPromotion)
+            {
+                moveScore += 900; // the promotion is always a queen which equals 900
+            }
+
+            return moveScore;
         }
 
         private List<ChessMove> GenerateLegalMoves(Chessboard board)
@@ -151,8 +267,8 @@ namespace Chess_FirstStep
             }
             int evaluation = whiteScore - blackScore;
 
-            //int perspective = (board.isWhiteTurn) ? 1 : -1;
-            return evaluation;
+            int perspective = (AIisWhite) ? 1 : -1;
+            return evaluation * perspective;
         }
 
         private int GetPieceValue(ChessPiece piece)
@@ -184,17 +300,7 @@ namespace Chess_FirstStep
             return 0;
             
         }
-        private int[,] pawnSquareTable =
-        {
-            { 0,  0,  0,  0,  0,  0,  0,  0 },
-            { 50, 50, 50, 50, 50, 50, 50, 50 },
-            { 10, 10, 20, 30, 30, 20, 10, 10 },
-            {  5,  5, 10, 25, 25, 10,  5,  5 },
-            {  0,  0,  0, 20, 20,  0,  0,  0 },
-            {  5, -5,-10,  0,  0,-10, -5,  5 },
-            {  5, 10, 10,-20,-20, 10, 10,  5 },
-            {  0,  0,  0,  0,  0,  0,  0,  0 }
-        };
+        
 
         private int GetPieceSquareValue(ChessPiece piece)
         {
@@ -202,18 +308,28 @@ namespace Chess_FirstStep
             int row = piece.Y;
             int col = piece.X;
 
-            if (piece is Pawn)
+            switch(piece)
             {
-                // Use the pawn square table
-                if (piece.IsWhite)
-                    return pawnSquareTable[row, col];
-                else
-                    return pawnSquareTable[7-row, col];
-            }
+                case Pawn _:
+                    return (!piece.IsWhite ? PawnSquareTable[row, col] : PawnSquareTable[7 - row, col]);
+                case Bishop _:
+                    return (!piece.IsWhite ? BishopSquareTable[row, col] : BishopSquareTable[7 - row, col]);
+                case Knight _:
+                    return (!piece.IsWhite ? KnightSquareTable[row, col] : KnightSquareTable[7 - row, col]);
+                case Rook _:
+                    return (!piece.IsWhite ? RookSquareTable[row, col] : RookSquareTable[7 - row, col]);
+                case Queen _:
+                    return (!piece.IsWhite ? QueenSquareTable[row, col] : QueenSquareTable[7 - row, col]);
+                case King _:
+                    return (!piece.IsWhite ? KingSquareTable[row, col] : KingSquareTable[7 - row, col]);
+                default:
+                    return 0;
 
+            }
+               
             // Add more tables for other piece types if needed
 
-            return 0;
+           
         }
     }
 }   
