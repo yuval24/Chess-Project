@@ -125,7 +125,7 @@ namespace Chess_FirstStep
 
             board.SwitchPlayerTurn();
             List<ChessMove> moves = GenerateLegalMoves(board);
-            moves.Sort((move1, move2) => MoveValue(move1, board).CompareTo(MoveValue(move2, board)));
+            moves.Sort((move1, move2) => MoveValue(move2, board).CompareTo(MoveValue(move1, board)));
 
 
             if (moves.Count == 0)

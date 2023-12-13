@@ -322,7 +322,7 @@ namespace Chess_FirstStep
                         {
                             MoveKingAndRookForCastle();
                         }
-                        else if (chessMove.IsPromotion)
+                        else if (AImove.IsPromotion)
                         {
                             //ImageView targetImageView = chessPieceViews[targetRow, targetCol];
                             if (chessboard.isWhiteTurn)
@@ -336,7 +336,7 @@ namespace Chess_FirstStep
 
                             selectedImageView.SetImageDrawable(null);
                         }
-                        else if (chessMove.IsCapture)
+                        else if (AImove.IsCapture)
                         {
                             // Update the UI
 
