@@ -12,6 +12,7 @@ using Android.Views;
 using Android.Widget;
 using Java.Nio.Channels;
 using Org.Apache.Http.Conn.Routing;
+using static Android.Provider.Telephony.Mms;
 
 namespace Chess_FirstStep
 {
@@ -93,6 +94,7 @@ namespace Chess_FirstStep
         public ChessMove GetBestMove(Chessboard board)
         {
             List<ChessMove> moves = GenerateLegalMoves(board);
+            // Ordering the list that the first moves are the best ones to make the alpha beta prunning more efficient
             moves.Sort((move1, move2) => MoveValue(move1, board).CompareTo(MoveValue(move2, board)));
 
             ChessMove bestMove = null;
@@ -326,10 +328,11 @@ namespace Chess_FirstStep
                     return 0;
 
             }
-               
+
             // Add more tables for other piece types if needed
 
            
         }
+        
     }
 }   

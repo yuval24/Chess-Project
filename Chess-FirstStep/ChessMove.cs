@@ -47,13 +47,18 @@ namespace Chess_FirstStep
             // Convert the move to standard chess notation.
             char startFile = (char)('a' + StartCol);
             char endFile = (char)('a' + EndCol);
-            int startRank = 8 - StartRow;
-            int endRank = 8 - EndRow;
+            int startRank = StartRow + 1;
+            int endRank = EndRow + 1;
             string moveString = $"{startFile}{startRank}{endFile}{endRank}";
 
+            if (IsCapture)
+            {
+                moveString += "X";
+            }
+            // not an else if statement because a move can be both a promotion and a capture
             if (IsPromotion)
             {
-                moveString += PromotedTo;
+                moveString += "=" + PromotedTo;
             }
             else if (IsKingsideCastle)
             {

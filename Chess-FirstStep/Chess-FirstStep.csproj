@@ -67,6 +67,7 @@
     <Compile Include="ChessAI.cs" />
     <Compile Include="Chessboard.cs" />
     <Compile Include="ChessMove.cs" />
+    <Compile Include="ChessNetworkManager.cs" />
     <Compile Include="ChessPiece.cs" />
     <Compile Include="King.cs" />
     <Compile Include="Knight.cs" />

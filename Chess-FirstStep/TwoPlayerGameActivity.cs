@@ -39,6 +39,9 @@ namespace Chess_FirstStep
             // Initialize your chessboard and views
             InitializeChessboard();
 
+            //Initialize the connection between the client to the server
+            ChessNetworkManager chessNetworkManager = new ChessNetworkManager();
+
             // Initialize the UI elements and attach click event handlers
             InitializeUI();
         }
