@@ -9,11 +9,12 @@ using AndroidX.AppCompat.App;
 using System;
 using Android.Graphics.Drawables;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Chess_FirstStep
 {
-    [Activity(Label = "TwoPlayerGameActivity")]
-    public class TwoPlayerGameActivity : AppCompatActivity
+    [Activity(Label = "OnlineGameActivity")]
+    public class OnlineGameActivity : AppCompatActivity
     {
         private Chessboard chessboard;
         private ImageView selectedImageView;
@@ -31,6 +32,9 @@ namespace Chess_FirstStep
         private bool blackWon = false;
         Dialog d;
         TextView tvWinner;
+        ChessNetworkManager chessNetworkManager;
+        private bool isCurrentlyPlaying = false;
+        private object playLock = new object();
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -39,11 +43,16 @@ namespace Chess_FirstStep
             // Initialize your chessboard and views
             InitializeChessboard();
 
-
             // Initialize the UI elements and attach click event handlers
             InitializeUI();
+
+            //Initialize the connection between the client to the server
+            chessNetworkManager = new ChessNetworkManager();
+
+            
         }
 
+        
         // Initialize the chessboard and views
         private void InitializeChessboard()
         {
@@ -53,6 +62,7 @@ namespace Chess_FirstStep
             chessPieceViews = new ImageView[8, 8];
             chessboard.InitializeChessboard(this);
         }
+
 
         // Initialize the UI elements and attach click event handlers
         private void InitializeUI()
@@ -162,7 +172,7 @@ namespace Chess_FirstStep
             return ((ColorDrawable)chessPieceViews[row, col].Background).Color;
         }
 
-        private void HandleChessPieceClick(object sender, EventArgs e)
+        private async void HandleChessPieceClick(object sender, EventArgs e)
         {
             ImageView clickedImageView = (ImageView)sender;
 
@@ -187,7 +197,29 @@ namespace Chess_FirstStep
                             // Store the target square and handle the move
                             targetRow = row;
                             targetCol = col;
-                            HandleTargetSquareClick(clickedImageView);
+
+                           
+                            if (selectedPiece != null)
+                            {
+                                ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
+                                if (chessboard.IsMoveValid(chessMove))
+                                {
+                                    HandleTargetSquareClick();
+                                    chessNetworkManager.SetUserInputChessMove(chessMove);
+                                    await chessNetworkManager.CommunicationThread();
+                                    ChessMove chessmove = await chessNetworkManager.ReceiveMoveAsync();
+                                    if (chessmove != null)
+                                    {
+                                        selectedRow = chessmove.StartRow;
+                                        selectedCol = chessmove.StartCol;
+                                        targetRow = chessmove.EndRow;
+                                        targetCol = chessmove.EndCol;
+                                        selectedImageView = chessPieceViews[chessmove.StartRow, chessmove.StartCol];
+                                        HandleTargetSquareClick();
+                                    }
+                                }
+                            }
+                            
                         }
                     }
                 }
@@ -195,10 +227,43 @@ namespace Chess_FirstStep
         }
 
 
-       
-        private void HandleTargetSquareClick(ImageView imageView)
+        /*private async void HandleChessPieceClick(object sender, EventArgs e)
         {
-            if (selectedPiece != null)
+            ImageView clickedImageView = (ImageView)sender;
+
+            lock (playLock)
+            {
+                if (isCurrentlyPlaying)
+                {
+                    // Another thread/client is currently playing, you can handle this case as needed
+                    // For example, show a message or prevent further moves
+                    return;
+                }
+
+                isCurrentlyPlaying = true;
+            }
+
+            try
+            {
+                // Rest of your existing code for handling chess moves
+                // ...
+
+                // Example: Simulate a delay to mimic processing
+                await Task.Delay(2000);
+            }
+            finally
+            {
+                lock (playLock)
+                {
+                    isCurrentlyPlaying = false;
+                }
+            }
+        }*/
+
+
+        private void HandleTargetSquareClick()
+        {
+            if (selectedImageView != null)
             {
                 ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
                 if (chessboard.IsMoveValid(chessMove))
@@ -266,9 +331,10 @@ namespace Chess_FirstStep
                     }
 
 
-                    chessboard.SwitchPlayerTurn();
-                    
-                } else if (chessMove.IsIllegalMove)
+                    //chessboard.SwitchPlayerTurn();
+
+                }
+                else if (chessMove.IsIllegalMove)
                 {
                     Toast.MakeText(this, "You will lose your king moron", ToastLength.Short).Show();
                 }
@@ -291,15 +357,11 @@ namespace Chess_FirstStep
                     }
                     createEndGameDialog();
                 }
-
-               
             }
-            
-            
-
+            chessboard.SwitchPlayerTurn();
             ResetSelection();
         }
-                // Reset the selected piece and related variables
+        // Reset the selected piece and related variables
         private void ResetSelection()
         {
             if (selectedRow != -1 && selectedCol != -1)
@@ -389,4 +451,3 @@ namespace Chess_FirstStep
         }
     }
 }
-        

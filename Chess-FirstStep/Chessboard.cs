@@ -551,11 +551,11 @@ namespace Chess_FirstStep
 
                             if (Math.Abs(targetCol - selectedCol) == 2)
                             {
-                                move.IsQueensideCastle = true;
+                                move.IsKingsideCastle = true;
                             }
                             else
                             {
-                                move.IsKingsideCastle = true;
+                                move.IsQueensideCastle = true;
                             }
                             return true;
                         }
