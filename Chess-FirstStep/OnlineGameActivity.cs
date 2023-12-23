@@ -10,6 +10,7 @@ using System;
 using Android.Graphics.Drawables;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Chess_FirstStep
 {
@@ -33,13 +34,16 @@ namespace Chess_FirstStep
         Dialog d;
         TextView tvWinner;
         ChessNetworkManager chessNetworkManager;
+        private bool initialPlayerIsWhite;
         private bool isCurrentlyPlaying = false;
         private object playLock = new object();
+        private CancellationTokenSource cancellationTokenSource;
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_two_player_game);
-
+            Console.WriteLine("**** onCreate");
             // Initialize your chessboard and views
             InitializeChessboard();
 
@@ -48,11 +52,143 @@ namespace Chess_FirstStep
 
             //Initialize the connection between the client to the server
             chessNetworkManager = new ChessNetworkManager();
+            Task.Run(() => CheckIfOtherClientsConnectedAsync());
+            // Asynchronously check if other clients are connected
 
-            
+            cancellationTokenSource = new CancellationTokenSource();
+            Task.Run(() => CommunicationLoop(cancellationTokenSource.Token));
         }
 
-        
+        private async Task CheckIfOtherClientsConnectedAsync()
+        {
+            // Implement the logic to check if other clients are connected asynchronously
+            // For example, you might await a method in ChessNetworkManager that checks the connection status.
+           
+            
+            bool IsWhite = await chessNetworkManager.GetInitalStartingIsWhite();
+            Console.WriteLine($"---- connected : {IsWhite}");
+
+            if (IsWhite)
+            {
+                initialPlayerIsWhite = true;
+                await chessNetworkManager.ReceiveMessagesFromServerAsync();
+            }
+            else
+            {
+                initialPlayerIsWhite = false;
+            }
+        }
+
+        protected override void OnDestroy()
+        {
+            // Cancel the communication loop when the activity is destroyed
+            Console.WriteLine("**** OnDestroy");
+            cancellationTokenSource?.Cancel();
+            chessNetworkManager?.Dispose();
+            base.OnDestroy();
+        }
+
+        private async Task CommunicationLoop(CancellationToken cancellationToken)
+        {
+            Console.WriteLine("**** CommunicationLoop");
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    if (chessNetworkManager.otherClientsConnected)
+                    {
+                        Console.WriteLine("**** Before Recieve move");
+                        ChessMove receivedMove = await chessNetworkManager.ReceiveMoveAsync();
+                        Console.WriteLine($"**** recieved move : {receivedMove}");
+                        Console.WriteLine("**** After Recieve move");
+                        if (receivedMove != null)
+                        {
+                            RunOnUiThread(() =>
+                            {
+                                // Process the received move
+                                HandleReceivedMove(receivedMove);
+                            });
+                        }
+                    }
+                    Thread.Sleep(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception appropriately
+                Console.WriteLine($"**** Error in CommunicationLoop: {ex.Message}");
+            }
+        }
+
+        private void HandleReceivedMove(ChessMove receivedMove)
+        {
+            // Synchronize access to shared resources
+            lock (chessboard)
+            {
+                // Process the received move
+                // Update your chessboard, UI, etc.
+                if (receivedMove != null)
+                {
+                    selectedRow = receivedMove.StartRow;
+                    selectedCol = receivedMove.StartCol;
+                    targetRow = receivedMove.EndRow;
+                    targetCol = receivedMove.EndCol;
+                    selectedImageView = chessPieceViews[receivedMove.StartRow, receivedMove.StartCol];
+                    HandleTargetSquareClick();
+                }
+            }
+        }
+
+
+        private async void HandleChessPieceClick(object sender, EventArgs e)
+        {
+            if(initialPlayerIsWhite == chessboard.isWhiteTurn && chessNetworkManager.otherClientsConnected)
+            {
+                ImageView clickedImageView = (ImageView)sender;
+
+                // Find the position (row and col) of the clicked ImageView in the array
+                for (int row = 0; row < 8; row++)
+                {
+                    for (int col = 0; col < 8; col++)
+                    {
+                        if (chessPieceViews[row, col] == clickedImageView)
+                        {
+                            if (selectedPiece == null && chessboard.GetChessPieceAt(row, col) != null && (chessboard.GetChessPieceAt(row, col).IsWhite == chessboard.isWhiteTurn))
+                            {
+                                // Store the selected piece and its position
+                                selectedPiece = chessboard.GetChessPieceAt(row, col);
+                                selectedImageView = clickedImageView;
+                                selectedRow = row;
+                                selectedCol = col;
+                                chessPieceViews[selectedRow, selectedCol].SetBackgroundColor(Android.Graphics.Color.Yellow);
+                            }
+                            else
+                            {
+                                // Store the target square and handle the move
+                                targetRow = row;
+                                targetCol = col;
+
+                                
+                                
+                                if (selectedPiece != null)
+                                {
+                                    ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
+                                    if (chessboard.IsMoveValid(chessMove))
+                                    {
+                                        HandleTargetSquareClick();
+                                        chessNetworkManager.SetUserInputChessMove(chessMove);
+                                        await chessNetworkManager.CommunicationThread();
+
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+           
+        }
         // Initialize the chessboard and views
         private void InitializeChessboard()
         {
@@ -172,93 +308,6 @@ namespace Chess_FirstStep
             return ((ColorDrawable)chessPieceViews[row, col].Background).Color;
         }
 
-        private async void HandleChessPieceClick(object sender, EventArgs e)
-        {
-            ImageView clickedImageView = (ImageView)sender;
-
-            // Find the position (row and col) of the clicked ImageView in the array
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    if (chessPieceViews[row, col] == clickedImageView)
-                    {
-                        if (selectedPiece == null && chessboard.GetChessPieceAt(row, col) != null && (chessboard.GetChessPieceAt(row, col).IsWhite == chessboard.isWhiteTurn))
-                        {
-                            // Store the selected piece and its position
-                            selectedPiece = chessboard.GetChessPieceAt(row, col);
-                            selectedImageView = clickedImageView;
-                            selectedRow = row;
-                            selectedCol = col;
-                            chessPieceViews[selectedRow, selectedCol].SetBackgroundColor(Android.Graphics.Color.Yellow);
-                        }
-                        else
-                        {
-                            // Store the target square and handle the move
-                            targetRow = row;
-                            targetCol = col;
-
-                           
-                            if (selectedPiece != null)
-                            {
-                                ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
-                                if (chessboard.IsMoveValid(chessMove))
-                                {
-                                    HandleTargetSquareClick();
-                                    chessNetworkManager.SetUserInputChessMove(chessMove);
-                                    await chessNetworkManager.CommunicationThread();
-                                    ChessMove chessmove = await chessNetworkManager.ReceiveMoveAsync();
-                                    if (chessmove != null)
-                                    {
-                                        selectedRow = chessmove.StartRow;
-                                        selectedCol = chessmove.StartCol;
-                                        targetRow = chessmove.EndRow;
-                                        targetCol = chessmove.EndCol;
-                                        selectedImageView = chessPieceViews[chessmove.StartRow, chessmove.StartCol];
-                                        HandleTargetSquareClick();
-                                    }
-                                }
-                            }
-                            
-                        }
-                    }
-                }
-            }
-        }
-
-
-        /*private async void HandleChessPieceClick(object sender, EventArgs e)
-        {
-            ImageView clickedImageView = (ImageView)sender;
-
-            lock (playLock)
-            {
-                if (isCurrentlyPlaying)
-                {
-                    // Another thread/client is currently playing, you can handle this case as needed
-                    // For example, show a message or prevent further moves
-                    return;
-                }
-
-                isCurrentlyPlaying = true;
-            }
-
-            try
-            {
-                // Rest of your existing code for handling chess moves
-                // ...
-
-                // Example: Simulate a delay to mimic processing
-                await Task.Delay(2000);
-            }
-            finally
-            {
-                lock (playLock)
-                {
-                    isCurrentlyPlaying = false;
-                }
-            }
-        }*/
 
 
         private void HandleTargetSquareClick()
@@ -331,7 +380,7 @@ namespace Chess_FirstStep
                     }
 
 
-                    //chessboard.SwitchPlayerTurn();
+                    chessboard.SwitchPlayerTurn();
 
                 }
                 else if (chessMove.IsIllegalMove)
@@ -358,7 +407,7 @@ namespace Chess_FirstStep
                     createEndGameDialog();
                 }
             }
-            chessboard.SwitchPlayerTurn();
+            //chessboard.SwitchPlayerTurn();
             ResetSelection();
         }
         // Reset the selected piece and related variables
