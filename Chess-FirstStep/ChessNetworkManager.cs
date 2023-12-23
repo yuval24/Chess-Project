@@ -236,11 +236,11 @@ namespace Chess_FirstStep
             {
                 move.IsPromotion = true;
             } 
-            else if (moveString.Contains("O-O"))
+            else if (moveString.Contains("CK"))
             {
                 move.IsKingsideCastle = true;
             }
-            else if (moveString.Contains("O-O-O"))
+            else if (moveString.Contains("CN"))
             {
                 move.IsQueensideCastle = true;
             }

@@ -62,11 +62,11 @@ namespace Chess_FirstStep
             }
             else if (IsKingsideCastle)
             {
-                moveString = "O-O";
+                moveString += "CK";
             }
             else if (IsQueensideCastle)
             {
-                moveString = "O-O-O";
+                moveString += "CN";
             }
 
             return moveString;

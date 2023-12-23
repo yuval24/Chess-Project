@@ -181,7 +181,7 @@ namespace Chess_FirstStep
 
                                     }
                                 }
-
+                                HandleTargetSquareClick();
                             }
                         }
                     }
@@ -314,6 +314,7 @@ namespace Chess_FirstStep
         {
             if (selectedImageView != null)
             {
+                selectedPiece = chessboard.GetChessPieceAt(selectedRow, selectedCol);
                 ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
                 if (chessboard.IsMoveValid(chessMove))
                 {
