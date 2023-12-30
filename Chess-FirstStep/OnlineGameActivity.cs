@@ -50,6 +50,7 @@ namespace Chess_FirstStep
             // Initialize the UI elements and attach click event handlers
             InitializeUI();
 
+
             //Initialize the connection between the client to the server
             chessNetworkManager = new ChessNetworkManager();
             Task.Run(() => CheckIfOtherClientsConnectedAsync());
@@ -58,6 +59,7 @@ namespace Chess_FirstStep
             cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => CommunicationLoop(cancellationTokenSource.Token));
         }
+        
 
         private async Task CheckIfOtherClientsConnectedAsync()
         {
@@ -66,23 +68,25 @@ namespace Chess_FirstStep
            
             
             bool IsWhite = await chessNetworkManager.GetInitalStartingIsWhite();
-            Console.WriteLine($"---- connected : {IsWhite}");
 
             if (IsWhite)
             {
                 initialPlayerIsWhite = true;
+                
+                
                 await chessNetworkManager.ReceiveMessagesFromServerAsync();
             }
             else
             {
                 initialPlayerIsWhite = false;
+                
             }
+            
         }
 
         protected override void OnDestroy()
         {
             // Cancel the communication loop when the activity is destroyed
-            Console.WriteLine("**** OnDestroy");
             cancellationTokenSource?.Cancel();
             chessNetworkManager?.Dispose();
             base.OnDestroy();
@@ -90,17 +94,14 @@ namespace Chess_FirstStep
 
         private async Task CommunicationLoop(CancellationToken cancellationToken)
         {
-            Console.WriteLine("**** CommunicationLoop");
             try
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     if (chessNetworkManager.otherClientsConnected)
                     {
-                        Console.WriteLine("**** Before Recieve move");
                         ChessMove receivedMove = await chessNetworkManager.ReceiveMoveAsync();
-                        Console.WriteLine($"**** recieved move : {receivedMove}");
-                        Console.WriteLine("**** After Recieve move");
+                       
                         if (receivedMove != null)
                         {
                             RunOnUiThread(() =>
@@ -109,7 +110,7 @@ namespace Chess_FirstStep
                                 HandleReceivedMove(receivedMove);
                             });
                         }
-                    }
+                    } 
                     Thread.Sleep(1000);
                 }
             }
@@ -246,6 +247,7 @@ namespace Chess_FirstStep
             // Initialize the chess pieces on the chessboard views
             InitializeChessboardViews();
 
+
             // Store the original background colors
             for (int row = 0; row < 8; row++)
             {
@@ -301,6 +303,43 @@ namespace Chess_FirstStep
                 chessPieceViews[6, i].SetImageResource(Resource.Drawable.Chess_pdt60);
             }
         }
+
+        public void InitializeChessboardViewsForBlack()
+        {
+            // Set Rooks
+            chessPieceViews[7, 7].SetImageResource(Resource.Drawable.Chess_rlt60);
+            chessPieceViews[7, 0].SetImageResource(Resource.Drawable.Chess_rlt60);
+            chessPieceViews[0, 0].SetImageResource(Resource.Drawable.Chess_rdt60);
+            chessPieceViews[0, 7].SetImageResource(Resource.Drawable.Chess_rdt60);
+
+            // Set Knights
+            chessPieceViews[0, 1].SetImageResource(Resource.Drawable.Chess_ndt60);
+            chessPieceViews[0, 6].SetImageResource(Resource.Drawable.Chess_ndt60);
+            chessPieceViews[7, 1].SetImageResource(Resource.Drawable.Chess_nlt60);
+            chessPieceViews[7, 6].SetImageResource(Resource.Drawable.Chess_nlt60);
+
+            // Set Bishops
+            chessPieceViews[0, 2].SetImageResource(Resource.Drawable.Chess_bdt60);
+            chessPieceViews[0, 5].SetImageResource(Resource.Drawable.Chess_bdt60);
+            chessPieceViews[7, 2].SetImageResource(Resource.Drawable.Chess_blt60);
+            chessPieceViews[7, 5].SetImageResource(Resource.Drawable.Chess_blt60);
+
+            // Set Queens
+            chessPieceViews[0, 3].SetImageResource(Resource.Drawable.Chess_qdt60);
+            chessPieceViews[7, 3].SetImageResource(Resource.Drawable.Chess_qlt60);
+
+            // Set Kings
+            chessPieceViews[0, 4].SetImageResource(Resource.Drawable.Chess_kdt60);
+            chessPieceViews[7, 4].SetImageResource(Resource.Drawable.Chess_klt60);
+
+            // Set Pawns
+            for (int i = 0; i < 8; i++)
+            {
+                chessPieceViews[1, i].SetImageResource(Resource.Drawable.Chess_pdt60);
+                chessPieceViews[6, i].SetImageResource(Resource.Drawable.Chess_plt60);
+            }
+        }
+
 
         // Get the background color of a square
         private Android.Graphics.Color GetSquareBackgroundColor(int row, int col)
@@ -498,6 +537,8 @@ namespace Chess_FirstStep
             {
                 tvWinner.Text = "Draw";
             }
+            //Finish();
+
         }
     }
 }

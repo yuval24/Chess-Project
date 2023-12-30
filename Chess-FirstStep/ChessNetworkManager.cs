@@ -105,11 +105,10 @@ namespace Chess_FirstStep
         {
             try
             {
-                int exitVal = -1;
-                while(exitVal == -1)
+                
+                while(true)
                 {
                     string receivedMessage = await ReceiveMessageFromServerAsync();
-                    Console.WriteLine($"---- recieved Message : {receivedMessage}");
                     if (receivedMessage == "NO")
                     {
                         return true;
@@ -121,7 +120,7 @@ namespace Chess_FirstStep
                     }
                     Thread.Sleep(1000);
                 }
-                return false;
+                
             }
             catch (Exception ex)
             {
@@ -146,11 +145,9 @@ namespace Chess_FirstStep
             {
                 while (!otherClientsConnected && !cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    Console.WriteLine("**** ReceiveMessagesFromServerAsync Loop");
+                    
                     string receivedMessage = await ReceiveMessageFromServerAsync();
-                    Console.WriteLine($"**** Received message from server: {receivedMessage}");
                     otherClientsConnected = CheckServerOutput(receivedMessage);
-                    Console.WriteLine($"**** otherClientsConnected: {otherClientsConnected}");
                     Thread.Sleep(1000);
                 }
                
@@ -167,11 +164,6 @@ namespace Chess_FirstStep
             SendMessageToServer(moveString);
         }
 
-        public ChessMove ReceiveMove()
-        {
-            string receivedMove = ReceiveMessageFromServer();
-            return ConvertStringToMove(receivedMove);
-        }
 
         private void SendMessageToServer(string message)
         {
@@ -190,11 +182,6 @@ namespace Chess_FirstStep
                 Console.WriteLine($"Error while receiving message from server: {ex.Message}");
                 return string.Empty;
             }
-        }
-
-        private string ReceiveMessageFromServer()
-        {
-            return reader.ReadLine();
         }
 
         private void CloseConnection()
