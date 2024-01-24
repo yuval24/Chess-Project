@@ -9,6 +9,7 @@ using AndroidX.AppCompat.App;
 using System;
 using Android.Graphics.Drawables;
 using System.Collections.Generic;
+using Android.Content;
 
 namespace Chess_FirstStep
 {
@@ -57,6 +58,15 @@ namespace Chess_FirstStep
         // Initialize the UI elements and attach click event handlers
         private void InitializeUI()
         {
+
+            Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
+            btnExit.Click += (s, e) =>
+            {
+                Intent intent = new Intent(this, typeof(MainActivity));
+                StartActivity(intent);
+                Finish();
+            };
+
             // Find the TableLayout in your XML layout
             TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayout);
 

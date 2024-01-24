@@ -12,7 +12,7 @@ namespace Chess_FirstStep
     public class ChessNetworkManager : IDisposable
     {
         private const string ServerIp = "10.0.2.2";
-        private const int ServerPort = 3000;
+        private const int ServerPort = 3001;
 
         private ChessMove userInput;
         private Socket client;

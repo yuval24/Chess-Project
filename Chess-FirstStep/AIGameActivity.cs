@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Android.App;
 using Android.Bluetooth;
+using Android.Content;
 using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Widget;
@@ -60,6 +61,13 @@ namespace Chess_FirstStep
         {
             // Find the TableLayout in your XML layout
             TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayout);
+            Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
+            btnExit.Click += (s, e) =>
+            {
+                Intent intent = new Intent(this, typeof(MainActivity));
+                StartActivity(intent);
+                Finish();
+            };
 
             // Define the number of rows and columns on the chessboard
             int numRows = 8;

@@ -8,11 +8,18 @@
     android:orientation="vertical"
     android:gravity="center"
     android:background="@android:color/holo_blue_light">
-    
-    
-      
+
+    <Button
+        android:id="@+id/btnExit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exit"
+        android:layout_marginTop="12dp"
+        android:layout_marginRight="130dp"/>
+
+
     <TableLayout
-         android:id="@+id/chessboardLayout"
+        android:id="@+id/chessboardLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:stretchColumns="*"
@@ -22,6 +29,6 @@
 
     </TableLayout>
 
-   
+
 
 </LinearLayout>
