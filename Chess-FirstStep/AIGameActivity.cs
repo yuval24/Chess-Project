@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 
 using Android.App;
-using Android.Bluetooth;
 using Android.Content;
 using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Widget;
 using AndroidX.AppCompat.App;
-using Java.Security.Cert;
-using static Android.InputMethodServices.Keyboard;
+
 
 namespace Chess_FirstStep
 {
@@ -50,7 +48,6 @@ namespace Chess_FirstStep
         private void InitializeChessboard()
         {
             // Initialize your chessboard
-            string[] columnLabels = { "a", "b", "c", "d", "e", "f", "g", "h" };
             chessboard = new Chessboard();
             chessPieceViews = new ImageView[8, 8];
             chessboard.InitializeChessboard(this);
@@ -204,7 +201,7 @@ namespace Chess_FirstStep
         }
 
 
-
+        // This function handles the move that was made and displays it on the screen
         private void HandleTargetSquareClick(ImageView imageView)
         {
             if (selectedPiece != null)
@@ -215,20 +212,25 @@ namespace Chess_FirstStep
                     chessboard.ApplyMove(chessMove);
                     if (chessMove.IsEnPassantCapture)
                     {
+                        // handles en passent
                         ImageView targetImageView = chessPieceViews[targetRow, targetCol];
                         targetImageView.SetImageDrawable(selectedImageView.Drawable);
                         selectedImageView.SetImageDrawable(null);
 
+                        // we can see here that the captured piece is deleted
                         targetImageView = chessPieceViews[selectedRow, targetCol];
                         targetImageView.SetImageDrawable(null);
                     }
                     else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
                     {
+                        // handles castling
                         MoveKingAndRookForCastle();
                     }
                     else if (chessMove.IsPromotion)
                     {
+                        // handles promotion
                         ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+
                         if (chessboard.isWhiteTurn)
                         {
                             targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
@@ -275,15 +277,118 @@ namespace Chess_FirstStep
                     }
 
 
+                    // Check for game over conditions
+                    if (chessboard.IsCheckmate())
+                    {
+                        if (chessboard.IsInCheck())
+                        {
+                            Toast.MakeText(this, "Game Over", ToastLength.Short).Show();
+                            if (chessboard.isWhiteTurn)
+                            {
+                                blackWon = true;
+                            }
+                            else
+                            {
+                                whiteWon = true;
+                            }
+
+                        }
+                        createEndGameDialog();
+                    }
+
                     chessboard.SwitchPlayerTurn();
-                    humanMadeAMove = true;
+                    ResetSelection();
+                    handlesAIMove();
+
                 }
                 else if (chessMove.IsIllegalMove)
                 {
+                    // The king is in danger, altering the player.
                     Toast.MakeText(this, "You will lose your king moron", ToastLength.Short).Show();
                 }
+               
 
-                // Check for game over conditions
+            }
+            ResetSelection();
+        }
+
+        private void handlesAIMove()
+        {
+            ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 3);
+            ChessMove AImove = chessAI.GetBestMove(chessboard);
+            if (AImove != null)
+            {
+                selectedImageView = chessPieceViews[AImove.StartRow, AImove.StartCol];
+                ImageView targetImageView = chessPieceViews[AImove.EndRow, AImove.EndCol];
+                selectedRow = AImove.StartRow;
+                selectedCol = AImove.StartCol;
+                selectedPiece = chessboard.GetChessPieceAt(selectedRow, selectedCol);
+                targetRow = AImove.EndRow;
+                targetCol = AImove.EndCol;
+                chessboard.ApplyMove(AImove);
+                if (AImove.IsEnPassantCapture)
+                { 
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
+
+                    targetImageView = chessPieceViews[selectedRow, targetCol];
+                    targetImageView.SetImageDrawable(null);
+                }
+                else if (AImove.IsKingsideCastle || AImove.IsQueensideCastle)
+                {
+                    MoveKingAndRookForCastle();
+                }
+                else if (AImove.IsPromotion)
+                {
+                    //ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                    if (chessboard.isWhiteTurn)
+                    {
+                        targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
+                    }
+                    else
+                    {
+                        targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
+                    }
+
+                    selectedImageView.SetImageDrawable(null);
+                }
+                else if (AImove.IsCapture)
+                {
+                    // Update the UI
+
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
+
+                    if (chessboard.piecesOnTheBoard < 5)
+                    {
+                        if (chessboard.insufficientMatrielDraw())
+                        {
+                            createEndGameDialog();
+                        }
+                    }
+                }
+                else
+                {
+                    // Update the UI
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
+
+
+                    if (chessboard.achieved50Moves())
+                    {
+                        createEndGameDialog();
+                    }
+                }
+
+
+                if (chessboard.drawByRepitition())
+                {
+                    createEndGameDialog();
+                }
+
+                chessboard.SwitchPlayerTurn();
+                ResetSelection();
+
                 if (chessboard.IsCheckmate())
                 {
                     if (chessboard.IsInCheck())
@@ -301,98 +406,7 @@ namespace Chess_FirstStep
                     }
                     createEndGameDialog();
                 }
-                else if (humanMadeAMove) 
-                {
-                    ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 3);
-                    ChessMove AImove = chessAI.GetBestMove(chessboard);
-                    if (AImove != null)
-                    {
-                        ResetSelection();
-                        selectedImageView = chessPieceViews[AImove.StartRow, AImove.StartCol];
-                        ImageView targetImageView = chessPieceViews[AImove.EndRow, AImove.EndCol];
-                        selectedRow = AImove.StartRow;
-                        selectedCol = AImove.StartCol;
-                        selectedPiece = chessboard.GetChessPieceAt(selectedRow, selectedCol);
-                        targetRow = AImove.EndRow;
-                        targetCol = AImove.EndCol;
-                        chessboard.ApplyMove(AImove);
-                        if (AImove.IsEnPassantCapture)
-                        {
-                            
-
-                            targetImageView.SetImageDrawable(selectedImageView.Drawable);
-                            selectedImageView.SetImageDrawable(null);
-
-                            targetImageView = chessPieceViews[selectedRow, targetCol];
-                            targetImageView.SetImageDrawable(null);
-                        }
-                        else if (AImove.IsKingsideCastle || AImove.IsQueensideCastle)
-                        {
-                            MoveKingAndRookForCastle();
-                        }
-                        else if (AImove.IsPromotion)
-                        {
-                            //ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                            if (chessboard.isWhiteTurn)
-                            {
-                                targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
-                            }
-                            else
-                            {
-                                targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
-                            }
-
-                            selectedImageView.SetImageDrawable(null);
-                        }
-                        else if (AImove.IsCapture)
-                        {
-                            // Update the UI
-
-                            targetImageView.SetImageDrawable(selectedImageView.Drawable);
-                            selectedImageView.SetImageDrawable(null);
-
-                            if (chessboard.piecesOnTheBoard < 5)
-                            {
-                                if (chessboard.insufficientMatrielDraw())
-                                {
-                                    createEndGameDialog();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Update the UI
-                            targetImageView.SetImageDrawable(selectedImageView.Drawable);
-                            selectedImageView.SetImageDrawable(null);
-
-
-                            if (chessboard.achieved50Moves())
-                            {
-                                createEndGameDialog();
-                            }
-                        }
-
-
-                        if (chessboard.drawByRepitition())
-                        {
-                            createEndGameDialog();
-                        }
-
-
-
-
-                        chessboard.SwitchPlayerTurn();
-                        ResetSelection();
-                        humanMadeAMove = false;
-                    }
-                    
-                }
-
             }
-
-
-
-            ResetSelection();
         }
         // Reset the selected piece and related variables
         private void ResetSelection()
@@ -455,6 +469,7 @@ namespace Chess_FirstStep
         }
 
 
+        // Displays to the screen the end game dialog.
         public void createEndGameDialog()
         {
             d = new Dialog(this);
@@ -466,7 +481,6 @@ namespace Chess_FirstStep
             d.SetCancelable(true);
 
             tvWinner = d.FindViewById<TextView>(Resource.Id.tvWinner);
-
 
             d.Show();
             if (whiteWon)

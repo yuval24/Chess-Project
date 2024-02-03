@@ -19,7 +19,6 @@ namespace Chess_FirstStep
         private StreamReader reader;
         private StreamWriter writer;
         public bool otherClientsConnected;
-        private bool communicationStarted;
         private CancellationTokenSource cancellationTokenSource;
         public bool otherClientsConnectedIsSet;
 
@@ -30,7 +29,6 @@ namespace Chess_FirstStep
                 Initialize();
                 ConnectToServer();
                 SendChecker();
-                //Task.Run(() => ReceiveMessagesFromServerAsync());
             }
             catch (Exception ex)
             {
@@ -38,16 +36,18 @@ namespace Chess_FirstStep
             }
         }
 
+
+        // Initializing all the members in this class
         private void Initialize()
         {
             userInput = null;
             client = null;
-            communicationStarted = false;
             otherClientsConnected = false;
             otherClientsConnectedIsSet = false;
             cancellationTokenSource = new CancellationTokenSource();
         }
 
+        //
         public async Task CommunicationThread()
         {
             try
@@ -56,15 +56,13 @@ namespace Chess_FirstStep
                 {
                     ChessMove move = userInput;
                     await Task.Run(() => SendMove(move));
-                    Console.WriteLine($"Sending move: {move}");
                     userInput = null;
                 }
 
                 ChessMove receivedMove = await ReceiveMoveAsync();
-                Console.WriteLine($"Received move: {receivedMove}");
 
                 // Add a delay to avoid continuous looping without breaks
-                await Task.Delay(100); // Adjust the delay duration as needed
+                await Task.Delay(100); 
             }
             catch (Exception ex)
             {
@@ -76,8 +74,18 @@ namespace Chess_FirstStep
         {
             try
             {
+               
                 string receivedMove = await ReceiveMessageFromServerAsync();
-                return ConvertStringToMove(receivedMove);
+                if (receivedMove.Equals("NO"))
+                {
+                    this.otherClientsConnected = false;
+                    return null;
+                }
+                else
+                {
+                    return ConvertStringToMove(receivedMove);
+
+                }
             }
             catch (Exception ex)
             {
@@ -101,7 +109,7 @@ namespace Chess_FirstStep
             writer = new StreamWriter(networkStream) { AutoFlush = true };
         }
 
-        public async Task<bool> GetInitalStartingIsWhite()
+        public async Task GetInitalStartingIsWhite()
         {
             try
             {
@@ -111,12 +119,11 @@ namespace Chess_FirstStep
                     string receivedMessage = await ReceiveMessageFromServerAsync();
                     if (receivedMessage == "NO")
                     {
-                        return true;
+                        this.otherClientsConnected = false;
                     }
                     else if(receivedMessage == "YES")
                     {
-                        this.otherClientsConnected = true;
-                        return false;
+                        this.otherClientsConnected= true;
                     }
                     Thread.Sleep(1000);
                 }
@@ -125,12 +132,17 @@ namespace Chess_FirstStep
             catch (Exception ex)
             {
                 Console.WriteLine($"**** Error while receiving messages: {ex.Message}");
-                return false;
             }
         }
         private void SendChecker()
         {
-            string dataToSend = "User Entered";
+            string dataToSend = "ENTER";
+            writer.WriteLine(dataToSend);
+        }
+
+        public void SendLeave()
+        {
+            string dataToSend = "LEAVE";
             writer.WriteLine(dataToSend);
         }
 

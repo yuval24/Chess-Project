@@ -21,7 +21,6 @@ namespace Chess_FirstStep
         private Chessboard chessboard;
         private ImageView selectedImageView;
         private ChessPiece selectedPiece = null;
-        private ChessPiece lastPiecePlayed = null;
         private ImageView[,] chessPieceViews;
         private int selectedRow = -1; // Initialize with an invalid value
         private int selectedCol = -1; // Initialize with an invalid value
@@ -35,9 +34,7 @@ namespace Chess_FirstStep
         Dialog d;
         TextView tvWinner;
         ChessNetworkManager chessNetworkManager;
-        private bool initialPlayerIsWhite;
-        private bool isCurrentlyPlaying = false;
-        private object playLock = new object();
+        public bool initialPlayerIsWhite;
         private CancellationTokenSource cancellationTokenSource;
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -63,13 +60,10 @@ namespace Chess_FirstStep
 
         private async Task CheckIfOtherClientsConnectedAsync()
         {
-            // Implement the logic to check if other clients are connected asynchronously
-            // For example, you might await a method in ChessNetworkManager that checks the connection status.
-           
             
-            bool IsWhite = await chessNetworkManager.GetInitalStartingIsWhite();
+            await chessNetworkManager.GetInitalStartingIsWhite();
 
-            if (IsWhite)
+            if (chessNetworkManager.otherClientsConnected)
             {
                 initialPlayerIsWhite = true;
                 
@@ -87,6 +81,7 @@ namespace Chess_FirstStep
         protected override void OnDestroy()
         {
             // Cancel the communication loop when the activity is destroyed
+            new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
             cancellationTokenSource?.Cancel();
             chessNetworkManager?.Dispose();
             base.OnDestroy();
@@ -209,6 +204,7 @@ namespace Chess_FirstStep
             Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
             btnExit.Click += (s, e) =>
             {
+                new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
                 Intent intent = new Intent(this, typeof(MainActivity));
                 StartActivity(intent);
                 Finish();
@@ -547,5 +543,7 @@ namespace Chess_FirstStep
             //Finish();
 
         }
+
+       
     }
 }

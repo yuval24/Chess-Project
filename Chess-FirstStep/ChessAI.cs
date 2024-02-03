@@ -134,7 +134,11 @@ namespace Chess_FirstStep
             {
                 if (board.IsCheckmate())
                 {
-                    return int.MinValue;
+                    if(maximizingPlayer)
+                    {
+                        return int.MinValue; 
+                    }
+                    return int.MaxValue;
                 }
                 return 0;
             }
@@ -157,7 +161,8 @@ namespace Chess_FirstStep
                     }
                 }
                 return maxEval;
-            } else
+            } 
+            else
             {
                 int minEval = int.MaxValue;
                 foreach (ChessMove move in moves)
@@ -202,7 +207,6 @@ namespace Chess_FirstStep
 
         private List<ChessMove> GenerateLegalMoves(Chessboard board)
         {
-            // Implement logic to generate a list of legal moves based on the current board state.
             // This involves considering the positions and possible moves of all pieces.
             // Return a list of ChessMove objects representing legal moves.
             List<ChessMove> legalMoves = new List<ChessMove>();
@@ -306,7 +310,7 @@ namespace Chess_FirstStep
 
         private int GetPieceSquareValue(ChessPiece piece)
         {
-            // Piece square tables (you can adjust these values based on your strategy)
+            // Piece square tables
             int row = piece.Y;
             int col = piece.X;
 
