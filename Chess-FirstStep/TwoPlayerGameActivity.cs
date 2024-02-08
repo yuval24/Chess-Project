@@ -6,9 +6,7 @@ using Android.App;
 using Android.OS;
 using Android.Widget;
 using AndroidX.AppCompat.App;
-using System;
 using Android.Graphics.Drawables;
-using System.Collections.Generic;
 using Android.Content;
 
 namespace Chess_FirstStep
@@ -62,7 +60,7 @@ namespace Chess_FirstStep
             Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
             btnExit.Click += (s, e) =>
             {
-                Intent intent = new Intent(this, typeof(MainActivity));
+                Intent intent = new Intent(this, typeof(MainPageActivity));
                 StartActivity(intent);
                 Finish();
             };

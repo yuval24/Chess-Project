@@ -49,10 +49,6 @@ namespace Chess_FirstStep
 
 
             //Initialize the connection between the client to the server
-            chessNetworkManager = new ChessNetworkManager();
-            Task.Run(() => CheckIfOtherClientsConnectedAsync());
-            // Asynchronously check if other clients are connected
-
             cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => CommunicationLoop(cancellationTokenSource.Token));
         }
@@ -205,7 +201,7 @@ namespace Chess_FirstStep
             btnExit.Click += (s, e) =>
             {
                 new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
-                Intent intent = new Intent(this, typeof(MainActivity));
+                Intent intent = new Intent(this, typeof(MainPageActivity));
                 StartActivity(intent);
                 Finish();
             };

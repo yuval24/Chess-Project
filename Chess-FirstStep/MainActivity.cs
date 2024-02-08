@@ -6,6 +6,8 @@ using System;
 using Android.Graphics.Drawables;
 using System.Collections.Generic;
 using Android.Content;
+using Chess_FirstStep.Data_Classes;
+using System.Threading.Tasks;
 
 namespace Chess_FirstStep
 {
@@ -13,44 +15,84 @@ namespace Chess_FirstStep
     public class MainActivity : AppCompatActivity
     {
 
-        Button btnTwoPlayerGame;
-        Button btnAiGame;
-        Button btnOnlineGame;
+
+        EditText editTextUsername;
+        EditText editTextPassword;
+        NetworkManager networkManager;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.activity_main);
+            SetContentView(Resource.Layout.activity_login);
 
-            btnTwoPlayerGame = FindViewById<Button>(Resource.Id.btnTwoPlayerGame);
-            btnAiGame = FindViewById<Button>(Resource.Id.btnAiGame);
-            btnOnlineGame = FindViewById<Button>(Resource.Id.btnOnlineGame);
 
-            btnOnlineGame.Click += BtnOnlineGame_Click;
-            btnTwoPlayerGame.Click += BtnTwoPlayerGame_Click;
-            btnAiGame.Click += BtnAiGame_Click;
+            networkManager = NetworkManager.Instance;
+            Button btnLogin = FindViewById<Button>(Resource.Id.btnLogin);
+            Button btnSignUp = FindViewById<Button>(Resource.Id.btnSignUp);
+            editTextPassword = FindViewById<EditText>(Resource.Id.editTextPassword);
+            editTextUsername = FindViewById<EditText>(Resource.Id.editTextUsername);
+
+            btnSignUp.Click += btnSignUp_Click;
+            btnLogin.Click += btnLogin_Click;
+            Task.Run(() => CommunicationLoop());
         }
 
-        private void BtnOnlineGame_Click(object sender, EventArgs e)
+        // This is the main CommunicationLoop, waits for the user to enter a username and password to either
+        // login or signup. When the user enters a correct input it moves to the next activity
+        private async Task CommunicationLoop()
         {
-            Intent intent = new Intent(this, typeof(OnlineGameActivity));
+            try
+            {
+                while (true)
+                {
+                    string json = await networkManager.ReceiveDataFromServer();
+                    Data data = Data.Deserialize(json);
+                    Console.WriteLine("Received data: " + data.ToString());
 
-            StartActivity(intent);
+                    if ((data.type.Equals(ActivityType.SIGNUP) || data.type.Equals(ActivityType.LOGIN)) && data.content.Equals("OK"))
+                    {
+                        networkManager.currentUsername = data.recipient;
+                        // Transition to MainPageActivity upon successful signup/login
+                        Intent intent = new Intent(this, typeof(MainPageActivity));
+                        StartActivity(intent);
+                        break; // Exit the loop after successful transition
+                    }
+                    else
+                    {
+                        // Continue waiting for data
+                        RunOnUiThread(() =>
+                        {
+                            Toast.MakeText(this, "Invalid username or password", ToastLength.Short).Show();
+                        });
+                        
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"**** Error in CommunicationLoop: {ex.Message}");
+            }
         }
 
-        private void BtnAiGame_Click(object sender, EventArgs e)
+        // When pressed it sends to the server the username and password in order to signup if they're valid.
+        private void btnSignUp_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(AIGameActivity));
-
-            StartActivity(intent);
+            string username = editTextUsername.Text.ToString();
+            string password = editTextPassword.Text.ToString();
+            if (!username.Equals("") && !password.Equals(""))
+            {
+                networkManager.SendSignUpInformation(username, password);
+            }
         }
 
-        private void BtnTwoPlayerGame_Click(object sender, EventArgs e)
+        // When pressed it sends to the server the username and password in order to login if they're valid.
+        private void btnLogin_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(TwoPlayerGameActivity));
-
-            StartActivity(intent);
+            string username = editTextUsername.Text.ToString();
+            string password = editTextPassword.Text.ToString();
+            if (!username.Equals("") && !password.Equals(""))
+            {
+                networkManager.SendLoginInformation(username, password);
+            }
         }
     }
-
-    
 }

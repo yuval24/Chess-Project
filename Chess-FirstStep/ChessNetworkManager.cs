@@ -11,6 +11,8 @@ namespace Chess_FirstStep
 {
     public class ChessNetworkManager : IDisposable
     {
+        private static ChessNetworkManager chessNetworkManagerInstance = null;
+        private static readonly object lockObject = new object();
         private const string ServerIp = "10.0.2.2";
         private const int ServerPort = 3001;
 
@@ -22,7 +24,7 @@ namespace Chess_FirstStep
         private CancellationTokenSource cancellationTokenSource;
         public bool otherClientsConnectedIsSet;
 
-        public ChessNetworkManager()
+        private ChessNetworkManager()
         {
             try
             {
@@ -33,6 +35,24 @@ namespace Chess_FirstStep
             catch (Exception ex)
             {
                 Console.WriteLine($"Connection failed: {ex.Message}");
+            }
+        }
+
+        public static ChessNetworkManager ChessNetworkManagerInstance
+        {
+            get
+            {
+                if (chessNetworkManagerInstance == null)
+                {
+                    lock (lockObject)
+                    {
+                        if (chessNetworkManagerInstance == null)
+                        {
+                            chessNetworkManagerInstance = new ChessNetworkManager();
+                        }
+                    }
+                }
+                return chessNetworkManagerInstance;
             }
         }
 
