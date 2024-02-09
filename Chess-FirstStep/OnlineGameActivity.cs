@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using Android.Content;
+using Chess_FirstStep.Data_Classes;
 
 namespace Chess_FirstStep
 {
@@ -33,8 +34,8 @@ namespace Chess_FirstStep
         private bool blackWon = false;
         Dialog d;
         TextView tvWinner;
-        ChessNetworkManager chessNetworkManager;
-        public bool initialPlayerIsWhite;
+        NetworkManager networkManager;
+        private bool thisPlayerIsWhite;
         private CancellationTokenSource cancellationTokenSource;
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -47,62 +48,57 @@ namespace Chess_FirstStep
             // Initialize the UI elements and attach click event handlers
             InitializeUI();
 
+            // Checking which color is this player.
 
+
+            thisPlayerIsWhite = Intent.GetBooleanExtra("IS_WHITE",false);
+            networkManager = NetworkManager.Instance;
             //Initialize the connection between the client to the server
             cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => CommunicationLoop(cancellationTokenSource.Token));
         }
         
 
-        private async Task CheckIfOtherClientsConnectedAsync()
-        {
-            
-            await chessNetworkManager.GetInitalStartingIsWhite();
-
-            if (chessNetworkManager.otherClientsConnected)
-            {
-                initialPlayerIsWhite = true;
-                
-                
-                await chessNetworkManager.ReceiveMessagesFromServerAsync();
-            }
-            else
-            {
-                initialPlayerIsWhite = false;
-                
-            }
-            
-        }
+             
 
         protected override void OnDestroy()
         {
             // Cancel the communication loop when the activity is destroyed
-            new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
+            //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
             cancellationTokenSource?.Cancel();
-            chessNetworkManager?.Dispose();
             base.OnDestroy();
         }
 
+        // This is the main loop that waits for data to arrive, mainly moves from the other player. handles the Data
+        // properly.
         private async Task CommunicationLoop(CancellationToken cancellationToken)
         {
             try
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    if (chessNetworkManager.otherClientsConnected)
+                    string json = await networkManager.ReceiveDataFromServer();
+                    Console.WriteLine(json);
+                    Data data = Data.Deserialize(json);
+                    Console.WriteLine("Received data: " + data.ToString());
+
+                    if ((data.type.Equals(ActivityType.MOVE)))
                     {
-                        ChessMove receivedMove = await chessNetworkManager.ReceiveMoveAsync();
-                       
-                        if (receivedMove != null)
+                        MoveData moveData = MoveData.Deserialize(json);
+                        string moveString = moveData.move;
+                        ChessMove receivedMove = networkManager.ConvertStringToMove(moveString);
+                        RunOnUiThread(() => HandleReceivedMove(receivedMove));
+                    }
+                    else
+                    {
+                        // Continue waiting for data
+                        RunOnUiThread(() =>
                         {
-                            RunOnUiThread(() =>
-                            {
-                                // Process the received move
-                                HandleReceivedMove(receivedMove);
-                            });
-                        }
-                    } 
-                    Thread.Sleep(1000);
+                            Toast.MakeText(this, "Invalid Data", ToastLength.Short).Show();
+                        });
+
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -132,9 +128,9 @@ namespace Chess_FirstStep
         }
 
 
-        private async void HandleChessPieceClick(object sender, EventArgs e)
+        private void HandleChessPieceClick(object sender, EventArgs e)
         {
-            if(initialPlayerIsWhite == chessboard.isWhiteTurn && chessNetworkManager.otherClientsConnected)
+            if(thisPlayerIsWhite == chessboard.isWhiteTurn)
             {
                 ImageView clickedImageView = (ImageView)sender;
 
@@ -167,9 +163,7 @@ namespace Chess_FirstStep
                                     ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
                                     if (chessboard.IsMoveValid(chessMove))
                                     {
-                                        HandleTargetSquareClick();
-                                        chessNetworkManager.SetUserInputChessMove(chessMove);
-                                        await chessNetworkManager.CommunicationThread();
+                                        networkManager.SendMoveToServer(chessMove);
 
                                     }
                                 }
@@ -200,7 +194,7 @@ namespace Chess_FirstStep
             Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
             btnExit.Click += (s, e) =>
             {
-                new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
+                //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
                 Intent intent = new Intent(this, typeof(MainPageActivity));
                 StartActivity(intent);
                 Finish();

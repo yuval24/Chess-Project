@@ -126,7 +126,7 @@ namespace Chess_FirstStep
         }
 
         // Sends a request to the server that this current client wants to play 
-        public void sendWantsToPlayOnline()
+        public void sendWantsToPlayOnlineGame()
         {
 
             try
@@ -161,6 +161,64 @@ namespace Chess_FirstStep
                 System.Console.WriteLine($"**** Error while receiving messages: {ex.Message}");
             }
             return null;
+        }
+
+        public void SendMoveToServer(ChessMove move)
+        {
+            try
+            {
+                string moveString = ConvertMoveToString(move);
+                MoveData requestData = new MoveData
+                {
+                    type = ActivityType.MOVE,
+                    sender = currentUsername,
+                    recipient = "server",
+                    content = "OK",
+                    move = moveString
+                };
+                string jsonData = requestData.Serialize();
+                writer.WriteLine(jsonData);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"**** Error while sending move: {ex.Message}");
+            }
+            
+        }
+        // Gets a move and converts it to a string
+        public string ConvertMoveToString(ChessMove move)
+        {
+            return move.ToString(); 
+        }
+
+        // Gets a string and converts it to a chess move.
+        public ChessMove ConvertStringToMove(string moveString)
+        {
+            // Implement the conversion logic
+            int startCol = moveString[0] - 'a';    // Subtract 'a' to convert character to integer
+            int startRow = moveString[1] - '1';    // Subtract '1' to convert character to integer
+            int endCol = moveString[2] - 'a';      // Subtract 'a' to convert character to integer
+            int endRow = moveString[3] - '1';      // Subtract '1' to convert character to integer
+
+            ChessMove move = new ChessMove(startRow, startCol, endRow, endCol);
+            if (moveString.Contains("X"))
+            {
+                move.IsCapture = true;
+            }
+            if (moveString.Contains("Q"))
+            {
+                move.IsPromotion = true;
+            }
+            else if (moveString.Contains("CK"))
+            {
+                move.IsKingsideCastle = true;
+            }
+            else if (moveString.Contains("CN"))
+            {
+                move.IsQueensideCastle = true;
+            }
+
+            return move;
         }
 
     }

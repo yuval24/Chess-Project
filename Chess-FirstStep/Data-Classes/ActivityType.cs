@@ -20,7 +20,7 @@ namespace Chess_FirstStep.Data_Classes
         public const string MOVE = "MOVE";
         public const string CHAT = "CHAT";
         public const string REQUEST_TO_PLAY = "REQUEST_TO_PLAY";
-
+        public const string APPROVE_TO_PLAY = "APPROVE_TO_PLAY";
 
     }
 }

@@ -36,7 +36,7 @@ namespace Chess_FirstStep
 
         private void BtnOnlineGame_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(OnlineGameActivity));
+            Intent intent = new Intent(this, typeof(WaitingForOnlineGameActivity));
 
             StartActivity(intent);
         }
