@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using Android.Content;
 using Chess_FirstStep.Data_Classes;
+using Android.Views;
 
 namespace Chess_FirstStep
 {
@@ -33,15 +34,15 @@ namespace Chess_FirstStep
         private bool whiteWon = false;
         private bool blackWon = false;
         Dialog d;
-        TextView tvWinner;
         NetworkManager networkManager;
         private bool thisPlayerIsWhite;
         private CancellationTokenSource cancellationTokenSource;
+        private bool endGameToken;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.activity_two_player_game);
+            SetContentView(Resource.Layout.activity_online_game);
             // Initialize your chessboard and views
             InitializeChessboard();
 
@@ -53,6 +54,7 @@ namespace Chess_FirstStep
 
             thisPlayerIsWhite = Intent.GetBooleanExtra("IS_WHITE",false);
             networkManager = NetworkManager.Instance;
+            endGameToken = false;
             //Initialize the connection between the client to the server
             cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => CommunicationLoop(cancellationTokenSource.Token));
@@ -130,7 +132,7 @@ namespace Chess_FirstStep
 
         private void HandleChessPieceClick(object sender, EventArgs e)
         {
-            if(thisPlayerIsWhite == chessboard.isWhiteTurn)
+            if(thisPlayerIsWhite == chessboard.isWhiteTurn && !endGameToken)
             {
                 ImageView clickedImageView = (ImageView)sender;
 
@@ -191,8 +193,8 @@ namespace Chess_FirstStep
         {
             // Find the TableLayout in your XML layout
             TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayout);
-            Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
-            btnExit.Click += (s, e) =>
+            ImageButton exitButton = FindViewById<ImageButton>(Resource.Id.btnExit);
+            exitButton.Click += (s, e) =>
             {
                 //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
                 Intent intent = new Intent(this, typeof(MainPageActivity));
@@ -506,34 +508,56 @@ namespace Chess_FirstStep
 
         public void createEndGameDialog()
         {
-            d = new Dialog(this);
+            endGameToken = true;
+            Android.App.AlertDialog.Builder builder = new Android.App.AlertDialog.Builder(this);
+            
+            builder.SetCancelable(true);
 
-            d.SetContentView(Resource.Layout.a);
+            // Set the dialog content using a layout resource
+            LayoutInflater inflater = LayoutInflater.From(this);
+            View dialogView = inflater.Inflate(Resource.Layout.dialog_endgame, null);
+          
+            builder.SetView(dialogView);
 
-            d.SetTitle("Reset");
+            // Set dialog content and other properties as needed
+            TextView gameSummaryTextView = dialogView.FindViewById<TextView>(Resource.Id.gameSummaryTextView);
+            TextView whyEndedTextView = dialogView.FindViewById<TextView>(Resource.Id.whyEndedTextView);
+            Button newGameButton = dialogView.FindViewById<Button>(Resource.Id.newGameButton);
+            Button rematchButton = dialogView.FindViewById<Button>(Resource.Id.rematchButton);
 
-            d.SetCancelable(true);
-
-            tvWinner = d.FindViewById<TextView>(Resource.Id.tvWinner);
-
-
-            d.Show();
             if (whiteWon)
             {
-                tvWinner.Text = "White Won!";
+                gameSummaryTextView.Text = "White Won";
+                whyEndedTextView.Text = "by checkmate";
             }
             else if (blackWon)
             {
-                tvWinner.Text = "Black Won!";
+                gameSummaryTextView.Text = "Black Won";
+                whyEndedTextView.Text = "by checkmate";
             }
             else
             {
-                tvWinner.Text = "Draw";
+                gameSummaryTextView.Text = "Draw";
             }
-            //Finish();
+
+            // Create the AlertDialog and show it
+            Android.App.AlertDialog alertDialog = builder.Create();
+            alertDialog.Show();
+
+            // Set button click listeners if needed
+            newGameButton.Click += (sender, args) =>
+            {
+                // Handle button click
+            };
+
+            rematchButton.Click += (sender, args) =>
+            {
+                // Handle button click
+            };
+
 
         }
 
-       
+
     }
 }
