@@ -3600,49 +3600,49 @@ namespace Chess_FirstStep
 			public const int beginning = 2131230784;
 			
 			// aapt resource value: 0x7F080041
-			public const int blocking = 2131230785;
+			public const int blackCapturedListView = 2131230785;
 			
 			// aapt resource value: 0x7F080042
-			public const int bottom = 2131230786;
+			public const int blocking = 2131230786;
 			
 			// aapt resource value: 0x7F080043
-			public const int browser_actions_header_text = 2131230787;
-			
-			// aapt resource value: 0x7F080046
-			public const int browser_actions_menu_items = 2131230790;
+			public const int bottom = 2131230787;
 			
 			// aapt resource value: 0x7F080044
-			public const int browser_actions_menu_item_icon = 2131230788;
-			
-			// aapt resource value: 0x7F080045
-			public const int browser_actions_menu_item_text = 2131230789;
+			public const int browser_actions_header_text = 2131230788;
 			
 			// aapt resource value: 0x7F080047
-			public const int browser_actions_menu_view = 2131230791;
+			public const int browser_actions_menu_items = 2131230791;
+			
+			// aapt resource value: 0x7F080045
+			public const int browser_actions_menu_item_icon = 2131230789;
+			
+			// aapt resource value: 0x7F080046
+			public const int browser_actions_menu_item_text = 2131230790;
 			
 			// aapt resource value: 0x7F080048
-			public const int btnAiGame = 2131230792;
+			public const int browser_actions_menu_view = 2131230792;
 			
 			// aapt resource value: 0x7F080049
-			public const int btnExit = 2131230793;
+			public const int btnAiGame = 2131230793;
 			
 			// aapt resource value: 0x7F08004A
-			public const int btnLogin = 2131230794;
+			public const int btnExit = 2131230794;
 			
 			// aapt resource value: 0x7F08004B
-			public const int btnOnlineGame = 2131230795;
+			public const int btnLogin = 2131230795;
 			
 			// aapt resource value: 0x7F08004C
-			public const int btnSignUp = 2131230796;
+			public const int btnOnlineGame = 2131230796;
 			
 			// aapt resource value: 0x7F08004D
-			public const int btnTwoPlayerGame = 2131230797;
+			public const int btnSignUp = 2131230797;
 			
 			// aapt resource value: 0x7F08004E
-			public const int buttonPanel = 2131230798;
+			public const int btnTwoPlayerGame = 2131230798;
 			
 			// aapt resource value: 0x7F08004F
-			public const int capturedPiecesListView = 2131230799;
+			public const int buttonPanel = 2131230799;
 			
 			// aapt resource value: 0x7F080050
 			public const int center = 2131230800;
@@ -4170,13 +4170,16 @@ namespace Chess_FirstStep
 			public const int visible_removing_fragment_view_tag = 2131230969;
 			
 			// aapt resource value: 0x7F0800FA
-			public const int whyEndedTextView = 2131230970;
+			public const int whiteCapturedListView = 2131230970;
 			
 			// aapt resource value: 0x7F0800FB
-			public const int withText = 2131230971;
+			public const int whyEndedTextView = 2131230971;
 			
 			// aapt resource value: 0x7F0800FC
-			public const int wrap_content = 2131230972;
+			public const int withText = 2131230972;
+			
+			// aapt resource value: 0x7F0800FD
+			public const int wrap_content = 2131230973;
 			
 			static Id()
 			{

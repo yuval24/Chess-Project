@@ -8,6 +8,7 @@
     android:gravity="center"
     android:background="@android:color/holo_blue_light">
 
+    <!-- Exit button -->
     <ImageButton
         android:id="@+id/btnExit"
         android:layout_width="wrap_content"
@@ -16,24 +17,30 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="155dp"/>
 
+    <!-- White captured pieces ListView -->
     <ListView
-        android:id="@+id/capturedPiecesListView"
+        android:id="@+id/whiteCapturedListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp">
     </ListView>
-      
-    <TableLayout
+  
+    <!-- Chessboard -->
+      <TableLayout
          android:id="@+id/chessboardLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:stretchColumns="*"
-        android:gravity="center"
-        
-        >
+        android:gravity="center">
 
     </TableLayout>
 
-   
+    <!-- Black captured pieces ListView -->
+    <ListView
+        android:id="@+id/blackCapturedListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
+    </ListView>
 
 </LinearLayout>

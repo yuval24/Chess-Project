@@ -57,6 +57,7 @@ namespace Chess_FirstStep
                         }
                        
                         StartActivity(intent);
+                        Finish();
                         break; // Exit the loop after successful transition
                     }
                     else
@@ -72,7 +73,7 @@ namespace Chess_FirstStep
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"**** Error in CommunicationLoop: {ex.Message}");
+                Console.WriteLine($"**** Error in CommunicationLoop Waiting For Game: {ex.Message}");
             }
         }
     }

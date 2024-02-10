@@ -39,6 +39,7 @@ namespace Chess_FirstStep
             Intent intent = new Intent(this, typeof(WaitingForOnlineGameActivity));
 
             StartActivity(intent);
+            Finish();
         }
 
         private void BtnAiGame_Click(object sender, EventArgs e)

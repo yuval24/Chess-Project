@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="AIGameActivity.cs" />
     <Compile Include="Bishop.cs" />
+    <Compile Include="CapturedPiecesAdapter.cs" />
     <Compile Include="ChessAI.cs" />
     <Compile Include="Chessboard.cs" />
     <Compile Include="ChessMove.cs" />

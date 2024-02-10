@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
@@ -7,11 +8,13 @@ using System.Text;
 
 using Android.App;
 using Android.Content;
+using Android.Graphics.Drawables;
 using Android.Hardware.Lights;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Java.Nio.Channels;
 using static Android.Provider.DocumentsContract;
 
 namespace Chess_FirstStep
@@ -27,8 +30,9 @@ namespace Chess_FirstStep
         private const int SomeThreshold = 1000;
         private Stack<ChessPiece> capturedChessPiecesWhite;
         private Stack<ChessPiece> capturedChessPiecesBlack;
-        //public ChessPiece lastPieceCaptured {  get; set; }
-        private ChessPiece lastPiecePlayed;
+        public int moveCount {  get; set; }
+        public ChessPiece lastPieceCaptured {  get; set; }
+        public ChessPiece lastPiecePlayed {  get; set; }
 
         public Chessboard()
         {
@@ -37,6 +41,7 @@ namespace Chess_FirstStep
             chessPieces = new ChessPiece[8, 8];
             piecesOnTheBoard = 32;
             countFor50Moves = 0;
+            moveCount = 0;
             positionHistory = new List<string>();
             positionCount = new Dictionary<string, int>();
             capturedChessPiecesWhite = new Stack<ChessPiece>();
@@ -61,6 +66,7 @@ namespace Chess_FirstStep
            
             this.piecesOnTheBoard = other.piecesOnTheBoard;
             this.countFor50Moves = other.countFor50Moves;
+            this.moveCount = other.moveCount;
             this.positionHistory = new List<string>(other.positionHistory);
             capturedChessPiecesWhite = new Stack<ChessPiece>();
             capturedChessPiecesBlack = new Stack<ChessPiece>();
@@ -638,6 +644,7 @@ namespace Chess_FirstStep
             ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
             ChessPiece targetedPlace = chessPieces[targetRow, targetCol];
             chessPieces[selectedRow, selectedCol].HasMoved = true;
+            moveCount++;
             if (move.IsEnPassantCapture)
             {
                 //(!isWhiteTurn ? capturedChessPiecesWhite : capturedChessPiecesBlack).Push(chessPieces[selectedRow, selectedCol]);
@@ -662,12 +669,13 @@ namespace Chess_FirstStep
             else if (move.IsCapture)
             {
                 // Store the last piece played
-                //lastPieceCaptured = chessPieces[targetRow, targetCol];
+                lastPieceCaptured = chessPieces[targetRow, targetCol];
+
                 SetChessPiece(selectedPiece, targetRow, targetCol);
                 SetChessPiece(null, selectedRow, selectedCol);
 
 
-
+                
                 piecesOnTheBoard--;
                 countFor50Moves = 0;
             }
@@ -851,6 +859,35 @@ namespace Chess_FirstStep
             piecesOnTheBoard--;
             countFor50Moves = 0;
 
+        }
+
+        public int convertChessPieceToImage(ChessPiece piece)
+        {
+            if (piece is Pawn)
+            {
+                return piece.IsWhite ? Resource.Drawable.Chess_plt60 : Resource.Drawable.Chess_pdt60;
+            }
+            else if (piece is Rook)
+            {
+                return piece.IsWhite ? Resource.Drawable.Chess_rlt60 : Resource.Drawable.Chess_rdt60;
+            }
+            else if (piece is Knight)
+            {
+                return piece.IsWhite ? Resource.Drawable.Chess_klt60 : Resource.Drawable.Chess_kdt60;
+            }
+            else if (piece is Bishop)
+            {
+                return piece.IsWhite ? Resource.Drawable.Chess_blt60 : Resource.Drawable.Chess_bdt60;
+            }
+            else if (piece is Queen)
+            {
+                return piece.IsWhite ? Resource.Drawable.Chess_qlt60 : Resource.Drawable.Chess_qdt60;
+            }
+            else if (piece is King)
+            {
+                return piece.IsWhite ? Resource.Drawable.Chess_klt60 : Resource.Drawable.Chess_kdt60;
+            }
+            return -1;
         }
 
         /*public void UndoMove(ChessMove move)

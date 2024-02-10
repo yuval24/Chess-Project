@@ -5,6 +5,7 @@ using System.Text;
 
 using Android.App;
 using Android.Content;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
@@ -19,7 +20,6 @@ namespace Chess_FirstStep
         public int Y { get; set; }
         public bool IsWhite { get; protected set; }
         public bool HasMoved { get; set; }
-
         public ChessPiece(string name, int y, int x, bool isWhite, bool hasMoved)
         {
             Name = name;

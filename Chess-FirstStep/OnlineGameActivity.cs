@@ -6,9 +6,7 @@ using Android.App;
 using Android.OS;
 using Android.Widget;
 using AndroidX.AppCompat.App;
-using System;
 using Android.Graphics.Drawables;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using Android.Content;
@@ -38,6 +36,10 @@ namespace Chess_FirstStep
         private bool thisPlayerIsWhite;
         private CancellationTokenSource cancellationTokenSource;
         private bool endGameToken;
+        private List<int> whiteCapturedPieceIds;
+        private List<int> blackCapturedPieceIds;
+        private CapturedPiecesAdapter whiteAdapter;
+        private CapturedPiecesAdapter blackAdapter;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             
@@ -50,6 +52,32 @@ namespace Chess_FirstStep
             InitializeUI();
 
             // Checking which color is this player.
+
+
+            // Initialize lists to hold captured piece IDs
+            whiteCapturedPieceIds = new List<int>();
+            blackCapturedPieceIds = new List<int>();
+
+            // Create adapters for the ListView
+            whiteAdapter = new CapturedPiecesAdapter(this, whiteCapturedPieceIds);
+            blackAdapter = new CapturedPiecesAdapter(this, blackCapturedPieceIds);
+
+            // Find the ListViews in your layout
+            ListView whiteCapturedListView = FindViewById<ListView>(Resource.Id.whiteCapturedListView);
+            ListView blackCapturedListView = FindViewById<ListView>(Resource.Id.blackCapturedListView);
+
+            // Set the adapters to the ListViews
+            whiteCapturedListView.Adapter = whiteAdapter;
+            blackCapturedListView.Adapter = blackAdapter;
+
+            // Example of adding a captured piece (replace with your logic)
+            //whiteCapturedPieceIds.Add(Resource.Drawable.Chess_bdt60);
+
+            //// Notify adapters that the data has changed
+            //whiteAdapter.NotifyDataSetChanged();
+            //blackAdapter.NotifyDataSetChanged();
+
+
 
 
             thisPlayerIsWhite = Intent.GetBooleanExtra("IS_WHITE",false);
@@ -67,7 +95,7 @@ namespace Chess_FirstStep
         {
             // Cancel the communication loop when the activity is destroyed
             //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
-            cancellationTokenSource?.Cancel();
+            cancellationTokenSource.Cancel();
             base.OnDestroy();
         }
 
@@ -90,6 +118,9 @@ namespace Chess_FirstStep
                         string moveString = moveData.move;
                         ChessMove receivedMove = networkManager.ConvertStringToMove(moveString);
                         RunOnUiThread(() => HandleReceivedMove(receivedMove));
+                    } else if (data.type.Equals(ActivityType.END_GAME))
+                    {
+                        RunOnUiThread(() => endGameToken = true);
                     }
                     else
                     {
@@ -103,10 +134,15 @@ namespace Chess_FirstStep
 
                 }
             }
+            catch (System.OperationCanceledException)
+            {
+                // Handle cancellation
+                Console.WriteLine("CommunicationLoop cancelled.");
+            }
             catch (Exception ex)
             {
                 // Log or handle the exception appropriately
-                Console.WriteLine($"**** Error in CommunicationLoop: {ex.Message}");
+                Console.WriteLine($"**** Error in CommunicationLoop During Game: {ex.Message}");
             }
         }
 
@@ -166,10 +202,10 @@ namespace Chess_FirstStep
                                     if (chessboard.IsMoveValid(chessMove))
                                     {
                                         networkManager.SendMoveToServer(chessMove);
-
+                                        HandleTargetSquareClick();
                                     }
                                 }
-                                HandleTargetSquareClick();
+                                
                             }
                         }
                     }
@@ -197,9 +233,18 @@ namespace Chess_FirstStep
             exitButton.Click += (s, e) =>
             {
                 //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
-                Intent intent = new Intent(this, typeof(MainPageActivity));
-                StartActivity(intent);
-                Finish();
+                if (endGameToken)
+                {
+
+                    Intent intent = new Intent(this, typeof(MainPageActivity));
+                    StartActivity(intent);
+                    Finish();
+
+                } else
+                {
+                    ShowExitGameDialog();
+
+                }
             };
 
             // Define the number of rows and columns on the chessboard
@@ -384,6 +429,16 @@ namespace Chess_FirstStep
                     {
                         // Update the UI
                         ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        //if (!chessboard.isWhiteTurn)
+                        //{
+                        //    whiteCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                        //    whiteAdapter.NotifyDataSetChanged();
+                        //} else
+                        //{
+                        //    blackCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                        //    blackAdapter.NotifyDataSetChanged();
+                        //}
+                       
                         targetImageView.SetImageDrawable(selectedImageView.Drawable);
                         selectedImageView.SetImageDrawable(null);
 
@@ -525,19 +580,33 @@ namespace Chess_FirstStep
             Button newGameButton = dialogView.FindViewById<Button>(Resource.Id.newGameButton);
             Button rematchButton = dialogView.FindViewById<Button>(Resource.Id.rematchButton);
 
+
+
             if (whiteWon)
             {
                 gameSummaryTextView.Text = "White Won";
                 whyEndedTextView.Text = "by checkmate";
+                if(thisPlayerIsWhite)
+                {
+                    networkManager.SendEndGameToServer("white");
+                }
             }
             else if (blackWon)
             {
                 gameSummaryTextView.Text = "Black Won";
                 whyEndedTextView.Text = "by checkmate";
+                if (!thisPlayerIsWhite)
+                {
+                    networkManager.SendEndGameToServer("black");
+                }
             }
             else
             {
                 gameSummaryTextView.Text = "Draw";
+                if (thisPlayerIsWhite)
+                {
+                    networkManager.SendEndGameToServer("draw");
+                }
             }
 
             // Create the AlertDialog and show it
@@ -556,6 +625,52 @@ namespace Chess_FirstStep
             };
 
 
+        }
+
+        // When A player wants to exit it show him this pop up. and he need choose either to exit(abort / resign) or stay.
+        private void ShowExitGameDialog()
+        {
+            Android.App.AlertDialog.Builder builder = new Android.App.AlertDialog.Builder(this);
+            string builderTitle = string.Empty;
+            if(chessboard.moveCount == 0)
+            {
+                builderTitle = "Abort Game";
+                builder.SetMessage("Are you sure you want to abort the game?");
+            } else if(chessboard.moveCount == 1 && chessboard.isWhiteTurn == thisPlayerIsWhite)
+            {
+                builderTitle = "Abort Game";
+                builder.SetMessage("Are you sure you want to abort the game?");
+            } else
+            {
+                builderTitle = "Resign";
+                builder.SetMessage("Are you sure you want to resign?");
+            }
+            builder.SetTitle(builderTitle);
+            builder.SetPositiveButton("Yes", (sender, args) =>
+            {
+                // Handle the "Yes" button click (exit game)
+                // Close the activity and exit the game
+                if(builderTitle.Equals("Resign")) {
+                    networkManager.SendLeavePlayerToServer("resign", thisPlayerIsWhite);
+                }
+                else if(builderTitle.Equals("Abort Game"))
+                {
+                    networkManager.SendLeavePlayerToServer("abort", thisPlayerIsWhite);
+                }
+
+                Intent intent = new Intent(this, typeof(MainPageActivity));
+                StartActivity(intent);
+                Finish();
+            });
+            builder.SetNegativeButton("No", (sender, args) =>
+            {
+                // Handle the "No" button click (cancel exit)
+                // Do nothing, dismiss the dialog
+            });
+
+            Android.App.AlertDialog dialog = builder.Create();
+
+            dialog.Show();
         }
 
 

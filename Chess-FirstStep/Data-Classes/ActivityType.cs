@@ -10,6 +10,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json;
 
 namespace Chess_FirstStep.Data_Classes
 {
@@ -21,6 +22,8 @@ namespace Chess_FirstStep.Data_Classes
         public const string CHAT = "CHAT";
         public const string REQUEST_TO_PLAY = "REQUEST_TO_PLAY";
         public const string APPROVE_TO_PLAY = "APPROVE_TO_PLAY";
+        public const string END_GAME = "END_GAME";
+        public const string LEAVE_GAME = "LEAVE_GAME";
 
     }
 }

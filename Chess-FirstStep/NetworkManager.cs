@@ -152,8 +152,10 @@ namespace Chess_FirstStep
         // waits for data from the server
         public async Task<string> ReceiveDataFromServer()
         {
+
             try
             {
+                
                 return await reader.ReadLineAsync();
             }
             catch (Exception ex)
@@ -163,6 +165,7 @@ namespace Chess_FirstStep
             return null;
         }
 
+        // Gets a move and sending it to the server
         public void SendMoveToServer(ChessMove move)
         {
             try
@@ -185,6 +188,70 @@ namespace Chess_FirstStep
             }
             
         }
+
+        // Gets a game end state which could be - white, black or draw. 
+        // sends the data to the server.
+        public void SendEndGameToServer(String gameEndState)
+        {
+            try
+            {
+                
+                Data requestData = new Data
+                {
+                    type = ActivityType.END_GAME,
+                    sender = currentUsername,
+                    recipient = "server",
+                    content = gameEndState
+                };
+                string jsonData = requestData.Serialize();
+                writer.WriteLine(jsonData);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"**** Error while sending end game data: {ex.Message}");
+            }
+
+        }
+
+        // Gets why the players leaved - abort, resign. 
+        // sends it to the server
+        public void SendLeavePlayerToServer(String reasonToLeave, bool isCurrPlayerWhite)
+        {
+            try
+            {
+                string contentToSend = string.Empty;
+                if (reasonToLeave.Equals("resign"))
+                {
+                    if (isCurrPlayerWhite)
+                    {
+                        contentToSend = "black";
+                    }
+                    else
+                    {
+                        contentToSend = "white";
+                    }
+                } else if (reasonToLeave.Equals("abort"))
+                {
+                    contentToSend = "draw";
+                }
+
+                Data requestData = new Data
+                {
+                    type = ActivityType.LEAVE_GAME,
+                    sender = currentUsername,
+                    recipient = "server",
+                    content = contentToSend
+                };
+                string jsonData = requestData.Serialize();
+                writer.WriteLine(jsonData);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"**** Error while sending end game data: {ex.Message}");
+            }
+
+        }
+
         // Gets a move and converts it to a string
         public string ConvertMoveToString(ChessMove move)
         {
