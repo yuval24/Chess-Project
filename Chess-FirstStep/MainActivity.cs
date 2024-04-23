@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Android.Content;
 using Chess_FirstStep.Data_Classes;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Chess_FirstStep
 {
@@ -26,6 +27,10 @@ namespace Chess_FirstStep
 
 
             networkManager = NetworkManager.Instance;
+            
+            
+            System.Console.WriteLine("*****" + networkManager.reader == null);
+
             Button btnLogin = FindViewById<Button>(Resource.Id.btnLogin);
             Button btnSignUp = FindViewById<Button>(Resource.Id.btnSignUp);
             editTextPassword = FindViewById<EditText>(Resource.Id.editTextPassword);
@@ -40,10 +45,13 @@ namespace Chess_FirstStep
         // login or signup. When the user enters a correct input it moves to the next activity
         private async Task CommunicationLoop()
         {
+
             try
             {
+                await networkManager.StartConnectionAsync();
                 while (true)
                 {
+                    
                     string json = await networkManager.ReceiveDataFromServer();
                     Data data = Data.Deserialize(json);
                     Console.WriteLine("Received data: " + data.ToString());
@@ -54,6 +62,7 @@ namespace Chess_FirstStep
                         // Transition to MainPageActivity upon successful signup/login
                         Intent intent = new Intent(this, typeof(MainPageActivity));
                         StartActivity(intent);
+                        Finish();
                         break; // Exit the loop after successful transition
                     }
                     else

@@ -20,10 +20,14 @@ namespace Chess_FirstStep
         Button btnTwoPlayerGame;
         Button btnAiGame;
         Button btnOnlineGame;
+        NetworkManager networkManager;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
+
+            networkManager = NetworkManager.Instance;
+            Task.Run(() => networkManager.ReconnectAsync());
 
             btnTwoPlayerGame = FindViewById<Button>(Resource.Id.btnTwoPlayerGame);
             btnAiGame = FindViewById<Button>(Resource.Id.btnAiGame);

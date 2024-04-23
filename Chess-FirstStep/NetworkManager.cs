@@ -28,36 +28,39 @@ namespace Chess_FirstStep
         private const string ServerIp = "10.0.2.2";
         private const int ServerPort = 3001;
 
-        private Socket client;
-        private StreamReader reader;
+        private SocketManager socketManager;
+        public StreamReader reader;
         private StreamWriter writer;
-        public string currentUsername {  get; set; }
+        public string currentUsername { get; set; }
 
-        // Private constructor to prevent instantiation from outside the class
         private NetworkManager()
         {
-            try
+            currentUsername = "";
+            socketManager = new SocketManager();  // Use SocketManager for connection management
+            /*StartConnectionAsync().ContinueWith(task => // Handle connection result (optional)
             {
-                ConnectToServer();
-            } 
-            catch (Exception ex) 
-            {
-                System.Console.WriteLine($"Connection failed: {ex.Message}");
-            }
+                if (task.IsFaulted)
+                {
+                    System.Console.WriteLine($"Connection failed: {task.Exception.InnerException.Message}");
+                }
+                else if (task.IsCompleted)
+                {
+                    System.Console.WriteLine("Connected to server successfully.");
+                }
+            });*/
         }
 
-        
         public static NetworkManager Instance
         {
             get
             {
-                // Double-checked locking for thread safety
                 if (NetworkManagerInstance == null)
                 {
                     lock (lockObject)
                     {
                         if (NetworkManagerInstance == null)
                         {
+                            
                             NetworkManagerInstance = new NetworkManager();
                         }
                     }
@@ -66,18 +69,54 @@ namespace Chess_FirstStep
             }
         }
 
-
-        // setting up the connection between the client and the server
-        private void ConnectToServer()
+        private async Task ConnectToServerAsync()
         {
-            currentUsername = "";
-            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            client.Connect(new IPEndPoint(IPAddress.Parse(ServerIp), ServerPort));
-
-            NetworkStream networkStream = new NetworkStream(client);
-            reader = new StreamReader(networkStream);
-            writer = new StreamWriter(networkStream) { AutoFlush = true };
+            try
+            {
+                System.Console.WriteLine("****** Trying to Connect");
+                if (await socketManager.Connect(ServerIp, ServerPort))
+                {
+                    NetworkStream networkStream = new NetworkStream(socketManager.socket);
+                    reader = new StreamReader(networkStream);
+                    writer = new StreamWriter(networkStream) { AutoFlush = true };
+                    System.Console.WriteLine("****** Connection Successful");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Connection failed: {ex.Message}");
+            }
         }
+
+        public async Task StartConnectionAsync()
+        {
+            await ConnectToServerAsync();
+        }
+
+        public async Task ReconnectAsync()
+        {
+            await CloseConnectionAsync();  // Close existing connection before reconnecting
+            await ConnectToServerAsync();   // Attempt to reconnect
+            System.Console.WriteLine("Attempting reconnection...");
+        }
+
+        private Task CloseConnectionAsync()
+        {
+            if (reader != null)
+            {
+                reader.Close();
+                reader = null;
+            }
+            if (writer != null)
+            {
+                writer.Close();
+                writer = null;
+            }
+            socketManager.Close();
+            System.Console.WriteLine("Connection closed.");
+            return Task.CompletedTask;
+        }
+
 
         // sending the sign up data to the server to check if the username is not exists
         public void SendSignUpInformation(string username, string password)
@@ -148,14 +187,13 @@ namespace Chess_FirstStep
                 System.Console.WriteLine($"*** Error: {ex.Message}");
             }
         }
-    
+       
         // waits for data from the server
         public async Task<string> ReceiveDataFromServer()
         {
 
             try
             {
-                
                 return await reader.ReadLineAsync();
             }
             catch (Exception ex)
@@ -287,6 +325,8 @@ namespace Chess_FirstStep
 
             return move;
         }
+
+       
 
     }
 }

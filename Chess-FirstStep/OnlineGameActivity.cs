@@ -103,10 +103,15 @@ namespace Chess_FirstStep
         // properly.
         private async Task CommunicationLoop(CancellationToken cancellationToken)
         {
+            CancellationTokenSource source = new CancellationTokenSource();
             try
             {
-                while (!cancellationToken.IsCancellationRequested)
+                while (true)
                 {
+                    if (endGameToken)
+                    {
+                        break;
+                    }
                     string json = await networkManager.ReceiveDataFromServer();
                     Console.WriteLine(json);
                     Data data = Data.Deserialize(json);
@@ -131,6 +136,7 @@ namespace Chess_FirstStep
                         });
 
                     }
+                    Task.Delay(100);
 
                 }
             }
@@ -143,6 +149,10 @@ namespace Chess_FirstStep
             {
                 // Log or handle the exception appropriately
                 Console.WriteLine($"**** Error in CommunicationLoop During Game: {ex.Message}");
+            }
+            finally
+            {
+                source.Dispose();
             }
         }
 
@@ -203,6 +213,9 @@ namespace Chess_FirstStep
                                     {
                                         networkManager.SendMoveToServer(chessMove);
                                         HandleTargetSquareClick();
+                                    } else
+                                    {
+                                        ResetSelection();
                                     }
                                 }
                                 
@@ -235,7 +248,6 @@ namespace Chess_FirstStep
                 //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
                 if (endGameToken)
                 {
-
                     Intent intent = new Intent(this, typeof(MainPageActivity));
                     StartActivity(intent);
                     Finish();
@@ -657,7 +669,6 @@ namespace Chess_FirstStep
                 {
                     networkManager.SendLeavePlayerToServer("abort", thisPlayerIsWhite);
                 }
-
                 Intent intent = new Intent(this, typeof(MainPageActivity));
                 StartActivity(intent);
                 Finish();
