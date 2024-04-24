@@ -40,6 +40,8 @@ namespace Chess_FirstStep
         private List<int> blackCapturedPieceIds;
         private CapturedPiecesAdapter whiteAdapter;
         private CapturedPiecesAdapter blackAdapter;
+        private bool gameResigned = false;
+        private bool gameAborted = false;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             
@@ -125,7 +127,14 @@ namespace Chess_FirstStep
                         RunOnUiThread(() => HandleReceivedMove(receivedMove));
                     } else if (data.type.Equals(ActivityType.END_GAME))
                     {
-                        RunOnUiThread(() => endGameToken = true);
+                        if (data.content.Equals("resign"))
+                        {
+                            RunOnUiThread(() => { gameResigned = true; whiteWon = thisPlayerIsWhite; }) ;
+                        } else if (data.content.Equals("abort"))
+                        {
+                            RunOnUiThread(() => gameAborted = true);
+                        }
+                        RunOnUiThread(() => createEndGameDialog());
                     }
                     else
                     {
@@ -593,8 +602,23 @@ namespace Chess_FirstStep
             Button rematchButton = dialogView.FindViewById<Button>(Resource.Id.rematchButton);
 
 
-
-            if (whiteWon)
+            if (gameResigned)
+            {
+                if (whiteWon)
+                {
+                    gameSummaryTextView.Text = "White Won";
+                } else
+                {
+                    gameSummaryTextView.Text = "Black Won";
+                }
+                whyEndedTextView.Text = "by resignation";
+            } 
+            else if (gameAborted)
+            {
+                gameSummaryTextView.Text = "Game Aborted";
+                whyEndedTextView.Text = "";
+            }
+            else if (whiteWon)
             {
                 gameSummaryTextView.Text = "White Won";
                 whyEndedTextView.Text = "by checkmate";
@@ -664,14 +688,15 @@ namespace Chess_FirstStep
                 // Close the activity and exit the game
                 if(builderTitle.Equals("Resign")) {
                     networkManager.SendLeavePlayerToServer("resign", thisPlayerIsWhite);
+                    whiteWon = !thisPlayerIsWhite;
+                    gameResigned = true;
                 }
                 else if(builderTitle.Equals("Abort Game"))
                 {
                     networkManager.SendLeavePlayerToServer("abort", thisPlayerIsWhite);
+                    gameAborted = true;
                 }
-                Intent intent = new Intent(this, typeof(MainPageActivity));
-                StartActivity(intent);
-                Finish();
+                createEndGameDialog();
             });
             builder.SetNegativeButton("No", (sender, args) =>
             {

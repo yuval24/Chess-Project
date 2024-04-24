@@ -20,6 +20,9 @@ namespace Chess_FirstStep.Data_Classes
         public string sender { get; set; }
         public string recipient { get; set; }
         public string content { get; set; }
+         
+        public string token { get; set; }
+        public bool success { get; set; }
 
         public string Serialize()
         {

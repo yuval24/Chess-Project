@@ -37,17 +37,6 @@ namespace Chess_FirstStep
         {
             currentUsername = "";
             socketManager = new SocketManager();  // Use SocketManager for connection management
-            /*StartConnectionAsync().ContinueWith(task => // Handle connection result (optional)
-            {
-                if (task.IsFaulted)
-                {
-                    System.Console.WriteLine($"Connection failed: {task.Exception.InnerException.Message}");
-                }
-                else if (task.IsCompleted)
-                {
-                    System.Console.WriteLine("Connected to server successfully.");
-                }
-            });*/
         }
 
         public static NetworkManager Instance
