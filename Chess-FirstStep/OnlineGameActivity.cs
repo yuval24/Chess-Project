@@ -12,6 +12,8 @@ using System.Threading;
 using Android.Content;
 using Chess_FirstStep.Data_Classes;
 using Android.Views;
+using AndroidX.RecyclerView.Widget;
+using System.Timers;
 
 namespace Chess_FirstStep
 {
@@ -26,12 +28,11 @@ namespace Chess_FirstStep
         private int selectedCol = -1; // Initialize with an invalid value
         private int targetCol = -1;
         private int targetRow = -1;
-        private List<ChessPiece> whiteCapturedPieces = new List<ChessPiece>();
-        private List<ChessPiece> blackCapturedPieces = new List<ChessPiece>();
+        private List<int> whiteCapturedPieces = new List<int>();
+        private List<int> blackCapturedPieces = new List<int>();
         private Android.Graphics.Color[,] originalSquareColors = new Android.Graphics.Color[8, 8];
         private bool whiteWon = false;
         private bool blackWon = false;
-        Dialog d;
         NetworkManager networkManager;
         private bool thisPlayerIsWhite;
         private CancellationTokenSource cancellationTokenSource;
@@ -42,6 +43,15 @@ namespace Chess_FirstStep
         private CapturedPiecesAdapter blackAdapter;
         private bool gameResigned = false;
         private bool gameAborted = false;
+        private TextView blackPlayerTimer;
+        private TextView whitePlayerTimer;
+        private System.Timers.Timer timer;
+        private TimeSpan blackTime;
+        private TimeSpan whiteTime;
+        private TimeSpan defaultTime = TimeSpan.FromMinutes(5); // Default time for each player
+        private bool isBlackTimerRunning = false;
+        private bool isWhiteTimerRunning = false;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             
@@ -65,21 +75,32 @@ namespace Chess_FirstStep
             blackAdapter = new CapturedPiecesAdapter(this, blackCapturedPieceIds);
 
             // Find the ListViews in your layout
-            ListView whiteCapturedListView = FindViewById<ListView>(Resource.Id.whiteCapturedListView);
-            ListView blackCapturedListView = FindViewById<ListView>(Resource.Id.blackCapturedListView);
+            RecyclerView whiteCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.whiteCapturedRecyclerView);
+            RecyclerView blackCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.blackCapturedRecyclerView);
 
             // Set the adapters to the ListViews
-            whiteCapturedListView.Adapter = whiteAdapter;
-            blackCapturedListView.Adapter = blackAdapter;
+            // Set up the RecyclerViews with a horizontal layout manager
+            whiteCapturedRecyclerView.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
+            blackCapturedRecyclerView.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
 
-            // Example of adding a captured piece (replace with your logic)
-            //whiteCapturedPieceIds.Add(Resource.Drawable.Chess_bdt60);
+            // Set the adapters to the RecyclerViews
+            whiteCapturedRecyclerView.SetAdapter(whiteAdapter);
+            blackCapturedRecyclerView.SetAdapter(blackAdapter);
 
-            //// Notify adapters that the data has changed
-            //whiteAdapter.NotifyDataSetChanged();
-            //blackAdapter.NotifyDataSetChanged();
+            blackPlayerTimer = FindViewById<TextView>(Resource.Id.blackPlayerTimer);
+            whitePlayerTimer = FindViewById<TextView>(Resource.Id.whitePlayerTimer);
 
+            // Set default time
+            blackTime = defaultTime;
+            whiteTime = defaultTime;
 
+            // Update timers
+            UpdateTimers();
+
+            // Start the timer
+            timer = new System.Timers.Timer(1000); // Update every second
+            timer.Elapsed += OnTimedEvent;
+            timer.Start();
 
 
             thisPlayerIsWhite = Intent.GetBooleanExtra("IS_WHITE",false);
@@ -89,9 +110,25 @@ namespace Chess_FirstStep
             cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => CommunicationLoop(cancellationTokenSource.Token));
         }
-        
 
-             
+        private void OnTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            // Update timers
+            if (blackTime > TimeSpan.Zero)
+                blackTime = blackTime.Subtract(TimeSpan.FromSeconds(1));
+            if (whiteTime > TimeSpan.Zero)
+                whiteTime = whiteTime.Subtract(TimeSpan.FromSeconds(1));
+
+            // Update UI
+            RunOnUiThread(UpdateTimers);
+        }
+
+        private void UpdateTimers()
+        {
+            blackPlayerTimer.Text = blackTime.ToString(@"mm\:ss");
+            whitePlayerTimer.Text = whiteTime.ToString(@"mm\:ss");
+        }
+
 
         protected override void OnDestroy()
         {
@@ -99,6 +136,8 @@ namespace Chess_FirstStep
             //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
             cancellationTokenSource.Cancel();
             base.OnDestroy();
+            timer.Stop();
+            timer.Dispose();
         }
 
         // This is the main loop that waits for data to arrive, mainly moves from the other player. handles the Data
@@ -135,6 +174,13 @@ namespace Chess_FirstStep
                             RunOnUiThread(() => gameAborted = true);
                         }
                         RunOnUiThread(() => createEndGameDialog());
+                    } else if (data.type.Equals(ActivityType.AUTHENTICATE))
+                    {
+                        if (!data.success)
+                        {
+                            SharedPreferencesManager.DeleteJwtToken();
+                            SharedPreferencesManager.DeleteUsername();
+                        }
                     }
                     else
                     {
@@ -450,16 +496,17 @@ namespace Chess_FirstStep
                     {
                         // Update the UI
                         ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                        //if (!chessboard.isWhiteTurn)
-                        //{
-                        //    whiteCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
-                        //    whiteAdapter.NotifyDataSetChanged();
-                        //} else
-                        //{
-                        //    blackCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
-                        //    blackAdapter.NotifyDataSetChanged();
-                        //}
-                       
+                        if (chessboard.isWhiteTurn)
+                        {
+                            whiteCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                            whiteAdapter.NotifyDataSetChanged();
+                        }
+                        else
+                        {
+                            blackCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                            blackAdapter.NotifyDataSetChanged();
+                        }
+
                         targetImageView.SetImageDrawable(selectedImageView.Drawable);
                         selectedImageView.SetImageDrawable(null);
 
@@ -599,7 +646,7 @@ namespace Chess_FirstStep
             TextView gameSummaryTextView = dialogView.FindViewById<TextView>(Resource.Id.gameSummaryTextView);
             TextView whyEndedTextView = dialogView.FindViewById<TextView>(Resource.Id.whyEndedTextView);
             Button newGameButton = dialogView.FindViewById<Button>(Resource.Id.newGameButton);
-            Button rematchButton = dialogView.FindViewById<Button>(Resource.Id.rematchButton);
+            Button cancelButton = dialogView.FindViewById<Button>(Resource.Id.cancelButton);
 
 
             if (gameResigned)
@@ -652,12 +699,15 @@ namespace Chess_FirstStep
             // Set button click listeners if needed
             newGameButton.Click += (sender, args) =>
             {
-                // Handle button click
+                Task.Run(() =>networkManager.ReconnectAsync());
+                Intent intent = new Intent(this, typeof(WaitingForOnlineGameActivity));
+                StartActivity(intent);
+                Finish();
             };
 
-            rematchButton.Click += (sender, args) =>
+            cancelButton.Click += (sender, args) =>
             {
-                // Handle button click
+                alertDialog.Dismiss();
             };
 
 

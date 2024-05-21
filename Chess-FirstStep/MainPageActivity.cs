@@ -36,8 +36,41 @@ namespace Chess_FirstStep
             btnOnlineGame.Click += BtnOnlineGame_Click;
             btnTwoPlayerGame.Click += BtnTwoPlayerGame_Click;
             btnAiGame.Click += BtnAiGame_Click;
+            Task.Run(() => CommunicationLoop());
         }
 
+        // This loop purpose is to check if the client is still Authenticated
+        private async Task CommunicationLoop()
+        {
+
+            try
+            {
+                
+                while (true)
+                {
+
+                    string json = await networkManager.ReceiveDataFromServer();
+                    Data data = Data.Deserialize(json);
+                    Console.WriteLine("Received data: " + data.ToString());
+
+                    if (data.type.Equals(ActivityType.AUTHENTICATE))
+                    {
+                        if (!data.success)
+                        {
+                            Intent intent = new Intent(this, typeof(MainActivity));
+                            StartActivity(intent);
+                            Finish();
+
+                        }
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"**** Error in CommunicationLoop MainPageActivity: {ex.Message}");
+            }
+        }
         private void BtnOnlineGame_Click(object sender, EventArgs e)
         {
             Intent intent = new Intent(this, typeof(WaitingForOnlineGameActivity));

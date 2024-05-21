@@ -46,7 +46,7 @@ namespace Chess_FirstStep.Data_Classes
 
         public override string ToString()
         {
-            return  "Type : " + type + ", Sender : " + sender + ", Reccipient : " + recipient +", content : " + content;
+            return  "Type : " + type + ", Sender : " + sender + ", Reccipient : " + recipient +", content : " + content +", token :" + token +", success :" + success;
         }
     }
 }

@@ -24,6 +24,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+         <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:background="@android:color/holo_green_dark" />
+
         <Button
             android:id="@+id/newGameButton"
             android:layout_width="0dp"
@@ -32,13 +40,6 @@
             android:text="New Game"
             android:background="@android:color/holo_blue_light" />
 
-        <Button
-            android:id="@+id/rematchButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Rematch"
-            android:background="@android:color/holo_green_dark" />
 
     </LinearLayout>
 

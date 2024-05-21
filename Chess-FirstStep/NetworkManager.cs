@@ -69,6 +69,7 @@ namespace Chess_FirstStep
                     reader = new StreamReader(networkStream);
                     writer = new StreamWriter(networkStream) { AutoFlush = true };
                     System.Console.WriteLine("****** Connection Successful");
+                    ConnectionToTheServer();
                 }
             }
             catch (Exception ex)
@@ -104,6 +105,30 @@ namespace Chess_FirstStep
             socketManager.Close();
             System.Console.WriteLine("Connection closed.");
             return Task.CompletedTask;
+        }
+
+        // When the connection is estblished the client is Authenticated by the server
+        public void ConnectionToTheServer()
+        {
+            try
+            {
+                string JWTtoken = SharedPreferencesManager.GetJwtToken();
+                string username = SharedPreferencesManager.GetUsername();
+                Data data = new Data
+                {
+                    type = ActivityType.AUTHENTICATE,
+                    sender = username,
+                    recipient = "server",
+                    content = "OK",
+                    token = JWTtoken
+                };
+                string jsonData = data.Serialize();
+                writer.WriteLine(jsonData);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error: {ex.Message}");
+            }
         }
 
 
@@ -159,13 +184,16 @@ namespace Chess_FirstStep
 
             try
             {
+                string JWTtoken = SharedPreferencesManager.GetJwtToken();
+                string username = SharedPreferencesManager.GetUsername();
                 System.Console.WriteLine($"*** Wants to play");
                 Data requestData = new Data
                 {
                     type = ActivityType.REQUEST_TO_PLAY,
-                    sender = currentUsername,
+                    sender = username,
                     recipient = "server",
                     content = "OK",
+                    token = JWTtoken
                 };
                 string jsonData = requestData.Serialize();
                 writer.WriteLine(jsonData);
@@ -197,14 +225,17 @@ namespace Chess_FirstStep
         {
             try
             {
+                string JWTtoken = SharedPreferencesManager.GetJwtToken();
+                string username = SharedPreferencesManager.GetUsername();
                 string moveString = ConvertMoveToString(move);
                 MoveData requestData = new MoveData
                 {
                     type = ActivityType.MOVE,
-                    sender = currentUsername,
+                    sender = username,
                     recipient = "server",
                     content = "OK",
-                    move = moveString
+                    move = moveString,
+                    token = JWTtoken
                 };
                 string jsonData = requestData.Serialize();
                 writer.WriteLine(jsonData);
@@ -222,13 +253,15 @@ namespace Chess_FirstStep
         {
             try
             {
-                
+                string JWTtoken = SharedPreferencesManager.GetJwtToken();
+                string username = SharedPreferencesManager.GetUsername();
                 Data requestData = new Data
                 {
                     type = ActivityType.END_GAME,
-                    sender = currentUsername,
+                    sender = username,
                     recipient = "server",
-                    content = gameEndState
+                    content = gameEndState,
+                    token = JWTtoken
                 };
                 string jsonData = requestData.Serialize();
                 writer.WriteLine(jsonData);
@@ -246,6 +279,8 @@ namespace Chess_FirstStep
         {
             try
             {
+                string username = SharedPreferencesManager.GetUsername();   
+                String JWTtoken = SharedPreferencesManager.GetJwtToken();
                 string contentToSend = string.Empty;
                 if (reasonToLeave.Equals("resign"))
                 {
@@ -265,9 +300,10 @@ namespace Chess_FirstStep
                 Data requestData = new Data
                 {
                     type = ActivityType.LEAVE_GAME,
-                    sender = currentUsername,
+                    sender = username,
                     recipient = "server",
-                    content = contentToSend
+                    content = contentToSend,
+                    token = JWTtoken
                 };
                 string jsonData = requestData.Serialize();
                 writer.WriteLine(jsonData);

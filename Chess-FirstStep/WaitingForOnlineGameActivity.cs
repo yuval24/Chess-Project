@@ -62,11 +62,7 @@ namespace Chess_FirstStep
                     }
                     else
                     {
-                        // Continue waiting for data
-                        RunOnUiThread(() =>
-                        {
-                            Toast.MakeText(this, "Invalid username or password", ToastLength.Short).Show();
-                        });
+                       
 
                     }
                 }

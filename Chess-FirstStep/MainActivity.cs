@@ -29,7 +29,6 @@ namespace Chess_FirstStep
             networkManager = NetworkManager.Instance;
             
             
-            System.Console.WriteLine("*****" + networkManager.reader == null);
 
             Button btnLogin = FindViewById<Button>(Resource.Id.btnLogin);
             Button btnSignUp = FindViewById<Button>(Resource.Id.btnSignUp);
@@ -60,17 +59,33 @@ namespace Chess_FirstStep
                     {
                         networkManager.currentUsername = data.recipient;
                         // Transition to MainPageActivity upon successful signup/login
+                        SharedPreferencesManager.SaveUsername(data.recipient);
+                        SharedPreferencesManager.SaveJwtToken(data.token);
                         Intent intent = new Intent(this, typeof(MainPageActivity));
                         StartActivity(intent);
                         Finish();
                         break; // Exit the loop after successful transition
+                    }
+                    else if(data.type.Equals(ActivityType.AUTHENTICATE))
+                    {
+                        if(data.success)
+                        {
+                            Intent intent = new Intent(this, typeof(MainPageActivity));
+                            StartActivity(intent);
+                            Finish();
+                        } else
+                        {
+                            SharedPreferencesManager.DeleteJwtToken();
+                            SharedPreferencesManager.DeleteUsername();
+                        }
+                        
                     }
                     else
                     {
                         // Continue waiting for data
                         RunOnUiThread(() =>
                         {
-                            Toast.MakeText(this, "Invalid username or password", ToastLength.Short).Show();
+                            
                         });
                         
                     }

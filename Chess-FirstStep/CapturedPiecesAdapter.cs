@@ -9,10 +9,11 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using AndroidX.RecyclerView.Widget;
 
 namespace Chess_FirstStep
 {
-    public class CapturedPiecesAdapter : BaseAdapter<int>
+    public class CapturedPiecesAdapter : RecyclerView.Adapter
     {
         private readonly Context context;
         private readonly List<int> capturedPieceIds;
@@ -23,30 +24,27 @@ namespace Chess_FirstStep
             this.capturedPieceIds = capturedPieceIds;
         }
 
-        public override int Count => capturedPieceIds.Count;
+        public override int ItemCount => capturedPieceIds.Count;
 
-        public override long GetItemId(int position) => position;
-
-        public override int this[int position] => capturedPieceIds[position];
-
-        public override View GetView(int position, View convertView, ViewGroup parent)
+        public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            ImageView imageView;
-            if (convertView == null)
+            if (holder is CapturedPieceViewHolder viewHolder)
             {
-                imageView = new ImageView(context);
-                imageView.LayoutParameters = new AbsListView.LayoutParams(150, 150); // Adjust size as needed
-                imageView.SetScaleType(ImageView.ScaleType.FitCenter);
+                viewHolder.ImageView.SetImageResource(capturedPieceIds[position]);
             }
-            else
-            {
-                imageView = (ImageView)convertView;
-            }
+        }
 
-            // Load image from resources using its ID
-            imageView.SetImageResource(capturedPieceIds[position]);
+        public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+        {
+            var itemView = LayoutInflater.From(context).Inflate(Resource.Layout.captured_piece_item, parent, false);
+            return new CapturedPieceViewHolder(itemView);
+        }
 
-            return imageView;
+        // Method to add a new piece and notify the adapter
+        public void AddCapturedPiece(int pieceId)
+        {
+            capturedPieceIds.Add(pieceId);
+            NotifyItemInserted(capturedPieceIds.Count - 1);
         }
     }
 
