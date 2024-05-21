@@ -43,14 +43,14 @@ namespace Chess_FirstStep
         private CapturedPiecesAdapter blackAdapter;
         private bool gameResigned = false;
         private bool gameAborted = false;
+        private bool gameWonOnTime = false;
         private TextView blackPlayerTimer;
         private TextView whitePlayerTimer;
-        private System.Timers.Timer timer;
+        private System.Timers.Timer whiteTimer;
+        private System.Timers.Timer blackTimer;
         private TimeSpan blackTime;
         private TimeSpan whiteTime;
-        private TimeSpan defaultTime = TimeSpan.FromMinutes(5); // Default time for each player
-        private bool isBlackTimerRunning = false;
-        private bool isWhiteTimerRunning = false;
+        private TimeSpan defaultTime = TimeSpan.FromMinutes(1); // Default time for each player
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -97,10 +97,16 @@ namespace Chess_FirstStep
             // Update timers
             UpdateTimers();
 
+            blackTimer = new System.Timers.Timer(1000);
+            blackTimer.Elapsed += OnBlackTimedEvent;
+            blackTimer.AutoReset = true;
+
+            whiteTimer = new System.Timers.Timer(1000);
+            whiteTimer.Elapsed += OnWhiteTimedEvent;
+            whiteTimer.AutoReset = true;
+
             // Start the timer
-            timer = new System.Timers.Timer(1000); // Update every second
-            timer.Elapsed += OnTimedEvent;
-            timer.Start();
+            whiteTimer.Start();
 
 
             thisPlayerIsWhite = Intent.GetBooleanExtra("IS_WHITE",false);
@@ -111,16 +117,42 @@ namespace Chess_FirstStep
             Task.Run(() => CommunicationLoop(cancellationTokenSource.Token));
         }
 
-        private void OnTimedEvent(object sender, ElapsedEventArgs e)
+        private void OnBlackTimedEvent(object sender, ElapsedEventArgs e)
         {
-            // Update timers
-            if (blackTime > TimeSpan.Zero)
-                blackTime = blackTime.Subtract(TimeSpan.FromSeconds(1));
-            if (whiteTime > TimeSpan.Zero)
-                whiteTime = whiteTime.Subtract(TimeSpan.FromSeconds(1));
+            RunOnUiThread(() =>
+            {
+                if (blackTime > TimeSpan.Zero)
+                {
+                    blackTime = blackTime.Subtract(TimeSpan.FromSeconds(1));
+                    UpdateTimers();
+                }
+                else
+                {
+                    blackTimer.Stop(); // Stop the timer when time is up
+                    whiteWon = true;
+                    gameWonOnTime = true;
+                    createEndGameDialog();
+                }
+            });
+        }
 
-            // Update UI
-            RunOnUiThread(UpdateTimers);
+        private void OnWhiteTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            RunOnUiThread(() =>
+            {
+                if (whiteTime > TimeSpan.Zero)
+                {
+                    whiteTime = whiteTime.Subtract(TimeSpan.FromSeconds(1));
+                    UpdateTimers();
+                }
+                else
+                {
+                    whiteTimer.Stop(); // Stop the timer when time is up
+                    whiteWon = false;
+                    gameWonOnTime = true;
+                    createEndGameDialog();
+                }
+            });
         }
 
         private void UpdateTimers()
@@ -136,8 +168,8 @@ namespace Chess_FirstStep
             //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();
             cancellationTokenSource.Cancel();
             base.OnDestroy();
-            timer.Stop();
-            timer.Dispose();
+            blackTimer.Dispose();
+            whiteTimer.Dispose();
         }
 
         // This is the main loop that waits for data to arrive, mainly moves from the other player. handles the Data
@@ -538,7 +570,17 @@ namespace Chess_FirstStep
                     }
 
 
+                    if(chessboard.isWhiteTurn)
+                    {
+                        whiteTimer.Stop();
+                        blackTimer.Start();
+                    } else
+                    {
+                        whiteTimer.Start();
+                        blackTimer.Stop();
+                    }
                     chessboard.SwitchPlayerTurn();
+                 
 
                 }
                 else if (chessMove.IsIllegalMove)
@@ -632,7 +674,10 @@ namespace Chess_FirstStep
         public void createEndGameDialog()
         {
             endGameToken = true;
+            whiteTimer.Stop();
+            blackTimer.Stop();
             Android.App.AlertDialog.Builder builder = new Android.App.AlertDialog.Builder(this);
+           
             
             builder.SetCancelable(true);
 
@@ -668,7 +713,13 @@ namespace Chess_FirstStep
             else if (whiteWon)
             {
                 gameSummaryTextView.Text = "White Won";
-                whyEndedTextView.Text = "by checkmate";
+                if (gameWonOnTime)
+                {
+                    whyEndedTextView.Text = "on time";
+                } else
+                {
+                    whyEndedTextView.Text = "by checkmate";
+                }
                 if(thisPlayerIsWhite)
                 {
                     networkManager.SendEndGameToServer("white");
@@ -677,7 +728,14 @@ namespace Chess_FirstStep
             else if (blackWon)
             {
                 gameSummaryTextView.Text = "Black Won";
-                whyEndedTextView.Text = "by checkmate";
+                if (gameWonOnTime)
+                {
+                    whyEndedTextView.Text = "on time";
+                }
+                else
+                {
+                    whyEndedTextView.Text = "by checkmate";
+                }
                 if (!thisPlayerIsWhite)
                 {
                     networkManager.SendEndGameToServer("black");
