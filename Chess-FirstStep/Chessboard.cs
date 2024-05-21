@@ -873,7 +873,7 @@ namespace Chess_FirstStep
             }
             else if (piece is Knight)
             {
-                return piece.IsWhite ? Resource.Drawable.Chess_klt60 : Resource.Drawable.Chess_kdt60;
+                return piece.IsWhite ? Resource.Drawable.Chess_nlt60 : Resource.Drawable.Chess_ndt60;
             }
             else if (piece is Bishop)
             {

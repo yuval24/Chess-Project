@@ -14,6 +14,7 @@ using Chess_FirstStep.Data_Classes;
 using Android.Views;
 using AndroidX.RecyclerView.Widget;
 using System.Timers;
+using Android.Media;
 
 namespace Chess_FirstStep
 {
@@ -52,6 +53,15 @@ namespace Chess_FirstStep
         private TimeSpan whiteTime;
         private TimeSpan defaultTime = TimeSpan.FromMinutes(1); // Default time for each player
 
+        private SoundPool soundPool;
+        private int moveSoundId;
+        private int checkSoundId;
+        private int castleSoundId;
+        private int captureSoundId;
+        private int promotionSoundId;
+        private int tensecondsSoundId;
+        private int gameEndSoundId;
+        private int gameStartSoundId;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             
@@ -108,6 +118,17 @@ namespace Chess_FirstStep
             // Start the timer
             whiteTimer.Start();
 
+            soundPool = new SoundPool.Builder().SetMaxStreams(2).Build();
+            moveSoundId = soundPool.Load(this, Resource.Raw.move_self, 1);
+            checkSoundId = soundPool.Load(this, Resource.Raw.move_check, 1);
+            castleSoundId = soundPool.Load(this, Resource.Raw.castle, 1);
+            captureSoundId = soundPool.Load(this, Resource.Raw.capture, 1);
+            promotionSoundId = soundPool.Load(this, Resource.Raw.promote, 1);
+            gameEndSoundId = soundPool.Load(this, Resource.Raw.game_end, 1);
+            gameStartSoundId = soundPool.Load(this, Resource.Raw.game_start, 1);
+            tensecondsSoundId = soundPool.Load(this, Resource.Raw.tenseconds, 1);
+
+           
 
             thisPlayerIsWhite = Intent.GetBooleanExtra("IS_WHITE",false);
             networkManager = NetworkManager.Instance;
@@ -115,6 +136,8 @@ namespace Chess_FirstStep
             //Initialize the connection between the client to the server
             cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => CommunicationLoop(cancellationTokenSource.Token));
+
+            PlayGameStartSound();
         }
 
         private void OnBlackTimedEvent(object sender, ElapsedEventArgs e)
@@ -125,6 +148,12 @@ namespace Chess_FirstStep
                 {
                     blackTime = blackTime.Subtract(TimeSpan.FromSeconds(1));
                     UpdateTimers();
+
+                    if (blackTime == TimeSpan.FromSeconds(10) && !thisPlayerIsWhite)
+                    {
+                        // Perform the desired action when 10 seconds are left
+                        PlayTenSecondsSound(); 
+                    }
                 }
                 else
                 {
@@ -144,6 +173,12 @@ namespace Chess_FirstStep
                 {
                     whiteTime = whiteTime.Subtract(TimeSpan.FromSeconds(1));
                     UpdateTimers();
+
+                    if (whiteTime == TimeSpan.FromSeconds(10) && thisPlayerIsWhite)
+                    {
+                        // Perform the desired action when 10 seconds are left
+                        PlayTenSecondsSound();
+                    }
                 }
                 else
                 {
@@ -161,6 +196,47 @@ namespace Chess_FirstStep
             whitePlayerTimer.Text = whiteTime.ToString(@"mm\:ss");
         }
 
+        private void PlayMoveSound()
+        {
+            soundPool.Play(moveSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCheckSound()
+        {
+            soundPool.Play(checkSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCastleSound()
+        {
+            soundPool.Play(castleSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCaptureSound()
+        {
+            soundPool.Play(captureSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayPromotionSound()
+        {
+            soundPool.Play(promotionSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayGameEndSound()
+        {
+            soundPool.Play(gameEndSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayGameStartSound()
+        {
+            Thread.Sleep(500);
+            soundPool.Play(gameStartSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayTenSecondsSound()
+        {
+            soundPool.Play(tensecondsSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
 
         protected override void OnDestroy()
         {
@@ -170,6 +246,7 @@ namespace Chess_FirstStep
             base.OnDestroy();
             blackTimer.Dispose();
             whiteTimer.Dispose();
+            soundPool.Release();
         }
 
         // This is the main loop that waits for data to arrive, mainly moves from the other player. handles the Data
@@ -486,6 +563,30 @@ namespace Chess_FirstStep
             return ((ColorDrawable)chessPieceViews[row, col].Background).Color;
         }
 
+        private void PlaySound(ChessMove chessMove)
+        {
+            if (chessboard.IsInCheck())
+            {
+                PlayCheckSound();
+            }
+            else if(chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
+            {
+                PlayCastleSound();
+            } 
+            else if(chessMove.IsCapture || chessMove.IsEnPassantCapture)
+            {
+                PlayCaptureSound();
+            } 
+            else if (chessMove.IsPromotion)
+            {
+                PlayPromotionSound();
+            }
+            else
+            {
+                PlayMoveSound();
+            }
+        }
+
 
 
         private void HandleTargetSquareClick()
@@ -549,6 +650,7 @@ namespace Chess_FirstStep
                                 createEndGameDialog();
                             }
                         }
+                       
                     }
                     else
                     {
@@ -562,6 +664,7 @@ namespace Chess_FirstStep
                         {
                             createEndGameDialog();
                         }
+                       
                     }
 
                     if (chessboard.drawByRepitition())
@@ -579,8 +682,12 @@ namespace Chess_FirstStep
                         whiteTimer.Start();
                         blackTimer.Stop();
                     }
+                    // for the sound
+                   
+
                     chessboard.SwitchPlayerTurn();
-                 
+                    PlaySound(chessMove);
+
 
                 }
                 else if (chessMove.IsIllegalMove)
@@ -676,6 +783,7 @@ namespace Chess_FirstStep
             endGameToken = true;
             whiteTimer.Stop();
             blackTimer.Stop();
+            PlayGameEndSound();
             Android.App.AlertDialog.Builder builder = new Android.App.AlertDialog.Builder(this);
            
             

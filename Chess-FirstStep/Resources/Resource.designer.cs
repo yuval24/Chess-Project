@@ -4541,7 +4541,28 @@ namespace Chess_FirstStep
 		{
 			
 			// aapt resource value: 0x7F0D0000
-			public const int move_self = 2131558400;
+			public const int capture = 2131558400;
+			
+			// aapt resource value: 0x7F0D0001
+			public const int castle = 2131558401;
+			
+			// aapt resource value: 0x7F0D0002
+			public const int game_end = 2131558402;
+			
+			// aapt resource value: 0x7F0D0003
+			public const int game_start = 2131558403;
+			
+			// aapt resource value: 0x7F0D0004
+			public const int move_check = 2131558404;
+			
+			// aapt resource value: 0x7F0D0005
+			public const int move_self = 2131558405;
+			
+			// aapt resource value: 0x7F0D0006
+			public const int promote = 2131558406;
+			
+			// aapt resource value: 0x7F0D0007
+			public const int tenseconds = 2131558407;
 			
 			static Raw()
 			{
