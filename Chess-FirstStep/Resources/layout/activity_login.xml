@@ -6,48 +6,86 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    android:background="@android:color/darker_gray">
-    
+    android:gravity="center_horizontal"
+    android:background="@android:color/holo_green_dark"
+    android:padding="24dp">
+
+    <!-- Title TextView with Animation -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login Page"
-        android:textSize="50sp"
-        android:layout_marginTop="32dp"/>
-    
-     <EditText
-        android:id="@+id/editTextUsername"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="type your username..."
-        android:layout_marginTop="24dp"/>
+        android:text="Login/Signup Page"
+        android:textSize="32sp"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="64dp"
+        android:layout_marginBottom="32dp"
+        android:textStyle="bold"
+        android:translationY="-50dp"
+        android:gravity="center"/>
 
+    <!-- Username EditText with Animation -->
+    <EditText
+        android:id="@+id/editTextUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Type your username..."
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:padding="16dp"
+        android:background="@drawable/edit_text_background"
+        android:textColor="@android:color/white"
+        
+        android:inputType="text"
+        android:translationY="-50dp"/>
+
+    <!-- Password EditText with Animation -->
     <EditText
         android:id="@+id/editTextPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Type your password..."
+        android:layout_marginBottom="32dp"
+        android:padding="16dp"
+        android:background="@drawable/edit_text_background"
+        android:textColor="@android:color/white"
+        
+        android:inputType="textPassword"
+        android:translationY="-50dp"/>
+
+    <!-- Stay Logged In Checkbox with Animation -->
+    <CheckBox
+        android:id="@+id/checkBoxLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="type your password..."
-        android:layout_marginTop="24dp"/>
+        android:text="Stay logged in"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp"
+        android:translationY="-50dp"/>
 
+    <!-- Login Button with Animation -->
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Log in"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginBottom="16dp"
+        android:padding="16dp"
+        android:background="@drawable/button_background"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:translationY="-50dp"/>
+
+    <!-- Sign Up Button with Animation -->
     <Button
         android:id="@+id/btnSignUp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sign up"
-        android:layout_marginTop="24dp"/>
+        android:padding="16dp"
+        android:background="@drawable/button_background"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:translationY="-50dp"/>
+
 </LinearLayout>
-
-    
-    
-
-
-
-

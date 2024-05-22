@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+	<!-- Magnifying glass shape -->
+	<path
+        android:fillColor="#FF4081"
+	android:pathData="M15.5,14h-0.79l-0.28,-0.27C14.41,12.59 15,11.11 15,9.5C15,5.91 12.09,3 8.5,3C4.91,3 2,5.91 2,9.5C2,13.09 4.91,16 8.5,16c1.61,0 3.09,-0.59 4.23,-1.57l0.27,0.28v0.79l5,4.99L20.49,18l-4.99,-5zM8.5,14c-2.48,0 -4.5,-2.02 -4.5,-4.5s2.02,-4.5 4.5,-4.5s4.5,2.02 4.5,4.5S10.98,14 8.5,14z"/>
+</vector>

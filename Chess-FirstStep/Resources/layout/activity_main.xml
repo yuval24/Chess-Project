@@ -7,15 +7,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="@android:color/holo_blue_light">
+    android:background="@drawable/main_page_chess">
     
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Chess Game"
-        android:textSize="24sp"
-        android:layout_marginTop="32dp"/>
+    
     
 
     <Button

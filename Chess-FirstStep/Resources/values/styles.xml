@@ -8,4 +8,18 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+	<style name="ProgressBarTheme" parent="Widget.AppCompat.ProgressBar">
+		<!-- Customize the color of the ProgressBar -->
+		<item name="colorAccent">#FF4081</item>
+		<!-- Pink color -->
+		<!-- Customize the size of the ProgressBar -->
+		<item name="android:layout_width">100dp</item>
+		<item name="android:layout_height">100dp</item>
+		<!-- Customize the appearance of the ProgressBar -->
+		<item name="android:indeterminateTintMode">src_atop</item>
+		<item name="android:indeterminateTint">@color/colorPrimaryDark</item>
+		<!-- Dark primary color -->
+	
+	</style>
+
 </resources>

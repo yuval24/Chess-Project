@@ -277,7 +277,7 @@ namespace Chess_FirstStep
                     {
                         if (data.content.Equals("resign"))
                         {
-                            RunOnUiThread(() => { gameResigned = true; whiteWon = thisPlayerIsWhite; }) ;
+                            RunOnUiThread(() => { gameResigned = true; whiteWon = thisPlayerIsWhite; });
                         } else if (data.content.Equals("abort"))
                         {
                             RunOnUiThread(() => gameAborted = true);
@@ -289,6 +289,7 @@ namespace Chess_FirstStep
                         {
                             SharedPreferencesManager.DeleteJwtToken();
                             SharedPreferencesManager.DeleteUsername();
+                            SharedPreferencesManager.DeleteStayLoggedIn();
                         }
                     }
                     else

@@ -17,10 +17,31 @@ namespace Chess_FirstStep
     {
         private const string JwtTokenKey = "jwt_token";
         private const string UsernameTokenKey = "username";
+        private const string StayLoggedInKey = "stay_logged_in";
 
         private static ISharedPreferences GetSharedPreferences()
         {
             return PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+        }
+        public static void SaveStayLoggedIn(bool stayLoggedIn)
+        {
+            ISharedPreferencesEditor editor = GetSharedPreferences().Edit();
+            editor.PutBoolean(StayLoggedInKey, stayLoggedIn);
+            editor.Apply();
+
+        }
+
+        public static void DeleteStayLoggedIn()
+        {
+            ISharedPreferencesEditor editor = GetSharedPreferences().Edit();
+            editor.Remove(StayLoggedInKey);
+            editor.Apply();
+
+        }
+
+        public static bool GetStayLoggedIn()
+        {
+            return GetSharedPreferences().GetBoolean(StayLoggedInKey, false);
         }
 
         public static void SaveUsername(string username)

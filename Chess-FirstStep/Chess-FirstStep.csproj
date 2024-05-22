@@ -80,6 +80,7 @@
     <Compile Include="Data-Classes\MoveData.cs" />
     <Compile Include="King.cs" />
     <Compile Include="Knight.cs" />
+    <Compile Include="LoginActivity.cs" />
     <Compile Include="MainPageActivity.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="NetworkManager.cs" />
@@ -222,6 +223,27 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\raw\tenseconds.mp3" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\openning_screen_chess.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\openning_screen.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\main_page_chess.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\edit_text_background.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\button_background.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\login_page_chess.png" />
+    <AndroidResource Include="Resources\drawable\custom_progress_bar.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
