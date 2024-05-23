@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Android.App;
 using Android.Content;
 using Android.Graphics.Drawables;
+using Android.Media;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using AndroidX.RecyclerView.Widget;
 using Java.Net;
 
 namespace Chess_FirstStep
@@ -35,6 +39,28 @@ namespace Chess_FirstStep
         TextView tvWinner;
         private bool humanTurn = true;
 
+        private System.Timers.Timer whiteTimer;
+        private System.Timers.Timer blackTimer;
+        private TimeSpan blackTime;
+        private TimeSpan whiteTime;
+        private TimeSpan defaultTime = TimeSpan.FromMinutes(5); // Default time for each player
+        private TextView blackPlayerTimer;
+        private TextView whitePlayerTimer;
+        private List<int> whiteCapturedPieceIds;
+        private List<int> blackCapturedPieceIds;
+        private CapturedPiecesAdapter whiteAdapter;
+        private CapturedPiecesAdapter blackAdapter;
+        private bool gameResigned = false;
+        private SoundPool soundPool;
+        private int moveSoundId;
+        private int checkSoundId;
+        private int castleSoundId;
+        private int captureSoundId;
+        private int promotionSoundId;
+        private int tensecondsSoundId;
+        private int gameEndSoundId;
+        private int gameStartSoundId;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -45,8 +71,158 @@ namespace Chess_FirstStep
 
             // Initialize the UI elements and attach click event handlers
             InitializeUI();
-            
-          
+
+            // Initialize lists to hold captured piece IDs
+            whiteCapturedPieceIds = new List<int>();
+            blackCapturedPieceIds = new List<int>();
+
+            // Create adapters for the ListView
+            whiteAdapter = new CapturedPiecesAdapter(this, whiteCapturedPieceIds);
+            blackAdapter = new CapturedPiecesAdapter(this, blackCapturedPieceIds);
+
+            // Find the ListViews in your layout
+            RecyclerView whiteCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.whiteCapturedRecyclerViewStockfish);
+            RecyclerView blackCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.blackCapturedRecyclerViewStockfish);
+
+            // Set the adapters to the ListViews
+            // Set up the RecyclerViews with a horizontal layout manager
+            whiteCapturedRecyclerView.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
+            blackCapturedRecyclerView.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
+
+            // Set the adapters to the RecyclerViews
+            whiteCapturedRecyclerView.SetAdapter(whiteAdapter);
+            blackCapturedRecyclerView.SetAdapter(blackAdapter);
+
+            blackPlayerTimer = FindViewById<TextView>(Resource.Id.blackPlayerTimerStockfish);
+            whitePlayerTimer = FindViewById<TextView>(Resource.Id.whitePlayerTimerStockfish);
+
+            // Set default time
+            blackTime = defaultTime;
+            whiteTime = defaultTime;
+
+            // Update timers
+            UpdateTimers();
+
+            blackTimer = new System.Timers.Timer(1000);
+            blackTimer.Elapsed += OnBlackTimedEvent;
+            blackTimer.AutoReset = true;
+
+            whiteTimer = new System.Timers.Timer(1000);
+            whiteTimer.Elapsed += OnWhiteTimedEvent;
+            whiteTimer.AutoReset = true;
+
+            // Start the timer
+            whiteTimer.Start();
+
+            soundPool = new SoundPool.Builder().SetMaxStreams(2).Build();
+            moveSoundId = soundPool.Load(this, Resource.Raw.move_self, 1);
+            checkSoundId = soundPool.Load(this, Resource.Raw.move_check, 1);
+            castleSoundId = soundPool.Load(this, Resource.Raw.castle, 1);
+            captureSoundId = soundPool.Load(this, Resource.Raw.capture, 1);
+            promotionSoundId = soundPool.Load(this, Resource.Raw.promote, 1);
+            gameEndSoundId = soundPool.Load(this, Resource.Raw.game_end, 1);
+            gameStartSoundId = soundPool.Load(this, Resource.Raw.game_start, 1);
+            tensecondsSoundId = soundPool.Load(this, Resource.Raw.tenseconds, 1);
+        }
+
+        private void OnBlackTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            RunOnUiThread(() =>
+            {
+                if (blackTime > TimeSpan.Zero)
+                {
+                    blackTime = blackTime.Subtract(TimeSpan.FromSeconds(1));
+                    UpdateTimers();
+
+                    
+                }
+                else
+                {
+                    blackTimer.Stop(); // Stop the timer when time is up
+                    whiteWon = true;
+                    createEndGameDialog();
+                }
+            });
+        }
+
+        private void OnWhiteTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            RunOnUiThread(() =>
+            {
+                if (whiteTime > TimeSpan.Zero)
+                {
+                    whiteTime = whiteTime.Subtract(TimeSpan.FromSeconds(1));
+                    UpdateTimers();
+
+                    if (whiteTime == TimeSpan.FromSeconds(10))
+                    {
+                        // Perform the desired action when 10 seconds are left
+                        PlayTenSecondsSound();
+                    }
+                }
+                else
+                {
+                    whiteTimer.Stop(); // Stop the timer when time is up
+                    whiteWon = false;
+                    
+                    createEndGameDialog();
+                }
+            });
+        }
+
+        private void UpdateTimers()
+        {
+            blackPlayerTimer.Text = blackTime.ToString(@"mm\:ss");
+            whitePlayerTimer.Text = whiteTime.ToString(@"mm\:ss");
+        }
+
+        private void PlayMoveSound()
+        {
+            soundPool.Play(moveSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCheckSound()
+        {
+            soundPool.Play(checkSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCastleSound()
+        {
+            soundPool.Play(castleSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCaptureSound()
+        {
+            soundPool.Play(captureSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayPromotionSound()
+        {
+            soundPool.Play(promotionSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayGameEndSound()
+        {
+            soundPool.Play(gameEndSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayGameStartSound()
+        {
+            Thread.Sleep(500);
+            soundPool.Play(gameStartSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayTenSecondsSound()
+        {
+            soundPool.Play(tensecondsSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            blackTimer.Dispose();
+            whiteTimer.Dispose();
+            soundPool.Release();
         }
 
         // Initialize the chessboard and views
@@ -62,8 +238,8 @@ namespace Chess_FirstStep
         private void InitializeUI()
         {
             // Find the TableLayout in your XML layout
-            TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayout);
-            Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
+            TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayoutStockfish);
+            ImageButton btnExit = FindViewById<ImageButton>(Resource.Id.btnExitStockfish);
             btnExit.Click += (s, e) =>
             {
                 Intent intent = new Intent(this, typeof(MainPageActivity));
@@ -209,6 +385,30 @@ namespace Chess_FirstStep
             
         }
 
+        // Playing a sound accoring to the move
+        private void PlaySound(ChessMove chessMove)
+        {
+            if (chessboard.IsInCheck())
+            {
+                PlayCheckSound();
+            }
+            else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
+            {
+                PlayCastleSound();
+            }
+            else if (chessMove.IsCapture || chessMove.IsEnPassantCapture)
+            {
+                PlayCaptureSound();
+            }
+            else if (chessMove.IsPromotion)
+            {
+                PlayPromotionSound();
+            }
+            else
+            {
+                PlayMoveSound();
+            }
+        }
 
         // This function handles the move that was made and displays it on the screen
         private void HandleTargetSquareClick(ImageView imageView)
@@ -255,6 +455,17 @@ namespace Chess_FirstStep
                     {
                         // Update the UI
                         ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        if (chessboard.isWhiteTurn)
+                        {
+                            whiteCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                            whiteAdapter.NotifyDataSetChanged();
+                        }
+                        else
+                        {
+                            blackCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                            blackAdapter.NotifyDataSetChanged();
+                        }
+
                         targetImageView.SetImageDrawable(selectedImageView.Drawable);
                         selectedImageView.SetImageDrawable(null);
 
@@ -305,8 +516,11 @@ namespace Chess_FirstStep
                         }
                         createEndGameDialog();
                     }
+                    whiteTimer.Stop();
+                    blackTimer.Start();
 
                     chessboard.SwitchPlayerTurn();
+                    PlaySound(chessMove);
                     humanTurn = false;
                     ResetSelection();
                     HandlesStockfishMove().ContinueWith(task =>
@@ -320,6 +534,8 @@ namespace Chess_FirstStep
                             string bestMove = task.Result;
                             Console.WriteLine("Best move: " + bestMove);
                             humanTurn = true;
+                            whiteTimer.Start();
+                            blackTimer.Stop();
                             // Apply the best move logic here, for example:
                             // ApplyBestMove(bestMove);
                         }
@@ -465,7 +681,16 @@ namespace Chess_FirstStep
                 else if (AImove.IsCapture)
                 {
                     // Update the UI
-
+                    if (chessboard.isWhiteTurn)
+                    {
+                        whiteCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                        whiteAdapter.NotifyDataSetChanged();
+                    }
+                    else
+                    {
+                        blackCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                        blackAdapter.NotifyDataSetChanged();
+                    }
                     targetImageView.SetImageDrawable(selectedImageView.Drawable);
                     selectedImageView.SetImageDrawable(null);
 

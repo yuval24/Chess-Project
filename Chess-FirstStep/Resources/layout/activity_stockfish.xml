@@ -1,33 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     android:background="@android:color/holo_blue_light">
-    
-    <Button
-        android:id="@+id/btnExit"
+
+    <!-- Exit button -->
+    <ImageButton
+        android:id="@+id/btnExitStockfish"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:background="@drawable/exit"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:contentDescription="description" />
+
+    <!-- Black Player Timer -->
+    <TextView
+        android:id="@+id/blackPlayerTimerStockfish"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Exit"
-        android:layout_marginTop="12dp"
-        android:layout_marginRight="130dp"/>
-      
-    <TableLayout
-         android:id="@+id/chessboardLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:stretchColumns="*"
-        android:gravity="center"
-        
-        >
+        android:text="00:00"
+        android:textSize="18sp"
+        android:layout_below="@id/btnExitStockfish"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:textColor="@android:color/black"/>
 
+    <!-- Black captured pieces RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/blackCapturedRecyclerViewStockfish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/blackPlayerTimerStockfish"
+        android:layout_marginTop="12dp"
+        android:minHeight="60dp"
+        android:orientation="horizontal"
+        android:scrollbars="horizontal"/>
+
+    <!-- Chessboard -->
+    <TableLayout
+        android:id="@+id/chessboardLayoutStockfish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*"
+        android:layout_below="@id/blackCapturedRecyclerViewStockfish"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp">
     </TableLayout>
 
-   
+    <!-- White captured pieces RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/whiteCapturedRecyclerViewStockfish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="60dp"
+        android:layout_below="@id/chessboardLayoutStockfish"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:scrollbars="horizontal"/>
 
-</LinearLayout>
+    <!-- White Player Timer -->
+    <TextView
+        android:id="@+id/whitePlayerTimerStockfish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textSize="18sp"
+        android:layout_below="@id/whiteCapturedRecyclerViewStockfish"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:textColor="@android:color/black"/>
+
+</RelativeLayout>

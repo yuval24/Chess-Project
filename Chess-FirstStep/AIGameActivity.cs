@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Threading;
+using System.Threading.Tasks;
+using System.Timers;
 using Android.App;
 using Android.Content;
 using Android.Graphics.Drawables;
+using Android.Media;
 using Android.OS;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using AndroidX.RecyclerView.Widget;
 
 
 
@@ -31,7 +35,30 @@ namespace Chess_FirstStep
         private bool blackWon = false;
         Dialog d;
         TextView tvWinner;
-        private bool humanMadeAMove = false;
+        private bool humanTurn = true;
+
+        private System.Timers.Timer whiteTimer;
+        private System.Timers.Timer blackTimer;
+        private TimeSpan blackTime;
+        private TimeSpan whiteTime;
+        private TimeSpan defaultTime = TimeSpan.FromMinutes(5); // Default time for each player
+        private TextView blackPlayerTimer;
+        private TextView whitePlayerTimer;
+        private List<int> whiteCapturedPieceIds;
+        private List<int> blackCapturedPieceIds;
+        private CapturedPiecesAdapter whiteAdapter;
+        private CapturedPiecesAdapter blackAdapter;
+        private bool gameResigned = false;
+        private SoundPool soundPool;
+        private int moveSoundId;
+        private int checkSoundId;
+        private int castleSoundId;
+        private int captureSoundId;
+        private int promotionSoundId;
+        private int tensecondsSoundId;
+        private int gameEndSoundId;
+        private int gameStartSoundId;
+
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -43,6 +70,158 @@ namespace Chess_FirstStep
 
             // Initialize the UI elements and attach click event handlers
             InitializeUI();
+
+            // Initialize lists to hold captured piece IDs
+            whiteCapturedPieceIds = new List<int>();
+            blackCapturedPieceIds = new List<int>();
+
+            // Create adapters for the ListView
+            whiteAdapter = new CapturedPiecesAdapter(this, whiteCapturedPieceIds);
+            blackAdapter = new CapturedPiecesAdapter(this, blackCapturedPieceIds);
+
+            // Find the ListViews in your layout
+            RecyclerView whiteCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.whiteCapturedRecyclerViewAI);
+            RecyclerView blackCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.blackCapturedRecyclerViewAI);
+
+            // Set the adapters to the ListViews
+            // Set up the RecyclerViews with a horizontal layout manager
+            whiteCapturedRecyclerView.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
+            blackCapturedRecyclerView.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
+
+            // Set the adapters to the RecyclerViews
+            whiteCapturedRecyclerView.SetAdapter(whiteAdapter);
+            blackCapturedRecyclerView.SetAdapter(blackAdapter);
+
+            blackPlayerTimer = FindViewById<TextView>(Resource.Id.blackPlayerTimerAI);
+            whitePlayerTimer = FindViewById<TextView>(Resource.Id.whitePlayerTimerAI);
+
+            // Set default time
+            blackTime = defaultTime;
+            whiteTime = defaultTime;
+
+            // Update timers
+            UpdateTimers();
+
+            blackTimer = new System.Timers.Timer(1000);
+            blackTimer.Elapsed += OnBlackTimedEvent;
+            blackTimer.AutoReset = true;
+
+            whiteTimer = new System.Timers.Timer(1000);
+            whiteTimer.Elapsed += OnWhiteTimedEvent;
+            whiteTimer.AutoReset = true;
+
+            // Start the timer
+            whiteTimer.Start();
+
+            soundPool = new SoundPool.Builder().SetMaxStreams(2).Build();
+            moveSoundId = soundPool.Load(this, Resource.Raw.move_self, 1);
+            checkSoundId = soundPool.Load(this, Resource.Raw.move_check, 1);
+            castleSoundId = soundPool.Load(this, Resource.Raw.castle, 1);
+            captureSoundId = soundPool.Load(this, Resource.Raw.capture, 1);
+            promotionSoundId = soundPool.Load(this, Resource.Raw.promote, 1);
+            gameEndSoundId = soundPool.Load(this, Resource.Raw.game_end, 1);
+            gameStartSoundId = soundPool.Load(this, Resource.Raw.game_start, 1);
+            tensecondsSoundId = soundPool.Load(this, Resource.Raw.tenseconds, 1);
+        }
+
+        private void OnBlackTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            RunOnUiThread(() =>
+            {
+                if (blackTime > TimeSpan.Zero)
+                {
+                    blackTime = blackTime.Subtract(TimeSpan.FromSeconds(1));
+                    UpdateTimers();
+
+
+                }
+                else
+                {
+                    blackTimer.Stop(); // Stop the timer when time is up
+                    whiteWon = true;
+                    createEndGameDialog();
+                }
+            });
+        }
+
+        private void OnWhiteTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            RunOnUiThread(() =>
+            {
+                if (whiteTime > TimeSpan.Zero)
+                {
+                    whiteTime = whiteTime.Subtract(TimeSpan.FromSeconds(1));
+                    UpdateTimers();
+
+                    if (whiteTime == TimeSpan.FromSeconds(10))
+                    {
+                        // Perform the desired action when 10 seconds are left
+                        PlayTenSecondsSound();
+                    }
+                }
+                else
+                {
+                    whiteTimer.Stop(); // Stop the timer when time is up
+                    whiteWon = false;
+
+                    createEndGameDialog();
+                }
+            });
+        }
+
+        private void UpdateTimers()
+        {
+            blackPlayerTimer.Text = blackTime.ToString(@"mm\:ss");
+            whitePlayerTimer.Text = whiteTime.ToString(@"mm\:ss");
+        }
+
+        private void PlayMoveSound()
+        {
+            soundPool.Play(moveSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCheckSound()
+        {
+            soundPool.Play(checkSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCastleSound()
+        {
+            soundPool.Play(castleSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayCaptureSound()
+        {
+            soundPool.Play(captureSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayPromotionSound()
+        {
+            soundPool.Play(promotionSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayGameEndSound()
+        {
+            soundPool.Play(gameEndSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayGameStartSound()
+        {
+            Thread.Sleep(500);
+            soundPool.Play(gameStartSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        private void PlayTenSecondsSound()
+        {
+            soundPool.Play(tensecondsSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            blackTimer.Dispose();
+            whiteTimer.Dispose();
+            soundPool.Release();
         }
 
         // Initialize the chessboard and views
@@ -58,8 +237,8 @@ namespace Chess_FirstStep
         private void InitializeUI()
         {
             // Find the TableLayout in your XML layout
-            TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayout);
-            Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
+            TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayoutAI);
+            ImageButton btnExit = FindViewById<ImageButton>(Resource.Id.btnExitAI);
             btnExit.Click += (s, e) =>
             {
                 Intent intent = new Intent(this, typeof(MainPageActivity));
@@ -174,30 +353,60 @@ namespace Chess_FirstStep
             ImageView clickedImageView = (ImageView)sender;
 
             // Find the position (row and col) of the clicked ImageView in the array
-            for (int row = 0; row < 8; row++)
+            if (humanTurn)
             {
-                for (int col = 0; col < 8; col++)
+                for (int row = 0; row < 8; row++)
                 {
-                    if (chessPieceViews[row, col] == clickedImageView)
+                    for (int col = 0; col < 8; col++)
                     {
-                        if (selectedPiece == null && chessboard.GetChessPieceAt(row, col) != null && (chessboard.GetChessPieceAt(row, col).IsWhite == chessboard.isWhiteTurn))
+                        if (chessPieceViews[row, col] == clickedImageView)
                         {
-                            // Store the selected piece and its position
-                            selectedPiece = chessboard.GetChessPieceAt(row, col);
-                            selectedImageView = clickedImageView;
-                            selectedRow = row;
-                            selectedCol = col;
-                            chessPieceViews[selectedRow, selectedCol].SetBackgroundColor(Android.Graphics.Color.Yellow);
-                        }
-                        else
-                        {
-                            // Store the target square and handle the move
-                            targetRow = row;
-                            targetCol = col;
-                            HandleTargetSquareClick(clickedImageView);
+                            if (selectedPiece == null && chessboard.GetChessPieceAt(row, col) != null && (chessboard.GetChessPieceAt(row, col).IsWhite == chessboard.isWhiteTurn))
+                            {
+                                // Store the selected piece and its position
+                                selectedPiece = chessboard.GetChessPieceAt(row, col);
+                                selectedImageView = clickedImageView;
+                                selectedRow = row;
+                                selectedCol = col;
+                                chessPieceViews[selectedRow, selectedCol].SetBackgroundColor(Android.Graphics.Color.Yellow);
+                            }
+                            else
+                            {
+                                // Store the target square and handle the move
+                                targetRow = row;
+                                targetCol = col;
+                                HandleTargetSquareClick(clickedImageView);
+                            }
                         }
                     }
                 }
+            }
+            
+        }
+
+
+        // Playing a sound accoring to the move
+        private void PlaySound(ChessMove chessMove)
+        {
+            if (chessboard.IsInCheck())
+            {
+                PlayCheckSound();
+            }
+            else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
+            {
+                PlayCastleSound();
+            }
+            else if (chessMove.IsCapture || chessMove.IsEnPassantCapture)
+            {
+                PlayCaptureSound();
+            }
+            else if (chessMove.IsPromotion)
+            {
+                PlayPromotionSound();
+            }
+            else
+            {
+                PlayMoveSound();
             }
         }
 
@@ -246,6 +455,17 @@ namespace Chess_FirstStep
                     {
                         // Update the UI
                         ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        if (chessboard.isWhiteTurn)
+                        {
+                            whiteCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                            whiteAdapter.NotifyDataSetChanged();
+                        }
+                        else
+                        {
+                            blackCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                            blackAdapter.NotifyDataSetChanged();
+                        }
+
                         targetImageView.SetImageDrawable(selectedImageView.Drawable);
                         selectedImageView.SetImageDrawable(null);
 
@@ -299,7 +519,26 @@ namespace Chess_FirstStep
 
                     chessboard.SwitchPlayerTurn();
                     ResetSelection();
-                    handlesAIMove();
+                    humanTurn = false;
+                    whiteTimer.Stop();
+                    blackTimer.Start();
+                    PlaySound(chessMove);
+                    HandleAIMoveAsync().ContinueWith(task =>
+                    {
+                        if (task.IsFaulted)
+                        {
+                            Console.WriteLine($"Error: {task.Exception.GetBaseException().Message}");
+                        }
+                        else
+                        {
+                            handlesAIMove(task.Result);
+                            whiteTimer.Start();
+                            blackTimer.Stop();
+                            humanTurn =true;
+                        }
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
+
+
 
                 }
                 else if (chessMove.IsIllegalMove)
@@ -313,10 +552,18 @@ namespace Chess_FirstStep
             ResetSelection();
         }
 
-        private void handlesAIMove()
+        private async Task<ChessMove> HandleAIMoveAsync()
         {
             ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 3);
-            ChessMove AImove = chessAI.GetBestMove(chessboard);
+            ChessMove bestMove = await Task.Run(() => chessAI.GetBestMove(chessboard));
+            return bestMove;
+
+        }
+
+        private void handlesAIMove(ChessMove AImove)
+        {
+            
+            
             if (AImove != null)
             {
                 selectedImageView = chessPieceViews[AImove.StartRow, AImove.StartCol];
@@ -356,7 +603,16 @@ namespace Chess_FirstStep
                 else if (AImove.IsCapture)
                 {
                     // Update the UI
-
+                    if (chessboard.isWhiteTurn)
+                    {
+                        whiteCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                        whiteAdapter.NotifyDataSetChanged();
+                    }
+                    else
+                    {
+                        blackCapturedPieceIds.Add(chessboard.convertChessPieceToImage(chessboard.lastPieceCaptured));
+                        blackAdapter.NotifyDataSetChanged();
+                    }
                     targetImageView.SetImageDrawable(selectedImageView.Drawable);
                     selectedImageView.SetImageDrawable(null);
 

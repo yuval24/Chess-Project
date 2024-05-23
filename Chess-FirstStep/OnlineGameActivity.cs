@@ -85,8 +85,8 @@ namespace Chess_FirstStep
             blackAdapter = new CapturedPiecesAdapter(this, blackCapturedPieceIds);
 
             // Find the ListViews in your layout
-            RecyclerView whiteCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.whiteCapturedRecyclerView);
-            RecyclerView blackCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.blackCapturedRecyclerView);
+            RecyclerView whiteCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.whiteCapturedRecyclerViewOnline);
+            RecyclerView blackCapturedRecyclerView = FindViewById<RecyclerView>(Resource.Id.blackCapturedRecyclerViewOnline);
 
             // Set the adapters to the ListViews
             // Set up the RecyclerViews with a horizontal layout manager
@@ -97,8 +97,8 @@ namespace Chess_FirstStep
             whiteCapturedRecyclerView.SetAdapter(whiteAdapter);
             blackCapturedRecyclerView.SetAdapter(blackAdapter);
 
-            blackPlayerTimer = FindViewById<TextView>(Resource.Id.blackPlayerTimer);
-            whitePlayerTimer = FindViewById<TextView>(Resource.Id.whitePlayerTimer);
+            blackPlayerTimer = FindViewById<TextView>(Resource.Id.blackPlayerTimerOnline);
+            whitePlayerTimer = FindViewById<TextView>(Resource.Id.whitePlayerTimerOnline);
 
             // Set default time
             blackTime = defaultTime;
@@ -406,8 +406,8 @@ namespace Chess_FirstStep
         private void InitializeUI()
         {
             // Find the TableLayout in your XML layout
-            TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayout);
-            ImageButton exitButton = FindViewById<ImageButton>(Resource.Id.btnExit);
+            TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayoutOnline);
+            ImageButton exitButton = FindViewById<ImageButton>(Resource.Id.btnExitOnline);
             exitButton.Click += (s, e) =>
             {
                 //new Thread(() => { chessNetworkManager.SendLeave(); }).Start();

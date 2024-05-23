@@ -8,24 +8,24 @@
 
     <!-- Exit button -->
     <ImageButton
-    android:id="@+id/btnExit"
-    android:layout_width="75dp"
-    android:layout_height="75dp"
-    android:background="@drawable/exit"
-    android:layout_marginTop="10dp"
-    android:layout_marginLeft="10dp"
-    android:layout_alignParentTop="true"
-    android:layout_alignParentStart="true"
-    android:contentDescription="description" />
+        android:id="@+id/btnExitOnline"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:background="@drawable/exit"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:contentDescription="description" />
 
     <!-- Black Player Timer -->
     <TextView
-        android:id="@+id/blackPlayerTimer"
+        android:id="@+id/blackPlayerTimerOnline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="00:00"
         android:textSize="18sp"
-        android:layout_below="@id/btnExit"
+        android:layout_below="@id/btnExitOnline"
         android:layout_alignParentStart="true"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
@@ -33,10 +33,10 @@
 
     <!-- Black captured pieces RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/blackCapturedRecyclerView"
+        android:id="@+id/blackCapturedRecyclerViewOnline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/blackPlayerTimer"
+        android:layout_below="@id/blackPlayerTimerOnline"
         android:layout_marginTop="12dp"
         android:minHeight="60dp"
         android:orientation="horizontal"
@@ -44,34 +44,34 @@
 
     <!-- Chessboard -->
     <TableLayout
-        android:id="@+id/chessboardLayout"
+        android:id="@+id/chessboardLayoutOnline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:stretchColumns="*"
-        android:layout_below="@id/blackCapturedRecyclerView"
+        android:layout_below="@id/blackCapturedRecyclerViewOnline"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp">
     </TableLayout>
 
     <!-- White captured pieces RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/whiteCapturedRecyclerView"
+        android:id="@+id/whiteCapturedRecyclerViewOnline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="60dp"
-        android:layout_below="@id/chessboardLayout"
+        android:layout_below="@id/chessboardLayoutOnline"
         android:layout_marginTop="12dp"
         android:orientation="horizontal"
         android:scrollbars="horizontal"/>
 
     <!-- White Player Timer -->
     <TextView
-        android:id="@+id/whitePlayerTimer"
+        android:id="@+id/whitePlayerTimerOnline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="00:00"
         android:textSize="18sp"
-        android:layout_below="@id/whiteCapturedRecyclerView"
+        android:layout_below="@id/whiteCapturedRecyclerViewOnline"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
