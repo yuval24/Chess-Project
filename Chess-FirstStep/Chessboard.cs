@@ -506,6 +506,10 @@ namespace Chess_FirstStep
 
             ChessPiece selectedPiece = chessPieces[selectedRow, selectedCol];
             ChessPiece targetedPlace = chessPieces[targetRow, targetCol];
+            if(selectedPiece == null)
+            {
+                return false;
+            }
             if (targetedPlace == null)
             {
                 if (selectedPiece.Move(targetCol, targetRow, false, this))

@@ -36,7 +36,7 @@ namespace Chess_FirstStep
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.activity_two_player_game);
+            SetContentView(Resource.Layout.activity_ai_game);
 
             // Initialize your chessboard and views
             InitializeChessboard();

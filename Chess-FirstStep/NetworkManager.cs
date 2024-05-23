@@ -322,7 +322,7 @@ namespace Chess_FirstStep
         }
 
         // Gets a string and converts it to a chess move.
-        public ChessMove ConvertStringToMove(string moveString)
+        public static ChessMove ConvertStringToMove(string moveString)
         {
             // Implement the conversion logic
             int startCol = moveString[0] - 'a';    // Subtract 'a' to convert character to integer

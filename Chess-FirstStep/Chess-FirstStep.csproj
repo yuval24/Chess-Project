@@ -59,6 +59,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
@@ -71,6 +72,7 @@
     <Compile Include="CapturedPiecesAdapter.cs" />
     <Compile Include="CapturedPieceViewHolder.cs" />
     <Compile Include="ChessAI.cs" />
+    <Compile Include="ChessAPI.cs" />
     <Compile Include="Chessboard.cs" />
     <Compile Include="ChessMove.cs" />
     <Compile Include="ChessPiece.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="SharedPreferencesManager.cs" />
     <Compile Include="SocketManager.cs" />
     <Compile Include="SoundManager.cs" />
+    <Compile Include="StockfishGameActivity.cs" />
     <Compile Include="TwoPlayerGameActivity.cs" />
     <Compile Include="WaitingForOnlineGameActivity.cs" />
   </ItemGroup>
@@ -244,6 +247,16 @@
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\login_page_chess.png" />
     <AndroidResource Include="Resources\drawable\custom_progress_bar.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\activity_stockfish.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\chooseAiDialog.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

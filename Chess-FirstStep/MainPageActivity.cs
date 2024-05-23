@@ -32,13 +32,14 @@ namespace Chess_FirstStep
             btnTwoPlayerGame = FindViewById<Button>(Resource.Id.btnTwoPlayerGame);
             btnAiGame = FindViewById<Button>(Resource.Id.btnAiGame);
             btnOnlineGame = FindViewById<Button>(Resource.Id.btnOnlineGame);
+            
 
+         
             btnOnlineGame.Click += BtnOnlineGame_Click;
             btnTwoPlayerGame.Click += BtnTwoPlayerGame_Click;
             btnAiGame.Click += BtnAiGame_Click;
             Task.Run(() => CommunicationLoop());
         }
-
         // This loop purpose is to check if the client is still Authenticated
         private async Task CommunicationLoop()
         {
@@ -81,9 +82,7 @@ namespace Chess_FirstStep
 
         private void BtnAiGame_Click(object sender, EventArgs e)
         {
-            Intent intent = new Intent(this, typeof(AIGameActivity));
-
-            StartActivity(intent);
+            ShowSelectAiDialog();
         }
 
         private void BtnTwoPlayerGame_Click(object sender, EventArgs e)
@@ -92,6 +91,34 @@ namespace Chess_FirstStep
 
             StartActivity(intent);
         }
+
+        private void ShowSelectAiDialog()
+        {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = this.LayoutInflater;
+            View dialogView = inflater.Inflate(Resource.Layout.chooseAiDialog, null);
+            dialogBuilder.SetView(dialogView);
+
+            Button myBotButton = dialogView.FindViewById<Button>(Resource.Id.myBotButton);
+            Button stockfishBotButton = dialogView.FindViewById<Button>(Resource.Id.stockfishBotButton);
+
+            AlertDialog alertDialog = dialogBuilder.Create();
+
+            myBotButton.Click += (sender, e) => {
+                Intent intent = new Intent(this, typeof(AIGameActivity));
+
+                StartActivity(intent);
+            };
+
+            stockfishBotButton.Click += (sender, e) => {
+                Intent intent = new Intent(this, typeof(StockfishGameActivity)); 
+
+                StartActivity(intent);
+            };
+
+            alertDialog.Show();
+        }
+
     }
 
 }

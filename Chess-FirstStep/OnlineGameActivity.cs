@@ -271,7 +271,7 @@ namespace Chess_FirstStep
                     {
                         MoveData moveData = MoveData.Deserialize(json);
                         string moveString = moveData.move;
-                        ChessMove receivedMove = networkManager.ConvertStringToMove(moveString);
+                        ChessMove receivedMove = NetworkManager.ConvertStringToMove(moveString);
                         RunOnUiThread(() => HandleReceivedMove(receivedMove));
                     } else if (data.type.Equals(ActivityType.END_GAME))
                     {

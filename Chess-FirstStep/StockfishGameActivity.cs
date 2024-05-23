@@ -2,24 +2,609 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Java.Net;
 
 namespace Chess_FirstStep
 {
     [Activity(Label = "StockfishGameActivity")]
     public class StockfishGameActivity : Activity
     {
+        private Chessboard chessboard;
+        private ImageView selectedImageView;
+        private ChessPiece selectedPiece = null;
+        private ChessPiece lastPiecePlayed = null;
+        private ImageView[,] chessPieceViews;
+        private int selectedRow = -1; // Initialize with an invalid value
+        private int selectedCol = -1; // Initialize with an invalid value
+        private int targetCol = -1;
+        private int targetRow = -1;
+        private List<ChessPiece> whiteCapturedPieces = new List<ChessPiece>();
+        private List<ChessPiece> blackCapturedPieces = new List<ChessPiece>();
+        private Android.Graphics.Color[,] originalSquareColors = new Android.Graphics.Color[8, 8];
+        private bool whiteWon = false;
+        private bool blackWon = false;
+        Dialog d;
+        TextView tvWinner;
+        private bool humanTurn = true;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            SetContentView(Resource.Layout.activity_stockfish);
 
-            // Create your application here
+            // Initialize your chessboard and views
+            InitializeChessboard();
+
+            // Initialize the UI elements and attach click event handlers
+            InitializeUI();
+            
+          
+        }
+
+        // Initialize the chessboard and views
+        private void InitializeChessboard()
+        {
+            // Initialize your chessboard
+            chessboard = new Chessboard();
+            chessPieceViews = new ImageView[8, 8];
+            chessboard.InitializeChessboard(this);
+        }
+
+        // Initialize the UI elements and attach click event handlers
+        private void InitializeUI()
+        {
+            // Find the TableLayout in your XML layout
+            TableLayout chessboardLayout = FindViewById<TableLayout>(Resource.Id.chessboardLayout);
+            Button btnExit = FindViewById<Button>(Resource.Id.btnExit);
+            btnExit.Click += (s, e) =>
+            {
+                Intent intent = new Intent(this, typeof(MainPageActivity));
+                StartActivity(intent);
+                Finish();
+            };
+
+            // Define the number of rows and columns on the chessboard
+            int numRows = 8;
+            int numCols = 8;
+
+            // Create ImageView elements and add them to the TableLayout
+            for (int row = 0; row < numRows; row++)
+            {
+                TableRow tableRow = new TableRow(this);
+                for (int col = 0; col < numCols; col++)
+                {
+                    ImageView imageView = new ImageView(this);
+
+                    // Set the attributes of the ImageView (e.g., background color, size)
+                    if ((row + col) % 2 == 0)
+                    {
+                        imageView.SetBackgroundColor(Android.Graphics.Color.White);
+                    }
+                    else
+                    {
+                        imageView.SetBackgroundColor(Android.Graphics.Color.Gray);
+                    }
+
+                    imageView.LayoutParameters = new TableRow.LayoutParams(
+                        135,
+                        135);
+
+                    // Add an ID or tag to identify the square (e.g., a1, a2, b1, b2, etc.)
+                    imageView.Tag = $"{(char)('a' + col)}{(8 - row)}";
+
+                    // Add a click listener to handle square clicks
+                    chessPieceViews[7 - row, col] = imageView;
+                    chessPieceViews[7 - row, col].Clickable = true;
+                    tableRow.AddView(imageView);
+                }
+                chessboardLayout.AddView(tableRow);
+            }
+
+            // Initialize the chess pieces on the chessboard views
+            InitializeChessboardViews();
+
+            // Store the original background colors
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    originalSquareColors[row, col] = GetSquareBackgroundColor(row, col);
+                }
+            }
+
+            // Attach click event handlers to chessPieceViews
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    chessPieceViews[row, col].Click += HandleChessPieceClick;
+                }
+            }
+        }
+
+        // Initialize the chess pieces on the chessboard views
+        public void InitializeChessboardViews()
+        {
+            // Set Rooks
+            chessPieceViews[0, 0].SetImageResource(Resource.Drawable.Chess_rlt60);
+            chessPieceViews[0, 7].SetImageResource(Resource.Drawable.Chess_rlt60);
+            chessPieceViews[7, 0].SetImageResource(Resource.Drawable.Chess_rdt60);
+            chessPieceViews[7, 7].SetImageResource(Resource.Drawable.Chess_rdt60);
+
+            // Set Knights
+            chessPieceViews[0, 1].SetImageResource(Resource.Drawable.Chess_nlt60);
+            chessPieceViews[0, 6].SetImageResource(Resource.Drawable.Chess_nlt60);
+            chessPieceViews[7, 1].SetImageResource(Resource.Drawable.Chess_ndt60);
+            chessPieceViews[7, 6].SetImageResource(Resource.Drawable.Chess_ndt60);
+
+            // Set Bishops
+            chessPieceViews[0, 2].SetImageResource(Resource.Drawable.Chess_blt60);
+            chessPieceViews[0, 5].SetImageResource(Resource.Drawable.Chess_blt60);
+            chessPieceViews[7, 2].SetImageResource(Resource.Drawable.Chess_bdt60);
+            chessPieceViews[7, 5].SetImageResource(Resource.Drawable.Chess_bdt60);
+
+            // Set Queens
+            chessPieceViews[0, 3].SetImageResource(Resource.Drawable.Chess_qlt60);
+            chessPieceViews[7, 3].SetImageResource(Resource.Drawable.Chess_qdt60);
+
+            // Set Kings
+            chessPieceViews[0, 4].SetImageResource(Resource.Drawable.Chess_klt60);
+            chessPieceViews[7, 4].SetImageResource(Resource.Drawable.Chess_kdt60);
+
+            // Set Pawns
+            for (int i = 0; i < 8; i++)
+            {
+                chessPieceViews[1, i].SetImageResource(Resource.Drawable.Chess_plt60);
+                chessPieceViews[6, i].SetImageResource(Resource.Drawable.Chess_pdt60);
+            }
+        }
+
+        // Get the background color of a square
+        private Android.Graphics.Color GetSquareBackgroundColor(int row, int col)
+        {
+            return ((ColorDrawable)chessPieceViews[row, col].Background).Color;
+        }
+
+        private void HandleChessPieceClick(object sender, EventArgs e)
+        {
+            ImageView clickedImageView = (ImageView)sender;
+
+            // Find the position (row and col) of the clicked ImageView in the array
+            if (humanTurn)
+            {
+                for (int row = 0; row < 8; row++)
+                {
+                    for (int col = 0; col < 8; col++)
+                    {
+                        if (chessPieceViews[row, col] == clickedImageView)
+                        {
+                            if (selectedPiece == null && chessboard.GetChessPieceAt(row, col) != null && (chessboard.GetChessPieceAt(row, col).IsWhite == chessboard.isWhiteTurn))
+                            {
+                                // Store the selected piece and its position
+                                selectedPiece = chessboard.GetChessPieceAt(row, col);
+                                selectedImageView = clickedImageView;
+                                selectedRow = row;
+                                selectedCol = col;
+                                chessPieceViews[selectedRow, selectedCol].SetBackgroundColor(Android.Graphics.Color.Yellow);
+                            }
+                            else
+                            {
+                                // Store the target square and handle the move
+                                targetRow = row;
+                                targetCol = col;
+                                HandleTargetSquareClick(clickedImageView);
+                            }
+                        }
+                    }
+                }
+            }
+            
+        }
+
+
+        // This function handles the move that was made and displays it on the screen
+        private void HandleTargetSquareClick(ImageView imageView)
+        {
+            if (selectedPiece != null)
+            {
+                ChessMove chessMove = new ChessMove(selectedRow, selectedCol, targetRow, targetCol);
+                if (chessboard.IsMoveValid(chessMove))
+                {
+                    chessboard.ApplyMove(chessMove);
+                    if (chessMove.IsEnPassantCapture)
+                    {
+                        // handles en passent
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                        selectedImageView.SetImageDrawable(null);
+
+                        // we can see here that the captured piece is deleted
+                        targetImageView = chessPieceViews[selectedRow, targetCol];
+                        targetImageView.SetImageDrawable(null);
+                    }
+                    else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
+                    {
+                        // handles castling
+                        MoveKingAndRookForCastle();
+                    }
+                    else if (chessMove.IsPromotion)
+                    {
+                        // handles promotion
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+
+                        if (chessboard.isWhiteTurn)
+                        {
+                            targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
+                        }
+                        else
+                        {
+                            targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
+                        }
+
+                        selectedImageView.SetImageDrawable(null);
+                    }
+                    else if (chessMove.IsCapture)
+                    {
+                        // Update the UI
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                        selectedImageView.SetImageDrawable(null);
+
+                        if (chessboard.piecesOnTheBoard < 5)
+                        {
+                            if (chessboard.insufficientMatrielDraw())
+                            {
+                                createEndGameDialog();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Update the UI
+                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                        selectedImageView.SetImageDrawable(null);
+
+
+                        if (chessboard.achieved50Moves())
+                        {
+                            createEndGameDialog();
+                        }
+                    }
+
+
+                    if (chessboard.drawByRepitition())
+                    {
+                        createEndGameDialog();
+                    }
+
+
+                    // Check for game over conditions
+                    if (chessboard.IsCheckmate())
+                    {
+                        if (chessboard.IsInCheck())
+                        {
+                            Toast.MakeText(this, "Game Over", ToastLength.Short).Show();
+                            if (chessboard.isWhiteTurn)
+                            {
+                                blackWon = true;
+                            }
+                            else
+                            {
+                                whiteWon = true;
+                            }
+
+                        }
+                        createEndGameDialog();
+                    }
+
+                    chessboard.SwitchPlayerTurn();
+                    humanTurn = false;
+                    ResetSelection();
+                    HandlesStockfishMove().ContinueWith(task =>
+                    {
+                        if (task.IsFaulted)
+                        {
+                            Console.WriteLine($"Error: {task.Exception.GetBaseException().Message}");
+                        }
+                        else if (task.Result != null)
+                        {
+                            string bestMove = task.Result;
+                            Console.WriteLine("Best move: " + bestMove);
+                            humanTurn = true;
+                            // Apply the best move logic here, for example:
+                            // ApplyBestMove(bestMove);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Best move is null");
+                        }
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
+
+                  
+                }
+                else if (chessMove.IsIllegalMove)
+                {
+                    // The king is in danger, altering the player.
+                    Toast.MakeText(this, "You will lose your king moron", ToastLength.Short).Show();
+                }
+
+
+            }
+            ResetSelection();
+        }
+
+        private async Task<string> HandlesStockfishMove()
+        {
+            string castlingRights = GetCastlingRights();
+            string enPassantTarget = "-"; // Update this based on the current board state if applicable
+            int halfmoveClock = chessboard.countFor50Moves;
+            int fullmoveNumber = chessboard.moveCount;
+
+            string fen = ChessAPI.ConvertChessboardToFen(chessboard, 
+                false, 
+                castlingRights, 
+                enPassantTarget, 
+                halfmoveClock, 
+                fullmoveNumber
+            );
+
+            Console.WriteLine("FEN: " + fen);
+            string response = null;
+
+            ChessMove bestMove = null;
+            try
+            { 
+                response = await ChessAPI.GetBestMove(fen);
+                Console.WriteLine("Received best move response: " + response);
+                string bestMovestr = ParseBestMove(response);
+
+                // Parse the response to extract the best move
+                bestMove = NetworkManager.ConvertStringToMove(bestMovestr);
+                Console.WriteLine("Parsed best move: " + bestMove);
+
+                // Apply the best move to the chessboard
+                if (bestMove != null)
+                {
+                    handlesAIMove(bestMove);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching best move: {ex.Message}");
+            }
+            return response;
+        }
+
+        private string ParseBestMove(string response)
+        {
+            // Assuming the response format is "bestmove MOVE ponder PONDER_MOVE"
+            var parts = response.Split(' ');
+            if (parts.Length >= 2 && parts[0] == "bestmove")
+            {
+                return parts[1]; // This will return the move after "bestmove"
+            }
+            return null;
+        }
+
+        private string GetCastlingRights()
+        {
+            string castlingRights = "";
+            ChessMove whiteKing = new ChessMove(0, 0, 4, 6);
+            if (chessboard.IsMoveValid(whiteKing) && whiteKing.IsKingsideCastle)
+            {
+                castlingRights += "K";
+            }
+            ChessMove whiteQueen = new ChessMove(0, 0, 4, 2);
+            if (chessboard.IsMoveValid(whiteQueen) && whiteQueen.IsQueensideCastle)
+            {
+                castlingRights += "Q";
+            }
+            ChessMove blackKing = new ChessMove(7, 7, 4, 6);
+            if (chessboard.IsMoveValid(blackKing) && blackKing.IsKingsideCastle)
+            {
+                castlingRights += "k";
+            }
+            ChessMove blackQueen = new ChessMove(7, 7, 4, 2);
+            if (chessboard.IsMoveValid(blackQueen) && blackQueen.IsQueensideCastle)
+            {
+                castlingRights += "q";
+            }
+
+            return string.IsNullOrEmpty(castlingRights) ? "-" : castlingRights;
+        }
+
+        private void handlesAIMove(ChessMove AImove)
+        {
+            ChessAI chessAI = new ChessAI(chessboard.isWhiteTurn, 3);
+            
+            if (AImove != null)
+            {
+                selectedImageView = chessPieceViews[AImove.StartRow, AImove.StartCol];
+                ImageView targetImageView = chessPieceViews[AImove.EndRow, AImove.EndCol];
+                selectedRow = AImove.StartRow;
+                selectedCol = AImove.StartCol;
+                selectedPiece = chessboard.GetChessPieceAt(selectedRow, selectedCol);
+                targetRow = AImove.EndRow;
+                targetCol = AImove.EndCol;
+                chessboard.ApplyMove(AImove);
+                if (AImove.IsEnPassantCapture)
+                {
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
+
+                    targetImageView = chessPieceViews[selectedRow, targetCol];
+                    targetImageView.SetImageDrawable(null);
+                }
+                else if (AImove.IsKingsideCastle || AImove.IsQueensideCastle)
+                {
+                    MoveKingAndRookForCastle();
+                }
+                else if (AImove.IsPromotion)
+                {
+                    //ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                    if (chessboard.isWhiteTurn)
+                    {
+                        targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
+                    }
+                    else
+                    {
+                        targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
+                    }
+
+                    selectedImageView.SetImageDrawable(null);
+                }
+                else if (AImove.IsCapture)
+                {
+                    // Update the UI
+
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
+
+                    if (chessboard.piecesOnTheBoard < 5)
+                    {
+                        if (chessboard.insufficientMatrielDraw())
+                        {
+                            createEndGameDialog();
+                        }
+                    }
+                }
+                else
+                {
+                    // Update the UI
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
+
+
+                    if (chessboard.achieved50Moves())
+                    {
+                        createEndGameDialog();
+                    }
+                }
+
+
+                if (chessboard.drawByRepitition())
+                {
+                    createEndGameDialog();
+                }
+
+                chessboard.SwitchPlayerTurn();
+                ResetSelection();
+
+                if (chessboard.IsCheckmate())
+                {
+                    if (chessboard.IsInCheck())
+                    {
+                        Toast.MakeText(this, "Game Over", ToastLength.Short).Show();
+                        if (chessboard.isWhiteTurn)
+                        {
+                            blackWon = true;
+                        }
+                        else
+                        {
+                            whiteWon = true;
+                        }
+
+                    }
+                    createEndGameDialog();
+                }
+            }
+        }
+        // Reset the selected piece and related variables
+        private void ResetSelection()
+        {
+            if (selectedRow != -1 && selectedCol != -1)
+            {
+                chessPieceViews[selectedRow, selectedCol].SetBackgroundColor(originalSquareColors[selectedRow, selectedCol]);
+            }
+            selectedPiece = null;
+            selectedImageView = null;
+            selectedRow = -1;
+            selectedCol = -1;
+            targetRow = -1;
+            targetCol = -1;
+        }
+
+
+
+        // Move the king and rook for castling
+        private void MoveKingAndRookForCastle()
+        {
+            // Determine the direction of castling (left or right)
+            Tuple<int, int> rookPosition;
+            if (selectedPiece.IsWhite)
+            {
+                if (selectedCol > targetCol)
+                {
+                    rookPosition = Tuple.Create(0, 0);
+                }
+                else
+                {
+                    rookPosition = Tuple.Create(0, 7);
+                }
+            }
+            else
+            {
+                if (selectedCol > targetCol)
+                {
+                    rookPosition = Tuple.Create(7, 0);
+                }
+                else
+                {
+                    rookPosition = Tuple.Create(7, 7);
+                }
+            }
+
+            int direction = rookPosition.Item2 < selectedCol ? -1 : 1;
+
+            // Move the rook to the square the king crossed
+
+            ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+            targetImageView.SetImageDrawable(selectedImageView.Drawable);
+            selectedImageView.SetImageDrawable(null);
+
+
+            targetImageView = chessPieceViews[selectedRow, selectedCol + direction];
+            ImageView rookImageView = chessPieceViews[rookPosition.Item1, rookPosition.Item2];
+            targetImageView.SetImageDrawable(rookImageView.Drawable);
+            rookImageView.SetImageDrawable(null);
+        }
+
+
+        // Displays to the screen the end game dialog.
+        public void createEndGameDialog()
+        {
+            d = new Dialog(this);
+
+            d.SetContentView(Resource.Layout.a);
+
+            d.SetTitle("Reset");
+
+            d.SetCancelable(true);
+
+            tvWinner = d.FindViewById<TextView>(Resource.Id.tvWinner);
+
+            d.Show();
+            if (whiteWon)
+            {
+                tvWinner.Text = "White Won!";
+            }
+            else if (blackWon)
+            {
+                tvWinner.Text = "Black Won!";
+            }
+            else
+            {
+                tvWinner.Text = "Draw";
+            }
         }
     }
 }
