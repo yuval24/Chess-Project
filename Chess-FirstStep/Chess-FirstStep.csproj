@@ -79,9 +79,12 @@
     <Compile Include="ChessPiece.cs" />
     <Compile Include="Data-Classes\ActivityType.cs" />
     <Compile Include="Data-Classes\Data.cs" />
+    <Compile Include="Data-Classes\GameHistoryData.cs" />
     <Compile Include="Data-Classes\LoginData.cs" />
     <Compile Include="Data-Classes\MoveData.cs" />
     <Compile Include="FriendsPageFragment.cs" />
+    <Compile Include="GameHistory.cs" />
+    <Compile Include="HistoryAdapter.cs" />
     <Compile Include="HistoryPageFragment.cs" />
     <Compile Include="HomePageFragment.cs" />
     <Compile Include="King.cs" />
@@ -292,6 +295,9 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
+    <AndroidResource Include="Resources\layout\item_game_history.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <Content Include="Resources\menu\buttom_navigation_menu.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

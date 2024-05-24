@@ -315,6 +315,30 @@ namespace Chess_FirstStep
 
         }
 
+        // retreiving the history of game for certain player
+        public void RequestGameHistory()
+        {
+            try
+            {
+                string JWTtoken = SharedPreferencesManager.GetJwtToken();
+                string username = SharedPreferencesManager.GetUsername();
+                Data requestData = new Data
+                {
+                    type = ActivityType.GAME_HISTORY,
+                    sender = username,
+                    recipient = "server",
+                    content = "OK",
+                    token = JWTtoken
+                };
+                string jsonData = requestData.Serialize();
+                writer.WriteLine(jsonData);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"**** Error while sending end game data: {ex.Message}");
+            }
+        }
+
         // Gets a move and converts it to a string
         public string ConvertMoveToString(ChessMove move)
         {
@@ -352,6 +376,5 @@ namespace Chess_FirstStep
         }
 
        
-
     }
 }

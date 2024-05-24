@@ -64,18 +64,15 @@ namespace Chess_FirstStep
             switch (itemId)
             {
                 case MainMenuIds.ActionHome:
-                    // Navigate to Fragment 1
                     ReplaceFragment(new HomePageFragment());
                     break;
                 case MainMenuIds.ActionHistory:
-                    // Navigate to Fragment 2
                     ReplaceFragment(new HistoryPageFragment());
                     break;
                 case MainMenuIds.ActionFriends:
-                    // Navigate to Fragment 3
                     ReplaceFragment(new FriendsPageFragment());
                     break;
-                    // Add more cases for additional menu items if needed
+                   
             }
         }
 
