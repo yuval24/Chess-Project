@@ -8,6 +8,7 @@ using Android.Content;
 using Android.Graphics.Drawables;
 using Android.Media;
 using Android.OS;
+using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.RecyclerView.Widget;
@@ -49,6 +50,10 @@ namespace Chess_FirstStep
         private CapturedPiecesAdapter whiteAdapter;
         private CapturedPiecesAdapter blackAdapter;
         private bool gameResigned = false;
+        private bool endGameToken = false;
+        private bool gameAborted = false;
+        private bool gameWonOnTime = false;
+
         private SoundPool soundPool;
         private int moveSoundId;
         private int checkSoundId;
@@ -241,9 +246,15 @@ namespace Chess_FirstStep
             ImageButton btnExit = FindViewById<ImageButton>(Resource.Id.btnExitAI);
             btnExit.Click += (s, e) =>
             {
-                Intent intent = new Intent(this, typeof(MainPageActivity));
-                StartActivity(intent);
-                Finish();
+                if (endGameToken)
+                {
+                    Intent intent = new Intent(this, typeof(MainPageActivity));
+                    StartActivity(intent);
+                    Finish();
+                } else
+                {
+                    ShowExitGameDialog();
+                }
             };
 
             // Define the number of rows and columns on the chessboard
@@ -353,7 +364,7 @@ namespace Chess_FirstStep
             ImageView clickedImageView = (ImageView)sender;
 
             // Find the position (row and col) of the clicked ImageView in the array
-            if (humanTurn)
+            if (humanTurn && !endGameToken)
             {
                 for (int row = 0; row < 8; row++)
                 {
@@ -729,29 +740,137 @@ namespace Chess_FirstStep
         // Displays to the screen the end game dialog.
         public void createEndGameDialog()
         {
-            d = new Dialog(this);
+            endGameToken = true;
+            whiteTimer.Stop();
+            blackTimer.Stop();
+            PlayGameEndSound();
+            Android.App.AlertDialog.Builder builder = new Android.App.AlertDialog.Builder(this);
 
-            d.SetContentView(Resource.Layout.a);
 
-            d.SetTitle("Reset");
+            builder.SetCancelable(true);
 
-            d.SetCancelable(true);
+            // Set the dialog content using a layout resource
+            LayoutInflater inflater = LayoutInflater.From(this);
+            View dialogView = inflater.Inflate(Resource.Layout.dialog_endgame, null);
 
-            tvWinner = d.FindViewById<TextView>(Resource.Id.tvWinner);
+            builder.SetView(dialogView);
 
-            d.Show();
-            if (whiteWon)
+            // Set dialog content and other properties as needed
+            TextView gameSummaryTextView = dialogView.FindViewById<TextView>(Resource.Id.gameSummaryTextView);
+            TextView whyEndedTextView = dialogView.FindViewById<TextView>(Resource.Id.whyEndedTextView);
+            Button newGameButton = dialogView.FindViewById<Button>(Resource.Id.newGameButton);
+            Button cancelButton = dialogView.FindViewById<Button>(Resource.Id.cancelButton);
+
+
+            if (gameResigned)
             {
-                tvWinner.Text = "White Won!";
+                if (whiteWon)
+                {
+                    gameSummaryTextView.Text = "White Won";
+                }
+                else
+                {
+                    gameSummaryTextView.Text = "Black Won";
+                }
+                whyEndedTextView.Text = "by resignation";
+            }
+            else if (gameAborted)
+            {
+                gameSummaryTextView.Text = "Game Aborted";
+                whyEndedTextView.Text = "";
+            }
+            else if (whiteWon)
+            {
+                gameSummaryTextView.Text = "White Won";
+                if (gameWonOnTime)
+                {
+                    whyEndedTextView.Text = "on time";
+                }
+                else
+                {
+                    whyEndedTextView.Text = "by checkmate";
+                }
+
             }
             else if (blackWon)
             {
-                tvWinner.Text = "Black Won!";
+                gameSummaryTextView.Text = "Black Won";
+                if (gameWonOnTime)
+                {
+                    whyEndedTextView.Text = "on time";
+                }
+                else
+                {
+                    whyEndedTextView.Text = "by checkmate";
+                }
+
             }
             else
             {
-                tvWinner.Text = "Draw";
+                gameSummaryTextView.Text = "Draw";
             }
+
+            // Create the AlertDialog and show it
+            Android.App.AlertDialog alertDialog = builder.Create();
+            alertDialog.Show();
+
+            // Set button click listeners if needed
+            newGameButton.Click += (sender, args) =>
+            {
+
+            };
+
+            cancelButton.Click += (sender, args) =>
+            {
+                alertDialog.Dismiss();
+            };
+
+
+        }
+
+        private void ShowExitGameDialog()
+        {
+            Android.App.AlertDialog.Builder builder = new Android.App.AlertDialog.Builder(this);
+            string builderTitle = string.Empty;
+            if (chessboard.moveCount == 0)
+            {
+                builderTitle = "Abort Game";
+                builder.SetMessage("Are you sure you want to abort the game?");
+            }
+            else if (chessboard.moveCount == 1)
+            {
+                builderTitle = "Abort Game";
+                builder.SetMessage("Are you sure you want to abort the game?");
+            }
+            else
+            {
+                builderTitle = "Resign";
+                builder.SetMessage("Are you sure you want to resign?");
+            }
+            builder.SetTitle(builderTitle);
+            builder.SetPositiveButton("Yes", (sender, args) =>
+            {
+                // Handle the "Yes" button click (exit game)
+                // Close the activity and exit the game
+                if (builderTitle.Equals("Resign"))
+                {
+                    gameResigned = true;
+                }
+                else if (builderTitle.Equals("Abort Game"))
+                {
+                    gameAborted = true;
+                }
+                createEndGameDialog();
+            });
+            builder.SetNegativeButton("No", (sender, args) =>
+            {
+                // Handle the "No" button click (cancel exit)
+                // Do nothing, dismiss the dialog
+            });
+
+            Android.App.AlertDialog dialog = builder.Create();
+
+            dialog.Show();
         }
     }
 }

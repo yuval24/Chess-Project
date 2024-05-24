@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Chess_FirstStep.AIGameActivity" Collapsed="true">
+    <Position X="16.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>hABVRIAFQQEYCABEgEiBAjgIIWMAAUhGNhRCAmQyIAA=</HashCode>
+      <FileName>AIGameActivity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Bishop" Collapsed="true">
+    <Position X="3.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Bishop.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.CapturedPiecesAdapter" Collapsed="true">
+    <Position X="18.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACCAEAAAAAAAAAEAAAAAgAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CapturedPiecesAdapter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.CapturedPieceViewHolder" Collapsed="true">
+    <Position X="20" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CapturedPieceViewHolder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.ChessAI" Collapsed="true">
+    <Position X="21.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gEAEIAAAIEAAAAIAAAAAIEAAAAAAAIAQAAAAAEACBAA=</HashCode>
+      <FileName>ChessAI.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.ChessAPI" Collapsed="true">
+    <Position X="14.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAABAAAAABAAAAAAAAAAgAAAAAAAAAAAAA=</HashCode>
+      <FileName>ChessAPI.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Chessboard" Collapsed="true">
+    <Position X="16.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IRIwQIAOAAIAIAhCAggCCAAJAAIAgAAAAEAIgAEABAQ=</HashCode>
+      <FileName>Chessboard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.ChessMove" Collapsed="true">
+    <Position X="18.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAIEAgAAAAAAAEAAAADBQCACAAAAAAACAAAAAAAAA=</HashCode>
+      <FileName>ChessMove.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.ChessPiece" Collapsed="true">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAIAAAAAAAAAAEAQAAAAAAAAAAAAAAAAAYAA=</HashCode>
+      <FileName>ChessPiece.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.King" Collapsed="true">
+    <Position X="5.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>King.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Knight" Collapsed="true">
+    <Position X="7.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Knight.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.LoginActivity" Collapsed="true">
+    <Position X="20" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAAAAAIAAAACAAAACCABCAAAAAAAABgAAAA=</HashCode>
+      <FileName>LoginActivity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.MainActivity" Collapsed="true">
+    <Position X="21.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MainActivity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.MainPageActivity" Collapsed="true">
+    <Position X="14.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgCAAAAIAAAABAAAAACAAIAAABAAARBAAAAA=</HashCode>
+      <FileName>MainPageActivity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.NetworkManager" Collapsed="true">
+    <Position X="16.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAACJIIAAA4AEBBAABAAABGEAEAQQACCAAQAAA=</HashCode>
+      <FileName>NetworkManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.OnlineGameActivity" Collapsed="true">
+    <Position X="18.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>hABVRABFQQEYABJEgEiRAjgIKWIAAUhCNhRCAvYyIAA=</HashCode>
+      <FileName>OnlineGameActivity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Pawn" Collapsed="true">
+    <Position X="10" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>Pawn.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Queen" Collapsed="true">
+    <Position X="12.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Queen.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Rook" Collapsed="true">
+    <Position X="1" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Rook.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.SharedPreferencesManager" Collapsed="true">
+    <Position X="20" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAIAEAAAAIYAAAACAAAAIAACAAAAgAAAAAAABAAI=</HashCode>
+      <FileName>SharedPreferencesManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.SocketManager" Collapsed="true">
+    <Position X="21.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAIAAAAAAAAAAAAEAAACAAAA=</HashCode>
+      <FileName>SocketManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.SoundManager" Collapsed="true">
+    <Position X="14.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAgIAAAAgAAAEAAAAAAAAAA=</HashCode>
+      <FileName>SoundManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.StockfishGameActivity" Collapsed="true">
+    <Position X="16.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>hABVRIAFQQEYCBBEgEiRAjgIIXMAAUhWNhRCAmYyIAA=</HashCode>
+      <FileName>StockfishGameActivity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.TwoPlayerGameActivity" Collapsed="true">
+    <Position X="18.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>hABVRIAFQQEYAABEgEiBAjgIIWMAAUhGNhRCAmQyIAA=</HashCode>
+      <FileName>TwoPlayerGameActivity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.WaitingForOnlineGameActivity" Collapsed="true">
+    <Position X="20" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAAAAAAAAAACAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>WaitingForOnlineGameActivity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Data_Classes.ActivityType" Collapsed="true">
+    <Position X="14.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEIAAAAIoAAAAAAACAAAAAAACAAIAAIA=</HashCode>
+      <FileName>Data-Classes\ActivityType.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Data_Classes.Data" Collapsed="true">
+    <Position X="1.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAkCAAAAAAAAAAAEgIAAAAAAACBBAIIAAAAAAAAAAAA=</HashCode>
+      <FileName>Data-Classes\Data.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Data_Classes.LoginData" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAEAACBAAAAAAAAAAgAAAAA=</HashCode>
+      <FileName>Data-Classes\LoginData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Chess_FirstStep.Data_Classes.MoveData" Collapsed="true">
+    <Position X="2.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAAAAAAACBAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Data-Classes\MoveData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
