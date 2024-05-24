@@ -10,7 +10,10 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using AndroidX.Fragment.App;
 using Chess_FirstStep.Data_Classes;
+using Google.Android.Material.BottomNavigation;
+using Google.Android.Material.BottomNavigation;
 
 
 
@@ -19,42 +22,71 @@ namespace Chess_FirstStep
     [Activity(Label = "LoginPageActivity")]
     public class MainPageActivity : Activity
     {
-        Button btnTwoPlayerGame;
-        Button btnAiGame;
-        Button btnOnlineGame;
+        
         NetworkManager networkManager;
+       
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
             // Create an instance of the BottomButtonsFragment
-            var bottomButtonsFragment = new BottomButtonsFragment();
+            // Set up bottom navigation view
+            var fragmentContainer = FindViewById<FrameLayout>(Resource.Id.fragment_container);
+            var bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottom_navigation);
 
-            // Begin a fragment transaction
-            var transaction = FragmentManager.BeginTransaction();
+            // Set up the menu programmatically
+            bottomNavigation.Menu.Clear(); // Clear existing menu items if any
 
-            // Replace the fragment_container with the BottomButtonsFragment
-            transaction.Replace(Resource.Id.fragment_container, bottomButtonsFragment);
+            // Add menu items
+            bottomNavigation.Menu.Add(0, MainMenuIds.ActionHome, 0, "Home Page").SetIcon(Resource.Drawable.home_chess);
+            bottomNavigation.Menu.Add(0, MainMenuIds.ActionHistory, 0, "History Page").SetIcon(Resource.Drawable.history_chess);
+            bottomNavigation.Menu.Add(0, MainMenuIds.ActionFriends, 0, "Friends Page").SetIcon(Resource.Drawable.friends_chess);
 
-            // Commit the transaction
-            transaction.Commit();
+            // Subscribe to the item selected event
+            bottomNavigation.NavigationItemSelected += BottomNavigation_NavigationItemSelected;
+
+
 
             networkManager = NetworkManager.Instance;
             Task.Run(() => networkManager.ReconnectAsync());
-
-            btnTwoPlayerGame = FindViewById<Button>(Resource.Id.btnTwoPlayerGame);
-            btnAiGame = FindViewById<Button>(Resource.Id.btnAiGame);
-            btnOnlineGame = FindViewById<Button>(Resource.Id.btnOnlineGame);
-            
-
-         
-            btnOnlineGame.Click += BtnOnlineGame_Click;
-            btnTwoPlayerGame.Click += BtnTwoPlayerGame_Click;
-            btnAiGame.Click += BtnAiGame_Click;
+          
             Task.Run(() => CommunicationLoop());
+
+            ReplaceFragment(new HomePageFragment());
         }
         // This loop purpose is to check if the client is still Authenticated
+
+        void BottomNavigation_NavigationItemSelected(object sender, BottomNavigationView.NavigationItemSelectedEventArgs e)
+        {
+            int itemId = e.Item.ItemId;
+
+            switch (itemId)
+            {
+                case MainMenuIds.ActionHome:
+                    // Navigate to Fragment 1
+                    ReplaceFragment(new HomePageFragment());
+                    break;
+                case MainMenuIds.ActionHistory:
+                    // Navigate to Fragment 2
+                    ReplaceFragment(new HistoryPageFragment());
+                    break;
+                case MainMenuIds.ActionFriends:
+                    // Navigate to Fragment 3
+                    ReplaceFragment(new FriendsPageFragment());
+                    break;
+                    // Add more cases for additional menu items if needed
+            }
+        }
+
+        void ReplaceFragment(Android.App.Fragment fragment)
+        {
+            var transaction = FragmentManager.BeginTransaction();
+            transaction.Replace(Resource.Id.fragment_container, fragment);
+            transaction.Commit();
+        }
+
+
         private async Task CommunicationLoop()
         {
 
@@ -72,7 +104,7 @@ namespace Chess_FirstStep
                     {
                         if (!data.success)
                         {
-                            Intent intent = new Intent(this, typeof(MainActivity));
+                            Intent intent = new Intent(this, typeof(LoginActivity));
                             StartActivity(intent);
                             Finish();
 
@@ -86,53 +118,7 @@ namespace Chess_FirstStep
                 Console.WriteLine($"**** Error in CommunicationLoop MainPageActivity: {ex.Message}");
             }
         }
-        private void BtnOnlineGame_Click(object sender, EventArgs e)
-        {
-            Intent intent = new Intent(this, typeof(WaitingForOnlineGameActivity));
-
-            StartActivity(intent);
-            Finish();
-        }
-
-        private void BtnAiGame_Click(object sender, EventArgs e)
-        {
-            ShowSelectAiDialog();
-        }
-
-        private void BtnTwoPlayerGame_Click(object sender, EventArgs e)
-        {
-            Intent intent = new Intent(this, typeof(TwoPlayerGameActivity));
-
-            StartActivity(intent);
-        }
-
-        private void ShowSelectAiDialog()
-        {
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-            LayoutInflater inflater = this.LayoutInflater;
-            View dialogView = inflater.Inflate(Resource.Layout.chooseAiDialog, null);
-            dialogBuilder.SetView(dialogView);
-
-            Button myBotButton = dialogView.FindViewById<Button>(Resource.Id.myBotButton);
-            Button stockfishBotButton = dialogView.FindViewById<Button>(Resource.Id.stockfishBotButton);
-
-            AlertDialog alertDialog = dialogBuilder.Create();
-
-            myBotButton.Click += (sender, e) => {
-                Intent intent = new Intent(this, typeof(AIGameActivity));
-
-                StartActivity(intent);
-            };
-
-            stockfishBotButton.Click += (sender, e) => {
-                Intent intent = new Intent(this, typeof(StockfishGameActivity)); 
-
-                StartActivity(intent);
-            };
-
-            alertDialog.Show();
-        }
-
+       
     }
 
 }

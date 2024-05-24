@@ -3657,61 +3657,61 @@ namespace Chess_FirstStep
 			public const int bottom = 2131230794;
 			
 			// aapt resource value: 0x7F08004B
-			public const int browser_actions_header_text = 2131230795;
-			
-			// aapt resource value: 0x7F08004E
-			public const int browser_actions_menu_items = 2131230798;
+			public const int bottom_navigation = 2131230795;
 			
 			// aapt resource value: 0x7F08004C
-			public const int browser_actions_menu_item_icon = 2131230796;
-			
-			// aapt resource value: 0x7F08004D
-			public const int browser_actions_menu_item_text = 2131230797;
+			public const int browser_actions_header_text = 2131230796;
 			
 			// aapt resource value: 0x7F08004F
-			public const int browser_actions_menu_view = 2131230799;
+			public const int browser_actions_menu_items = 2131230799;
+			
+			// aapt resource value: 0x7F08004D
+			public const int browser_actions_menu_item_icon = 2131230797;
+			
+			// aapt resource value: 0x7F08004E
+			public const int browser_actions_menu_item_text = 2131230798;
 			
 			// aapt resource value: 0x7F080050
-			public const int btnAiGame = 2131230800;
+			public const int browser_actions_menu_view = 2131230800;
 			
 			// aapt resource value: 0x7F080051
-			public const int btnExitAI = 2131230801;
+			public const int btnAiGame = 2131230801;
 			
 			// aapt resource value: 0x7F080052
-			public const int btnExitOnline = 2131230802;
+			public const int btnExitAI = 2131230802;
 			
 			// aapt resource value: 0x7F080053
-			public const int btnExitStockfish = 2131230803;
+			public const int btnExitOnline = 2131230803;
 			
 			// aapt resource value: 0x7F080054
-			public const int btnExitTwoPlayer = 2131230804;
+			public const int btnExitStockfish = 2131230804;
 			
 			// aapt resource value: 0x7F080055
-			public const int btnFriends = 2131230805;
+			public const int btnExitTwoPlayer = 2131230805;
 			
 			// aapt resource value: 0x7F080056
-			public const int btnGameHistory = 2131230806;
+			public const int btnFriends = 2131230806;
 			
 			// aapt resource value: 0x7F080057
-			public const int btnHome = 2131230807;
+			public const int btnGameHistory = 2131230807;
 			
 			// aapt resource value: 0x7F080058
-			public const int btnLogin = 2131230808;
+			public const int btnHome = 2131230808;
 			
 			// aapt resource value: 0x7F080059
-			public const int btnOnlineGame = 2131230809;
+			public const int btnLogin = 2131230809;
 			
 			// aapt resource value: 0x7F08005A
-			public const int btnSignUp = 2131230810;
+			public const int btnOnlineGame = 2131230810;
 			
 			// aapt resource value: 0x7F08005B
-			public const int btnTwoPlayerGame = 2131230811;
+			public const int btnSignUp = 2131230811;
 			
 			// aapt resource value: 0x7F08005C
-			public const int buttonPanel = 2131230812;
+			public const int btnTwoPlayerGame = 2131230812;
 			
 			// aapt resource value: 0x7F08005D
-			public const int button_container = 2131230813;
+			public const int buttonPanel = 2131230813;
 			
 			// aapt resource value: 0x7F08005E
 			public const int cancelButton = 2131230814;
@@ -4584,43 +4584,52 @@ namespace Chess_FirstStep
 			public const int fragment_bottom_buttons = 2131427384;
 			
 			// aapt resource value: 0x7F0B0039
-			public const int mtrl_layout_snackbar = 2131427385;
+			public const int fragment_friends_page = 2131427385;
 			
 			// aapt resource value: 0x7F0B003A
-			public const int mtrl_layout_snackbar_include = 2131427386;
+			public const int fragment_history_page = 2131427386;
 			
 			// aapt resource value: 0x7F0B003B
-			public const int notification_action = 2131427387;
+			public const int fragment_home_page = 2131427387;
 			
 			// aapt resource value: 0x7F0B003C
-			public const int notification_action_tombstone = 2131427388;
+			public const int mtrl_layout_snackbar = 2131427388;
 			
 			// aapt resource value: 0x7F0B003D
-			public const int notification_template_custom_big = 2131427389;
+			public const int mtrl_layout_snackbar_include = 2131427389;
 			
 			// aapt resource value: 0x7F0B003E
-			public const int notification_template_icon_group = 2131427390;
+			public const int notification_action = 2131427390;
 			
 			// aapt resource value: 0x7F0B003F
-			public const int notification_template_part_chronometer = 2131427391;
+			public const int notification_action_tombstone = 2131427391;
 			
 			// aapt resource value: 0x7F0B0040
-			public const int notification_template_part_time = 2131427392;
+			public const int notification_template_custom_big = 2131427392;
 			
 			// aapt resource value: 0x7F0B0041
-			public const int openning_screen = 2131427393;
+			public const int notification_template_icon_group = 2131427393;
 			
 			// aapt resource value: 0x7F0B0042
-			public const int select_dialog_item_material = 2131427394;
+			public const int notification_template_part_chronometer = 2131427394;
 			
 			// aapt resource value: 0x7F0B0043
-			public const int select_dialog_multichoice_material = 2131427395;
+			public const int notification_template_part_time = 2131427395;
 			
 			// aapt resource value: 0x7F0B0044
-			public const int select_dialog_singlechoice_material = 2131427396;
+			public const int openning_screen = 2131427396;
 			
 			// aapt resource value: 0x7F0B0045
-			public const int support_simple_spinner_dropdown_item = 2131427397;
+			public const int select_dialog_item_material = 2131427397;
+			
+			// aapt resource value: 0x7F0B0046
+			public const int select_dialog_multichoice_material = 2131427398;
+			
+			// aapt resource value: 0x7F0B0047
+			public const int select_dialog_singlechoice_material = 2131427399;
+			
+			// aapt resource value: 0x7F0B0048
+			public const int support_simple_spinner_dropdown_item = 2131427400;
 			
 			static Layout()
 			{

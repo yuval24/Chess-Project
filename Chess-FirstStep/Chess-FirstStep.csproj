@@ -81,9 +81,13 @@
     <Compile Include="Data-Classes\Data.cs" />
     <Compile Include="Data-Classes\LoginData.cs" />
     <Compile Include="Data-Classes\MoveData.cs" />
+    <Compile Include="FriendsPageFragment.cs" />
+    <Compile Include="HistoryPageFragment.cs" />
+    <Compile Include="HomePageFragment.cs" />
     <Compile Include="King.cs" />
     <Compile Include="Knight.cs" />
     <Compile Include="LoginActivity.cs" />
+    <Compile Include="MainMenuIds.cs" />
     <Compile Include="MainPageActivity.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="NetworkManager.cs" />
@@ -271,6 +275,24 @@
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\friends_chess.png" />
     <AndroidResource Include="Resources\drawable\home_chess.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\fragment_home_page.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\fragment_history_page.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\fragment_friends_page.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\menu\buttom_navigation_menu.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
