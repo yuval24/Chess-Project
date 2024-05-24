@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="AIGameActivity.cs" />
     <Compile Include="Bishop.cs" />
+    <Compile Include="BottomButtonsFragment.cs" />
     <Compile Include="CapturedPiecesAdapter.cs" />
     <Compile Include="CapturedPieceViewHolder.cs" />
     <Compile Include="ChessAI.cs" />
@@ -258,6 +259,18 @@
     <AndroidResource Include="Resources\layout\chooseAiDialog.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\fragment_bottom_buttons.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\history_chess.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\friends_chess.png" />
+    <AndroidResource Include="Resources\drawable\home_chess.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

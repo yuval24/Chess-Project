@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="@android:color/transparent">
+
+    <ImageButton
+        android:id="@+id/btnHome"
+        android:src="@drawable/home_chess"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:contentDescription="Home"
+        android:scaleType="fitCenter"/>
+
+    <ImageButton
+        android:id="@+id/btnGameHistory"
+        android:src="@drawable/history_chess"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:contentDescription="Game History"
+        android:scaleType="fitCenter"/>
+
+    <ImageButton
+        android:id="@+id/btnFriends"
+        android:src="@drawable/friends_chess"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:contentDescription="Friends"
+        android:scaleType="fitCenter"/>
+</LinearLayout>

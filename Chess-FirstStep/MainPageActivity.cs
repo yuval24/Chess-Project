@@ -12,6 +12,8 @@ using Android.Views;
 using Android.Widget;
 using Chess_FirstStep.Data_Classes;
 
+
+
 namespace Chess_FirstStep
 {
     [Activity(Label = "LoginPageActivity")]
@@ -25,6 +27,18 @@ namespace Chess_FirstStep
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
+
+            // Create an instance of the BottomButtonsFragment
+            var bottomButtonsFragment = new BottomButtonsFragment();
+
+            // Begin a fragment transaction
+            var transaction = FragmentManager.BeginTransaction();
+
+            // Replace the fragment_container with the BottomButtonsFragment
+            transaction.Replace(Resource.Id.fragment_container, bottomButtonsFragment);
+
+            // Commit the transaction
+            transaction.Commit();
 
             networkManager = NetworkManager.Instance;
             Task.Run(() => networkManager.ReconnectAsync());

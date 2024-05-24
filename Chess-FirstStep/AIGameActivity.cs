@@ -545,7 +545,7 @@ namespace Chess_FirstStep
                             handlesAIMove(task.Result);
                             whiteTimer.Start();
                             blackTimer.Stop();
-                            humanTurn =true;
+                            humanTurn = true;
                         }
                     }, TaskScheduler.FromCurrentSynchronizationContext());
 
