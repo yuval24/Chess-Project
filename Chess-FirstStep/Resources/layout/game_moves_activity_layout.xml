@@ -5,6 +5,18 @@
     android:orientation="vertical"
     android:gravity="center_horizontal">
 
+     <!-- Exit button -->
+    <ImageButton
+        android:id="@+id/btnExitGameMoves"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:background="@drawable/exit"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="150dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:contentDescription="description" />
+
     <!-- Chessboard -->
     <TableLayout
         android:id="@+id/chessboardLayoutGameMoves"

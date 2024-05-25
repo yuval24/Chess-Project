@@ -41,10 +41,17 @@ namespace Chess_FirstStep
             moves = new List<string>(movesList);
             ImageButton leftArrowImageButton = FindViewById<ImageButton>(Resource.Id.leftArrowImageButton);
             ImageButton rightArrowImageButton = FindViewById<ImageButton>(Resource.Id.rightArrowImageButton);
-
+            ImageButton btnExitGameMoves = FindViewById<ImageButton>(Resource.Id.btnExitGameMoves);
+            
 
             leftArrowImageButton.Click += LeftArrowImageButton_Click;
             rightArrowImageButton.Click += RightArrowImageButton_Click;
+            btnExitGameMoves.Click += BtnExitGameMoves_Click;
+        }
+
+        private void BtnExitGameMoves_Click(object sender, EventArgs e)
+        {
+            Finish();
         }
 
         private void RightArrowImageButton_Click(object sender, EventArgs e)
@@ -55,7 +62,7 @@ namespace Chess_FirstStep
                 // Apply the next move from the moves list
 
 
-                updateUI(NetworkManager.ConvertStringToMove(moves[currentMoveIndex]));
+                updateUIRightArrow(NetworkManager.ConvertStringToMove(moves[currentMoveIndex]));
                 // Increment the current move index
                 currentMoveIndex++;
 
@@ -65,7 +72,14 @@ namespace Chess_FirstStep
 
         private void LeftArrowImageButton_Click(object sender, EventArgs e)
         {
-           
+           if(currentMoveIndex > 0)
+           {
+                currentMoveIndex--;
+                updateUILeftArrow(NetworkManager.ConvertStringToMove(moves[currentMoveIndex]));
+                // Increment the current move index
+                
+
+            }
         }
 
         // Initialize the chessboard and views
@@ -78,7 +92,7 @@ namespace Chess_FirstStep
             chessboard.InitializeChessboard(this);
         }
 
-        private void updateUI(ChessMove chessMove)
+        private void updateUIRightArrow(ChessMove chessMove)
         {
             selectedRow = chessMove.StartRow;
             selectedCol = chessMove.StartCol;
@@ -88,63 +102,56 @@ namespace Chess_FirstStep
             selectedImageView = chessPieceViews[selectedRow, selectedCol];
             if (selectedPiece != null)
             {
-                if (chessboard.IsMoveValid(chessMove))
+                chessboard.ApplyMove(chessMove);
+
+                if (chessMove.IsEnPassantCapture)
                 {
-                    chessboard.ApplyMove(chessMove);
-                    if (chessMove.IsEnPassantCapture)
-                    {
-                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
-                        selectedImageView.SetImageDrawable(null);
+                    ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
 
-                        targetImageView = chessPieceViews[selectedRow, targetCol];
-                        targetImageView.SetImageDrawable(null);
-                    }
-                    else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
+                    targetImageView = chessPieceViews[selectedRow, targetCol];
+                    targetImageView.SetImageDrawable(null);
+                }
+                else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
+                {
+                    MoveKingAndRookForCastle();
+                }
+                else if (chessMove.IsPromotion)
+                {
+                    ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                    if (chessboard.isWhiteTurn)
                     {
-                        MoveKingAndRookForCastle();
-                    }
-                    else if (chessMove.IsPromotion)
-                    {
-                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                        if (chessboard.isWhiteTurn)
-                        {
-                            targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
-                        }
-                        else
-                        {
-                            targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
-                        }
-
-                        selectedImageView.SetImageDrawable(null);
-                    }
-                    else if (chessMove.IsCapture)
-                    {
-                       
-                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
-                        selectedImageView.SetImageDrawable(null);
+                        targetImageView.SetImageResource(Resource.Drawable.Chess_qlt60);
                     }
                     else
                     {
-                        // Update the UI
-                        ImageView targetImageView = chessPieceViews[targetRow, targetCol];
-                        targetImageView.SetImageDrawable(selectedImageView.Drawable);
-                        selectedImageView.SetImageDrawable(null);
-
-
+                        targetImageView.SetImageResource(Resource.Drawable.Chess_qdt60);
                     }
 
-                 
+                    selectedImageView.SetImageDrawable(null);
+                }
+                else if (chessMove.IsCapture)
+                {
 
-                    chessboard.SwitchPlayerTurn();
-                   
+                    ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
+                }
+                else
+                {
+                    // Update the UI
+                    ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+                    targetImageView.SetImageDrawable(selectedImageView.Drawable);
+                    selectedImageView.SetImageDrawable(null);
 
 
                 }
-                
 
-                
+
+
+                chessboard.SwitchPlayerTurn();
+
             }
 
 
@@ -152,6 +159,86 @@ namespace Chess_FirstStep
             ResetSelection();
         }
 
+
+        private void updateUILeftArrow(ChessMove chessMove)
+        {
+            selectedRow = chessMove.StartRow;
+            selectedCol = chessMove.StartCol;
+            targetRow = chessMove.EndRow;
+            targetCol = chessMove.EndCol;
+            ImageView targetImageView = chessPieceViews[targetRow, targetCol];
+            selectedPiece = chessboard.GetChessPieceAt(selectedRow, selectedCol);
+            selectedImageView = chessPieceViews[selectedRow, selectedCol];
+            if (targetImageView != null)
+            {
+                chessboard.UndoMove(chessMove);
+                ChessPiece targetPiece = chessboard.GetChessPieceAt(targetRow, targetCol);
+                
+
+                if (chessMove.IsEnPassantCapture)
+                {
+                    
+                    targetImageView = chessPieceViews[targetRow, targetCol];
+                    selectedImageView.SetImageDrawable(targetImageView.Drawable);
+                    targetImageView.SetImageDrawable(null);
+
+                    targetImageView = chessPieceViews[selectedRow, targetCol];
+                    ChessPiece chessPiece = chessboard.GetChessPieceAt(selectedRow, targetCol);
+                    targetImageView.SetImageResource(chessboard.convertChessPieceToImage(chessPiece));
+                }
+                else if (chessMove.IsKingsideCastle || chessMove.IsQueensideCastle)
+                {
+                    updateViewBoard();
+                }
+                else if (chessMove.IsPromotion)
+                {
+                    selectedPiece = chessboard.GetChessPieceAt(selectedRow, selectedCol);
+                    targetImageView = chessPieceViews[targetRow, targetCol];
+                    selectedImageView.SetImageResource(chessboard.convertChessPieceToImage(selectedPiece));
+                    targetImageView.SetImageResource(chessboard.convertChessPieceToImage(targetPiece));
+                }
+                else if (chessMove.IsCapture)
+                {
+
+                    targetImageView = chessPieceViews[targetRow, targetCol];
+
+                    selectedImageView.SetImageDrawable(targetImageView.Drawable);
+                    targetImageView.SetImageResource(chessboard.convertChessPieceToImage(targetPiece));
+
+                }
+                else
+                {
+                    // Update the UI
+                    
+                    selectedImageView.SetImageDrawable(targetImageView.Drawable);
+                    targetImageView.SetImageDrawable(null);
+
+
+                }
+
+
+
+                chessboard.SwitchPlayerTurn();
+
+
+            }
+
+
+
+            ResetSelection();
+        }
+
+        private void updateViewBoard()
+        {
+            for (int i = 0; i < 8; i++) {
+
+                for(int j = 0; j < 8; j++)
+                {
+                    chessPieceViews[i, j].SetImageResource(chessboard.convertChessPieceToImage(chessboard.GetChessPieceAt(i,j)));
+                }
+            }
+
+        }
         private void ResetSelection()
         {
             selectedPiece = null;

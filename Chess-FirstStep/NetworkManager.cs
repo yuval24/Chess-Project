@@ -373,6 +373,9 @@ namespace Chess_FirstStep
             else if (moveString.Contains("CN"))
             {
                 move.IsQueensideCastle = true;
+            } else if (moveString.Contains("E"))
+            {
+                move.IsEnPassantCapture = true;
             }
 
             return move;

@@ -36,7 +36,7 @@ namespace Chess_FirstStep
             EndCol = endCol;
             IsCapture = false;
             IsPromotion = false;
-            PromotedTo = ' ';
+            PromotedTo = 'Q';
             IsEnPassantCapture = false;
             IsKingsideCastle = false;
             IsQueensideCastle = false;
@@ -67,6 +67,9 @@ namespace Chess_FirstStep
             else if (IsQueensideCastle)
             {
                 moveString += "CN";
+            } else if(IsEnPassantCapture) 
+            {
+                moveString += "E";
             }
 
             return moveString;

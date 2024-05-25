@@ -304,6 +304,7 @@
     </AndroidResource>
     <AndroidResource Include="Resources\drawable\left_arrow_chess.png" />
     <AndroidResource Include="Resources\drawable\right_arrow_chess.png" />
+    <AndroidResource Include="Resources\drawable\logo_chess.png" />
     <Content Include="Resources\menu\buttom_navigation_menu.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
