@@ -15,7 +15,7 @@ using Chess_FirstStep.Data_Classes;
 
 namespace Chess_FirstStep
 {
-    public class HistoryPageFragment : Fragment
+    public class HistoryPageFragment : Fragment, HistoryAdapter.OnItemClickListener
     {
         private RecyclerView recyclerView;
         private HistoryAdapter adapter;
@@ -30,6 +30,7 @@ namespace Chess_FirstStep
 
             gameHistoryList = new List<GameHistory>();
             adapter = new HistoryAdapter(gameHistoryList);
+            adapter.SetOnItemClickListener(this); // Set the click listener
             recyclerView.SetAdapter(adapter);
 
             networkManager = NetworkManager.Instance;
@@ -63,6 +64,19 @@ namespace Chess_FirstStep
                         }
                         
                         break; // Exit the loop after successful transition
+                    } else if (gameHistoryData.type.Equals(ActivityType.AUTHENTICATE))
+                    {
+                        if (!gameHistoryData.success)
+                        {
+                            Activity.RunOnUiThread(() =>
+                            {
+                                Intent intent = new Intent(Activity, typeof(LoginActivity));
+                                StartActivity(intent);
+                                Activity.Finish();
+                            });
+
+                        }
+                        
                     }
                 }
 
@@ -83,6 +97,20 @@ namespace Chess_FirstStep
                 gameHistoryList.AddRange(historyData);
                 adapter.NotifyDataSetChanged();
             });
+        }
+
+        public void OnItemClick(int position)
+        {
+            // Get the clicked game history object
+            GameHistory clickedGame = gameHistoryList[position];
+            // Create an intent to start the GameMovesActivity
+            Intent intent = new Intent(Activity, typeof(GameMovesActivity));
+
+            // Pass necessary data to the GameMovesActivity
+            intent.PutStringArrayListExtra("GameMoves", clickedGame.moves);
+
+            // Start the activity
+            Activity.StartActivity(intent);
         }
     }
 }

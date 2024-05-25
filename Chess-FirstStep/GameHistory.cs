@@ -17,12 +17,16 @@ namespace Chess_FirstStep
         public string black_username { get; set; }
         public string white_username { get; set; }
         public string result { get; set; }
+        public string gameDate { get; set; }
+        public List<string> moves { get; set; } 
 
-        public GameHistory(string black_username, string white_username, string result)
+        public GameHistory(string black_username, string white_username, string result, string gameDate, List<string> moves)
         {
             this.black_username = black_username;
             this.white_username = white_username;
             this.result = result;
+            this.moves = moves;
+            this.gameDate = gameDate;
         }
     }
 }

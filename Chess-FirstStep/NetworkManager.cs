@@ -70,6 +70,9 @@ namespace Chess_FirstStep
                     writer = new StreamWriter(networkStream) { AutoFlush = true };
                     System.Console.WriteLine("****** Connection Successful");
                     ConnectionToTheServer();
+                } else 
+                {
+                    System.Console.WriteLine("The server is not up");
                 }
             }
             catch (Exception ex)
@@ -174,7 +177,7 @@ namespace Chess_FirstStep
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"*** Error: {ex.Message}");
+                System.Console.WriteLine($"*** Error: {ex.ToString()}");
             }
         }
 

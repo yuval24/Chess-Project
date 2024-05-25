@@ -43,7 +43,7 @@ namespace Chess_FirstStep
             AnimateView(checkBoxStayLoggedIn, 600);
             AnimateView(btnLogin, 800);
             AnimateView(btnSignUp, 1000);
-
+           
             btnSignUp.Click += btnSignUp_Click;
             btnLogin.Click += btnLogin_Click;
             Task.Run(() => CommunicationLoop());

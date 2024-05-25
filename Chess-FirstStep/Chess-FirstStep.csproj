@@ -84,6 +84,7 @@
     <Compile Include="Data-Classes\MoveData.cs" />
     <Compile Include="FriendsPageFragment.cs" />
     <Compile Include="GameHistory.cs" />
+    <Compile Include="GameMovesActivity.cs" />
     <Compile Include="HistoryAdapter.cs" />
     <Compile Include="HistoryPageFragment.cs" />
     <Compile Include="HomePageFragment.cs" />
@@ -296,6 +297,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\item_game_history.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\game_moves_activity_layout.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
     <Content Include="Resources\menu\buttom_navigation_menu.xml" />
