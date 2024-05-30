@@ -277,7 +277,6 @@
     <AndroidResource Include="Resources\drawable\history_chess.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\friends_chess.png" />
     <AndroidResource Include="Resources\drawable\home_chess.png" />
   </ItemGroup>
   <ItemGroup>
@@ -305,6 +304,13 @@
     <AndroidResource Include="Resources\drawable\left_arrow_chess.png" />
     <AndroidResource Include="Resources\drawable\right_arrow_chess.png" />
     <AndroidResource Include="Resources\drawable\logo_chess.png" />
+    <AndroidResource Include="Resources\layout\popup_notification.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\dialog_endgame_online.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\friends_chess.png" />
     <Content Include="Resources\menu\buttom_navigation_menu.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

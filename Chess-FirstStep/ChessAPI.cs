@@ -26,7 +26,7 @@ namespace Chess_FirstStep
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 string requestUrl = $"{StockfishApiBaseUrl}?fen={Uri.EscapeDataString(fen)}&depth={15}";
-
+                
                 var response = await client.GetAsync(requestUrl);
                 response.EnsureSuccessStatusCode();
 

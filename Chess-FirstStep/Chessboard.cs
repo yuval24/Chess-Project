@@ -935,7 +935,7 @@ namespace Chess_FirstStep
                 SetChessPiece(null, move.EndRow, move.EndCol);
                 if (selectedChessPiece.Y == 0)
                 {
-                    if(selectedChessPiece.X == 4)
+                    if(move.EndCol == 6)
                     {
                        
                         SetChessPiece(GetChessPieceAt(0,5), 0, 7);
@@ -944,12 +944,12 @@ namespace Chess_FirstStep
                     else
                     {
                        
-                        SetChessPiece(GetChessPieceAt(0, 4), 0, 0);
-                        SetChessPiece(null, 0, 4);
+                        SetChessPiece(GetChessPieceAt(0, 3), 0, 0);
+                        SetChessPiece(null, 0, 3);
                     }
                 } else
                 {
-                    if (selectedChessPiece.X == 4)
+                    if (move.EndCol == 6)
                     {
                       
                         SetChessPiece(GetChessPieceAt(7, 5), 7, 7);
@@ -958,8 +958,8 @@ namespace Chess_FirstStep
                     else
                     {
                         
-                        SetChessPiece(GetChessPieceAt(7, 4), 7, 0);
-                        SetChessPiece(null, 7, 4);
+                        SetChessPiece(GetChessPieceAt(7, 3), 7, 0);
+                        SetChessPiece(null, 7, 3);
                     }
                 }
             }

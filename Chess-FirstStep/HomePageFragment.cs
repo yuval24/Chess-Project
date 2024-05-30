@@ -16,6 +16,7 @@ namespace Chess_FirstStep
 #pragma warning disable CS0618 // Type or member is obsolete
     public class HomePageFragment : Fragment
     {
+        NetworkManager networkManager;
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = inflater.Inflate(Resource.Layout.fragment_home_page, container, false);
@@ -27,6 +28,7 @@ namespace Chess_FirstStep
             btnOnlineGame.Click += BtnOnlineGame_Click;
             btnTwoPlayerGame.Click += BtnTwoPlayerGame_Click;
             btnAiGame.Click += BtnAiGame_Click;
+            networkManager = NetworkManager.Instance;
 
             return view;
         }

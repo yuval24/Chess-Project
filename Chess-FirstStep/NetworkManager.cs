@@ -133,7 +133,8 @@ namespace Chess_FirstStep
                 System.Console.WriteLine($"Error: {ex.Message}");
             }
         }
-
+        
+       
 
         // sending the sign up data to the server to check if the username is not exists
         public void SendSignUpInformation(string username, string password)
@@ -207,7 +208,34 @@ namespace Chess_FirstStep
                 System.Console.WriteLine($"*** Error: {ex.Message}");
             }
         }
-       
+
+        // sends game request to someone
+        public async Task SendRequestToSomeone(string targetUsername)
+        {
+            await ReconnectAsync();
+            try
+            {
+                string JWTtoken = SharedPreferencesManager.GetJwtToken();
+                string username = SharedPreferencesManager.GetUsername();
+                System.Console.WriteLine($"*** Wants to play someone");
+                Data requestData = new Data
+                {
+                    type = ActivityType.REQUEST_TO_PLAY_SOMEONE,
+                    sender = username,
+                    recipient = "server",
+                    content = targetUsername,
+                    token = JWTtoken
+                };
+                string jsonData = requestData.Serialize();
+                writer.WriteLine(jsonData);
+
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"*** Error: {ex.Message}");
+            }
+        }
+
         // waits for data from the server
         public async Task<string> ReceiveDataFromServer()
         {

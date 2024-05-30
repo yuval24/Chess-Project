@@ -102,6 +102,7 @@ namespace Chess_FirstStep
                             SharedPreferencesManager.DeleteUsername();
                             SharedPreferencesManager.DeleteStayLoggedIn();
                         }
+                        
 
                     }
                     else

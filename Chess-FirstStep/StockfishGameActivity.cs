@@ -822,7 +822,7 @@ namespace Chess_FirstStep
             whiteTimer.Stop();
             blackTimer.Stop();
             PlayGameEndSound();
-            Android.App.AlertDialog.Builder builder = new Android.App.AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 
             builder.SetCancelable(true);
@@ -889,7 +889,7 @@ namespace Chess_FirstStep
             }
 
             // Create the AlertDialog and show it
-            Android.App.AlertDialog alertDialog = builder.Create();
+            AlertDialog alertDialog = builder.Create();
             alertDialog.Show();
 
             // Set button click listeners if needed

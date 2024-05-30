@@ -26,6 +26,7 @@ namespace Chess_FirstStep.Data_Classes
         public const string LEAVE_GAME = "LEAVE_GAME";
         public const string AUTHENTICATE = "AUTHENTICATE";
         public const string GAME_HISTORY = "GAME_HISTORY";
+        public const string REQUEST_TO_PLAY_SOMEONE = "REQUEST_TO_PLAY_SOMEONE";
 
     }
 }
